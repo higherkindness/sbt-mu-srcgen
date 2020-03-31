@@ -19,3 +19,6 @@ lazy val root = project
   .settings(noPublishSettings)
   .aggregate(core, plugin)
   .dependsOn(core, plugin)
+
+addCommandAlias("ci-test", "scalafmtCheck; scalafmtSbtCheck; test; scripted")
+addCommandAlias("ci-docs", "compile")
