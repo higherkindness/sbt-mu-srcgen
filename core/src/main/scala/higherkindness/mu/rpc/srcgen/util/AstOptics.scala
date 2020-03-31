@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 47 Degrees, LLC. <http://www.47deg.com>
+ * Copyright 2020 47 Degrees, LLC. <http://www.47deg.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,7 +24,7 @@ import monocle.function.all._
 
 import scala.Function.{const => κ}
 
-trait AstOptics extends Compat {
+trait AstOptics {
 
   import Toolbox.u._
 
@@ -196,6 +196,11 @@ trait AstOptics extends Compat {
 
     case _ => None
   }(_ => identity)
+
+  def getNamedArgs(args: List[Tree]): List[(String, Toolbox.u.Tree)] =
+    args.collect {
+      case AssignOrNamedArg(argName, value) => argName.toString -> value
+    }
 
   val annotations: Lens[Modifiers, List[Tree]] =
     Lens[Modifiers, List[Tree]](_.annotations)(anns =>

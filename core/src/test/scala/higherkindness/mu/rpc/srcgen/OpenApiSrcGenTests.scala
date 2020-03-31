@@ -1,5 +1,5 @@
 /*
- * Copyright 2017-2020 47 Degrees, LLC. <http://www.47deg.com>
+ * Copyright 2020 47 Degrees, LLC. <http://www.47deg.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -27,7 +27,7 @@ import Matchers._
 
 class OpenApiSrcGenTests extends AnyFlatSpec with OptionValues {
   val module: String       = new java.io.File(".").getCanonicalPath
-  val resourcesFiles: File = new File(module + "/src/test/resources/")
+  val resourcesFiles: File = new File(module + "/core/src/test/resources/")
   val openApiFile          = new File(resourcesFiles.getPath() ++ "/openapi/bookstore/book.yaml")
 
   it should "generate correct Scala" in {
