@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 47 Degrees, LLC. <http://www.47deg.com>
+ * Copyright 2020 47 Degrees <http://47deg.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,8 +18,15 @@ package higherkindness.mu.rpc.srcgen.proto
 
 import java.io.File
 
+import scala.meta._
+import scala.util.control.NoStackTrace
+
 import cats.effect.{IO, Sync}
 import cats.syntax.flatMap._
+
+import higherkindness.droste.data.Mu
+import higherkindness.droste.data.Mu._
+import higherkindness.mu.rpc.srcgen.Model._
 import higherkindness.mu.rpc.srcgen.Model.{
   CompressionTypeGen,
   GzipGen,
@@ -28,19 +35,13 @@ import higherkindness.mu.rpc.srcgen.Model.{
   UseIdiomaticEndpoints
 }
 import higherkindness.mu.rpc.srcgen._
-import higherkindness.mu.rpc.srcgen.Model._
 import higherkindness.skeuomorph.mu.{CompressionType, MuF}
 import higherkindness.skeuomorph.protobuf.ParseProto.{parseProto, ProtoSource}
 import higherkindness.skeuomorph.protobuf.{ProtobufF, Protocol}
-import higherkindness.droste.data.Mu
-import higherkindness.droste.data.Mu._
-
-import scala.meta._
-import scala.util.control.NoStackTrace
 
 object ProtoSrcGenerator {
 
-  case class ProtobufSrcGenException(message: String) extends NoStackTrace
+  final case class ProtobufSrcGenException(message: String) extends NoStackTrace
 
   def build(
       compressionTypeGen: CompressionTypeGen,

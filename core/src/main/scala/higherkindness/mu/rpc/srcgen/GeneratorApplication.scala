@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 47 Degrees, LLC. <http://www.47deg.com>
+ * Copyright 2020 47 Degrees <http://47deg.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,10 +16,11 @@
 
 package higherkindness.mu.rpc.srcgen
 
-import higherkindness.mu.rpc.internal.util.FileUtil._
 import java.io.File
-import org.log4s.getLogger
+
+import higherkindness.mu.rpc.internal.util.FileUtil._
 import higherkindness.mu.rpc.srcgen.Model.{IdlType, SerializationType}
+import org.log4s.getLogger
 
 class GeneratorApplication[T <: Generator](generators: T*) {
   // Code covered by plugin tests

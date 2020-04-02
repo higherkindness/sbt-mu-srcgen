@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 47 Degrees, LLC. <http://www.47deg.com>
+ * Copyright 2020 47 Degrees <http://47deg.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -24,11 +24,11 @@ object Model {
 
   import Toolbox.u._
 
-  private implicit class StringOps(val s: String) extends AnyVal {
+  implicit private class StringOps(private val s: String) extends AnyVal {
     def trimAll: String = s.replaceAll("\\s", "")
   }
 
-  case class RpcDefinitions(
+  final case class RpcDefinitions(
       outputName: String,
       outputPackage: Option[String],
       options: Seq[RpcOption],
@@ -36,9 +36,10 @@ object Model {
       services: Seq[RpcService]
   )
 
-  case class RpcOption(name: String, value: String)
+  final case class RpcOption(name: String, value: String)
 
-  case class RpcMessage(name: String, params: Seq[ValDef]) {
+  final case class RpcMessage(name: String, params: Seq[ValDef]) {
+
     // Workaround for `Term.Param` using referential equality; needed mostly for unit testing
     override def equals(other: Any): Boolean = other match {
       case that: RpcMessage =>
@@ -49,18 +50,19 @@ object Model {
     }
   }
 
-  case class RpcService(
+  final case class RpcService(
       serializationType: SerType,
       name: String,
       requests: Seq[RpcRequest]
   )
 
-  case class RpcRequest(
+  final case class RpcRequest(
       name: String,
       requestType: Tree,
       responseType: Tree,
       streamingType: Option[StreamingType] = None
   ) {
+
     // Workaround for `Type` using referential equality; needed mostly for unit testing
     override def equals(other: Any): Boolean = other match {
       case that: RpcRequest =>
@@ -73,6 +75,7 @@ object Model {
   }
 
   sealed trait IdlType extends Product with Serializable
+
   object IdlType {
     case object Proto   extends IdlType
     case object Avro    extends IdlType
@@ -81,6 +84,7 @@ object Model {
   }
 
   sealed trait SerializationType extends Product with Serializable
+
   object SerializationType {
     case object Protobuf       extends SerializationType
     case object Avro           extends SerializationType
@@ -92,19 +96,26 @@ object Model {
       extends Product
       with Serializable
 
-  case class CustomMarshallersImport(mi: String) extends MarshallersImport(mi)
+  final case class CustomMarshallersImport(mi: String) extends MarshallersImport(mi)
+
   case object BigDecimalAvroMarshallers
       extends MarshallersImport("higherkindness.mu.rpc.internal.encoders.avro.bigdecimal._")
+
   case object BigDecimalTaggedAvroMarshallers
       extends MarshallersImport("higherkindness.mu.rpc.internal.encoders.avro.bigDecimalTagged._")
+
   case object JavaTimeDateAvroMarshallers
       extends MarshallersImport("higherkindness.mu.rpc.internal.encoders.avro.javatime._")
+
   case object JodaDateTimeAvroMarshallers
       extends MarshallersImport("higherkindness.mu.rpc.marshallers.jodaTimeEncoders.avro._")
+
   case object BigDecimalProtobufMarshallers
       extends MarshallersImport("higherkindness.mu.rpc.internal.encoders.pbd.bigdecimal._")
+
   case object JavaTimeDateProtobufMarshallers
       extends MarshallersImport("higherkindness.mu.rpc.internal.encoders.pbd.javatime._")
+
   case object JodaDateTimeProtobufMarshallers
       extends MarshallersImport("higherkindness.mu.rpc.marshallers.jodaTimeEncoders.pbd._")
 
@@ -118,6 +129,7 @@ object Model {
 
   trait UseIdiomaticEndpointsTag
   type UseIdiomaticEndpoints = Boolean @@ UseIdiomaticEndpointsTag
+
   object UseIdiomaticEndpoints {
     val trueV = UseIdiomaticEndpoints(true)
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 47 Degrees, LLC. <http://www.47deg.com>
+ * Copyright 2020 47 Degrees <http://47deg.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -18,17 +18,18 @@ package higherkindness.mu.rpc
 package srcgen
 package util
 
+import scala.Function.{const => κ}
+
 import higherkindness.mu.rpc.protocol.{Avro, AvroWithSchema, Custom, Protobuf, SerializationType}
 import monocle._
 import monocle.function.all._
-
-import scala.Function.{const => κ}
 
 trait AstOptics {
 
   import Toolbox.u._
 
   object ast {
+
     val _SingletonTypeTree: Prism[Tree, SingletonTypeTree] = Prism[Tree, SingletonTypeTree] {
       case mod: SingletonTypeTree => Some(mod)
       case _                      => None
@@ -239,16 +240,19 @@ trait AstOptics {
 
   sealed trait Annotation {
     def name: String
+
     def firstArg: Option[Tree] = this match {
       case Annotation.NoParamAnnotation(_)            => None
       case Annotation.UnnamedArgsAnnotation(_, args)  => args.headOption
       case Annotation.AllNamedArgsAnnotation(_, args) => args.headOption.map(_._2)
     }
+
     def withArgsNamed(names: String*): Option[Seq[Tree]] = this match {
       case Annotation.NoParamAnnotation(_)            => counted(names, Seq.empty)
       case Annotation.UnnamedArgsAnnotation(_, args)  => counted(names, args)
       case Annotation.AllNamedArgsAnnotation(_, args) => counted(names, names.flatMap(args.get))
     }
+
     private def counted(names: Seq[String], args: Seq[Tree]): Option[Seq[Tree]] =
       Some(args).filter(_.size >= names.size)
   }

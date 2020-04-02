@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 47 Degrees, LLC. <http://www.47deg.com>
+ * Copyright 2020 47 Degrees <http://47deg.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,15 +16,16 @@
 
 package higherkindness.mu.rpc.srcgen
 
+import scala.io._
+
 import higherkindness.mu.rpc.srcgen.AvroScalaGeneratorArbitrary._
 import higherkindness.mu.rpc.srcgen.Model.ScalaBigDecimalTaggedGen
 import higherkindness.mu.rpc.srcgen.avro._
+import org.scalacheck.Prop.forAll
 import org.scalatest._
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.scalacheck.Checkers
-import org.scalacheck.Prop.forAll
-import scala.io._
 
 class AvroSrcGenTests extends AnyWordSpec with Matchers with OneInstancePerTest with Checkers {
 

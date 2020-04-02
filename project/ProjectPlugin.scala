@@ -2,9 +2,13 @@ import sbt.Keys._
 import sbt.ScriptedPlugin.autoImport._
 import sbt._
 
+import com.alejandrohdezma.sbt.github.SbtGithubPlugin
+
 import scala.language.reflectiveCalls
 
 object ProjectPlugin extends AutoPlugin {
+
+  override def requires = SbtGithubPlugin
 
   override def trigger: PluginTrigger = allRequirements
 

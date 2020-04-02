@@ -13,12 +13,22 @@ lazy val plugin = project
   .settings(buildInfoPackage := "mu.rpc.srcgen")
   .enablePlugins(SbtPlugin)
 
+lazy val `docs` = project
+  .in(file("sbt-mu-srcgen-docs"))
+  .enablePlugins(MdocPlugin)
+  .settings(mdocVariables += "NAME" -> "sbt-mu-srcgen")
+  .settings(mdocOut := file("."))
+  .settings(skip in publish := true)
+  .dependsOn(allProjects.map(ClasspathDependency(_, None)): _*)
+
 lazy val root = project
   .in(file("."))
   .settings(moduleName := "sbt-mu-srcgen-root")
   .settings(noPublishSettings)
-  .aggregate(core, plugin)
-  .dependsOn(core, plugin)
+  .aggregate(allProjects: _*)
+  .dependsOn(allProjects.map(ClasspathDependency(_, None)): _*)
 
 addCommandAlias("ci-test", "scalafmtCheck; scalafmtSbtCheck; test; scripted")
-addCommandAlias("ci-docs", "compile")
+addCommandAlias("ci-docs", "docs/mdoc; headerCreateAll")
+
+lazy val allProjects: Seq[ProjectReference] = Seq(core, plugin)

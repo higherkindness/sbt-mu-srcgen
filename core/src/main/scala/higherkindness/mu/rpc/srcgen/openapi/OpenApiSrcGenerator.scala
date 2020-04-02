@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 47 Degrees, LLC. <http://www.47deg.com>
+ * Copyright 2020 47 Degrees <http://47deg.com>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -38,6 +38,7 @@ import scala.collection.JavaConverters._
 
 object OpenApiSrcGenerator {
   sealed trait HttpImpl extends Product with Serializable
+
   object HttpImpl {
     case object Http4sV20 extends HttpImpl
     case object Http4sV18 extends HttpImpl
@@ -50,6 +51,7 @@ object OpenApiSrcGenerator {
       case HttpImpl.Http4sV18 => client.http4s.print.v18.v18Http4sSpecifics
       case HttpImpl.Http4sV20 => client.http4s.print.v20.v20Http4sSpecifics
     }
+
     protected def inputFiles(files: Set[File]): Seq[File] =
       files.filter(handleFile(_)(_ => true, _ => true, false)).toSeq
 
