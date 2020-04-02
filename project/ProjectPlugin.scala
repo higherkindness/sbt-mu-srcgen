@@ -24,9 +24,9 @@ object ProjectPlugin extends AutoPlugin {
     }
 
     lazy val noPublishSettings = Seq(
-      publish := ((): Unit),
-      publishLocal := ((): Unit),
-      publishArtifact := false,
+      publish           := ((): Unit),
+      publishLocal      := ((): Unit),
+      publishArtifact   := false,
       publishMavenStyle := false // suppress warnings about intransitive deps (not published anyway)
     )
 
@@ -63,12 +63,12 @@ object ProjectPlugin extends AutoPlugin {
     Seq(
       description := "mu RPC is a purely functional library for " +
         "building RPC endpoint based services with support for RPC and HTTP/2",
-      name := "sbt-mu-srcgen",
-      startYear := Some(2017),
-      organization := "io.higherkindness",
-      organizationName := "47 Degrees",
+      name                 := "sbt-mu-srcgen",
+      startYear            := Some(2017),
+      organization         := "io.higherkindness",
+      organizationName     := "47 Degrees",
       organizationHomepage := Some(url("http://47deg.com")),
-      scalaVersion := V.scala,
-      crossScalaVersions := Seq(V.scala)
+      scalaVersion         := V.scala,
+      crossScalaVersions   := Seq(V.scala)
     )
 }

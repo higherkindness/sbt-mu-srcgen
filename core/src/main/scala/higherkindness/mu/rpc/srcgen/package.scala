@@ -17,10 +17,10 @@
 package higherkindness.mu.rpc
 
 import scala.reflect.runtime.universe.runtimeMirror
-import higherkindness.mu.rpc.srcgen.util.AstOptics.ast
-import higherkindness.mu.rpc.protocol.{Avro, AvroWithSchema, Custom, Protobuf, SerializationType}
-
 import scala.tools.reflect.ToolBox
+
+import higherkindness.mu.rpc.protocol.{Avro, AvroWithSchema, Custom, Protobuf, SerializationType}
+import higherkindness.mu.rpc.srcgen.util.AstOptics.ast
 
 package object srcgen {
 
@@ -42,6 +42,7 @@ package object srcgen {
     )
 
   object BaseType {
+
     def unapply(tpe: Tree): Option[String] = tpe match {
       case ast._Ident(Ident(TypeName(name))) => Some(name)
       case _                                 => None
@@ -49,6 +50,7 @@ package object srcgen {
   }
 
   object SingleAppliedTypeTree {
+
     def unapply(tpe: Tree): Option[(String, Tree)] = tpe match {
       case ast._AppliedTypeTree(AppliedTypeTree(ast._Ident(Ident(TypeName(ctor))), List(tree))) =>
         Some((ctor, tree))
@@ -57,6 +59,7 @@ package object srcgen {
   }
 
   object SingletonType {
+
     def unapply(tpe: Tree): Option[String] = tpe match {
       case ast._SingletonTypeTree(SingletonTypeTree(ast._Ident(Ident(TermName(t))))) => Some(t)
       case _                                                                         => None

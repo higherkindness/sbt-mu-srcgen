@@ -1,7 +1,7 @@
 
 [comment]: # (Start Badges)
 
-[![Maven Central](https://img.shields.io/badge/maven%20central-0.21.3-green.svg)](https://oss.sonatype.org/#nexus-search;gav~io.higherkindness~mu-scala*) [![License](https://img.shields.io/badge/license-Apache%202-blue.svg)](https://raw.githubusercontent.com/higherkindness/mu-scala/master/LICENSE) [![Join the chat at https://gitter.im/47deg/mu](https://badges.gitter.im/47deg/mu.svg)](https://gitter.im/47deg/mu?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![License](https://img.shields.io/badge/license-Apache%202-blue.svg)](https://raw.githubusercontent.com/higherkindness/mu-scala/master/LICENSE) [![Join the chat at https://gitter.im/47deg/mu](https://badges.gitter.im/47deg/mu.svg)](https://gitter.im/47deg/mu?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 [comment]: # (End Badges)
 

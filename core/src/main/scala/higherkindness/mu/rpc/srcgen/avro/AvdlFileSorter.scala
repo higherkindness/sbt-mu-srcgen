@@ -17,6 +17,7 @@
 package higherkindness.mu.rpc.srcgen.avro
 
 import java.io.File
+
 import scala.annotation.tailrec
 import scala.io.Source
 

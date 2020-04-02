@@ -21,4 +21,4 @@ lazy val root = project
   .dependsOn(core, plugin)
 
 addCommandAlias("ci-test", "scalafmtCheck; scalafmtSbtCheck; test; scripted")
-addCommandAlias("ci-docs", "compile")
+addCommandAlias("ci-docs", "headerCreateAll")

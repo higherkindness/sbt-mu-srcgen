@@ -18,11 +18,12 @@ package higherkindness.mu.rpc.srcgen
 
 import java.io.File
 
-import higherkindness.mu.rpc.srcgen.Model._
-import higherkindness.mu.rpc.srcgen.openapi.OpenApiSrcGenerator.HttpImpl
 import sbt.Keys._
 import sbt._
 import sbt.io.{Path, PathFinder}
+
+import higherkindness.mu.rpc.srcgen.Model._
+import higherkindness.mu.rpc.srcgen.openapi.OpenApiSrcGenerator.HttpImpl
 
 object SrcGenPlugin extends AutoPlugin {
 
@@ -158,18 +159,17 @@ object SrcGenPlugin extends AutoPlugin {
             )
           },
           Def.task {
-            muSrcGenSourceDirs.value.toSet
-              .foreach { f: File =>
-                IO.copyDirectory(
-                  f,
-                  muSrcGenIdlTargetDir.value,
-                  CopyOptions(
-                    overwrite = true,
-                    preserveLastModified = true,
-                    preserveExecutable = true
-                  )
+            muSrcGenSourceDirs.value.toSet.foreach { f: File =>
+              IO.copyDirectory(
+                f,
+                muSrcGenIdlTargetDir.value,
+                CopyOptions(
+                  overwrite = true,
+                  preserveLastModified = true,
+                  preserveExecutable = true
                 )
-              }
+              )
+            }
           },
           Def.task {
             srcGenTask(

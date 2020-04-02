@@ -18,7 +18,6 @@ package higherkindness.mu.rpc.srcgen
 
 import java.io.File
 
-import higherkindness.mu.rpc.srcgen.proto.ProtoSrcGenerator
 import higherkindness.mu.rpc.srcgen.Model.{
   Fs2Stream,
   MonixObservable,
@@ -26,6 +25,7 @@ import higherkindness.mu.rpc.srcgen.Model.{
   SerializationType,
   UseIdiomaticEndpoints
 }
+import higherkindness.mu.rpc.srcgen.proto.ProtoSrcGenerator
 import org.scalatest._
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec

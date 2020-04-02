@@ -16,8 +16,8 @@
 
 package higherkindness.mu.rpc.srcgen
 
-import higherkindness.mu.rpc.srcgen.Model._
 import higherkindness.mu.rpc.srcgen.Model.SerializationType._
+import higherkindness.mu.rpc.srcgen.Model._
 import org.scalacheck.{Arbitrary, Gen}
 
 trait AvroScalaGeneratorArbitrary {

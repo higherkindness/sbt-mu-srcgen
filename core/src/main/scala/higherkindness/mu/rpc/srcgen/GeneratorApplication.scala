@@ -16,10 +16,11 @@
 
 package higherkindness.mu.rpc.srcgen
 
-import higherkindness.mu.rpc.internal.util.FileUtil._
 import java.io.File
-import org.log4s.getLogger
+
+import higherkindness.mu.rpc.internal.util.FileUtil._
 import higherkindness.mu.rpc.srcgen.Model.{IdlType, SerializationType}
+import org.log4s.getLogger
 
 class GeneratorApplication[T <: Generator](generators: T*) {
   // Code covered by plugin tests

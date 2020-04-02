@@ -18,18 +18,18 @@ package higherkindness.mu.rpc.srcgen.avro
 
 import java.io.File
 
-import avrohugger.Generator
-import avrohugger.format.Standard
-import avrohugger.types._
-import higherkindness.mu.rpc.srcgen._
-import higherkindness.mu.rpc.srcgen.Model._
-import org.apache.avro._
-import org.log4s._
-
 import scala.collection.JavaConverters._
 import scala.util.Right
 
-case class AvroSrcGenerator(
+import avrohugger.Generator
+import avrohugger.format.Standard
+import avrohugger.types._
+import higherkindness.mu.rpc.srcgen.Model._
+import higherkindness.mu.rpc.srcgen._
+import org.apache.avro._
+import org.log4s._
+
+final case class AvroSrcGenerator(
     marshallersImports: List[MarshallersImport],
     bigDecimalTypeGen: BigDecimalTypeGen,
     compressionTypeGen: CompressionTypeGen,
@@ -44,6 +44,7 @@ case class AvroSrcGenerator(
   }
   private val avroScalaCustomTypes = Standard.defaultTypes.copy(decimal = avroBigDecimal)
   private val mainGenerator        = Generator(Standard, avroScalaCustomTypes = Some(avroScalaCustomTypes))
+
   private val adtGenerator = mainGenerator.copy(avroScalaCustomTypes =
     Some(mainGenerator.avroScalaTypes.copy(protocol = ScalaADT))
   ) // ScalaADT: sealed trait hierarchies

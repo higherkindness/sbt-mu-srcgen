@@ -16,15 +16,16 @@
 
 package higherkindness.mu.rpc.srcgen
 
+import scala.io._
+
 import higherkindness.mu.rpc.srcgen.AvroScalaGeneratorArbitrary._
 import higherkindness.mu.rpc.srcgen.Model.ScalaBigDecimalTaggedGen
 import higherkindness.mu.rpc.srcgen.avro._
+import org.scalacheck.Prop.forAll
 import org.scalatest._
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.scalacheck.Checkers
-import org.scalacheck.Prop.forAll
-import scala.io._
 
 class AvroSrcGenTests extends AnyWordSpec with Matchers with OneInstancePerTest with Checkers {
 
