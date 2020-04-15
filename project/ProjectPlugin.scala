@@ -27,13 +27,6 @@ object ProjectPlugin extends AutoPlugin {
       val slf4j: String               = "1.7.30"
     }
 
-    lazy val noPublishSettings = Seq(
-      publish := ((): Unit),
-      publishLocal := ((): Unit),
-      publishArtifact := false,
-      publishMavenStyle := false // suppress warnings about intransitive deps (not published anyway)
-    )
-
     lazy val srcGenSettings: Seq[Def.Setting[_]] = Seq(
       libraryDependencies ++= Seq(
         "io.higherkindness"          %% "mu-rpc-channel"           % V.mu % Provided,
