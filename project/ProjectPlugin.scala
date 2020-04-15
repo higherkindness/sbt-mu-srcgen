@@ -36,7 +36,7 @@ object ProjectPlugin extends AutoPlugin {
 
     lazy val srcGenSettings: Seq[Def.Setting[_]] = Seq(
       libraryDependencies ++= Seq(
-        "io.higherkindness"          %% "mu-rpc-channel"           % V.mu % Provided,
+        "io.higherkindness"          %% "mu-rpc-channel"           % V.mu,
         "com.github.julien-truffaut" %% "monocle-core"             % V.monocle,
         "io.higherkindness"          %% "skeuomorph"               % V.skeuomorph,
         "com.julianpeeters"          %% "avrohugger-core"          % V.avrohugger,
