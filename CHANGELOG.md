@@ -1,12 +1,18 @@
 # Changelog
 
-## [Unreleased](https://github.com/higherkindness/sbt-mu-srcgen/tree/HEAD)
+## [v0.21.4](https://github.com/higherkindness/sbt-mu-srcgen/tree/v0.21.4) (2020-04-21)
 
-[Full Changelog](https://github.com/higherkindness/sbt-mu-srcgen/compare/v0.21.3-MIGRATION...HEAD)
+[Full Changelog](https://github.com/higherkindness/sbt-mu-srcgen/compare/v0.21.3-MIGRATION...v0.21.4)
 
 📈 **Dependency updates**
 
+- Update sbt-ci-release to 1.5.3 [\#24](https://github.com/higherkindness/sbt-mu-srcgen/pull/24) ([scala-steward](https://github.com/scala-steward))
 - Update sbt-scalafmt to 2.3.4 [\#17](https://github.com/higherkindness/sbt-mu-srcgen/pull/17) ([scala-steward](https://github.com/scala-steward))
+
+**Merged pull requests:**
+
+- Fixes Build [\#21](https://github.com/higherkindness/sbt-mu-srcgen/pull/21) ([juanpedromoreno](https://github.com/juanpedromoreno))
+- Make Mu a normal compile-time dependency [\#20](https://github.com/higherkindness/sbt-mu-srcgen/pull/20) ([cb372](https://github.com/cb372))
 
 ## [v0.21.3-MIGRATION](https://github.com/higherkindness/sbt-mu-srcgen/tree/v0.21.3-MIGRATION) (2020-04-02)
 
