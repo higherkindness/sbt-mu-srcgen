@@ -9,5 +9,3 @@ addSbtPlugin("de.heikoseeberger"         % "sbt-header"        % "5.6.0")
 addSbtPlugin("com.alejandrohdezma"       % "sbt-github-header" % "0.8.1")
 addSbtPlugin("com.alejandrohdezma"       % "sbt-github-mdoc"   % "0.8.1")
 addSbtPlugin("com.alejandrohdezma"       % "sbt-mdoc-toc"      % "0.2")
-
-libraryDependencies += "org.scala-sbt" %% "scripted-plugin" % sbtVersion.value
