@@ -62,7 +62,6 @@ object ProjectPlugin extends AutoPlugin {
       organization := "io.higherkindness",
       organizationName := "47 Degrees",
       organizationHomepage := Some(url("http://47deg.com")),
-      scalaVersion := V.scala,
-      crossScalaVersions := Seq(V.scala)
+      scalaVersion := V.scala
     )
 }
