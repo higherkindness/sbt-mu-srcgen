@@ -2,12 +2,10 @@ addCommandAlias("ci-test", "scalafmtCheck; scalafmtSbtCheck; test; scripted")
 addCommandAlias("ci-docs", "project-docs/mdoc; headerCreateAll")
 
 lazy val core = project
-  .in(file("core"))
   .settings(moduleName := "mu-srcgen-core")
   .settings(srcGenSettings)
 
 lazy val plugin = project
-  .in(file("plugin"))
   .dependsOn(core)
   .settings(moduleName := "sbt-mu-srcgen")
   .settings(sbtPluginSettings: _*)
