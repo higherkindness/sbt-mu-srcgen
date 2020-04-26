@@ -58,10 +58,7 @@ object ProjectPlugin extends AutoPlugin {
 
   override def projectSettings: Seq[Def.Setting[_]] =
     Seq(
-      description := "mu RPC is a purely functional library for " +
-        "building RPC endpoint based services with support for RPC and HTTP/2",
       name := "sbt-mu-srcgen",
-      startYear := Some(2017),
       organization := "io.higherkindness",
       organizationName := "47 Degrees",
       organizationHomepage := Some(url("http://47deg.com")),
