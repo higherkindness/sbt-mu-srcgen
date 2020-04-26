@@ -1,7 +1,6 @@
 ThisBuild / scalaVersion := "2.12.10"
 ThisBuild / organization := "io.higherkindness"
-ThisBuild / organizationName := "47 Degrees"
-ThisBuild / organizationHomepage := Some(url("http://47deg.com"))
+ThisBuild / githubOrganization := "47degrees"
 
 addCommandAlias("ci-test", "scalafmtCheck; scalafmtSbtCheck; test; scripted")
 addCommandAlias("ci-docs", "project-docs/mdoc; headerCreateAll")
