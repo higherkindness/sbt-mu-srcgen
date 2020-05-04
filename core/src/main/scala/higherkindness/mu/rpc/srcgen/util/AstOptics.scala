@@ -188,11 +188,10 @@ trait AstOptics {
       val namedArgs = getNamedArgs(args)
 
       annotationName.getOption(fun).map { name =>
-        if (namedArgs.size == args.size) {
+        if (namedArgs.size == args.size)
           Annotation.AllNamedArgsAnnotation(name, namedArgs.toMap)
-        } else {
+        else
           Annotation.UnnamedArgsAnnotation(name, args)
-        }
       }
 
     case _ => None
@@ -241,17 +240,19 @@ trait AstOptics {
   sealed trait Annotation {
     def name: String
 
-    def firstArg: Option[Tree] = this match {
-      case Annotation.NoParamAnnotation(_)            => None
-      case Annotation.UnnamedArgsAnnotation(_, args)  => args.headOption
-      case Annotation.AllNamedArgsAnnotation(_, args) => args.headOption.map(_._2)
-    }
+    def firstArg: Option[Tree] =
+      this match {
+        case Annotation.NoParamAnnotation(_)            => None
+        case Annotation.UnnamedArgsAnnotation(_, args)  => args.headOption
+        case Annotation.AllNamedArgsAnnotation(_, args) => args.headOption.map(_._2)
+      }
 
-    def withArgsNamed(names: String*): Option[Seq[Tree]] = this match {
-      case Annotation.NoParamAnnotation(_)            => counted(names, Seq.empty)
-      case Annotation.UnnamedArgsAnnotation(_, args)  => counted(names, args)
-      case Annotation.AllNamedArgsAnnotation(_, args) => counted(names, names.flatMap(args.get))
-    }
+    def withArgsNamed(names: String*): Option[Seq[Tree]] =
+      this match {
+        case Annotation.NoParamAnnotation(_)            => counted(names, Seq.empty)
+        case Annotation.UnnamedArgsAnnotation(_, args)  => counted(names, args)
+        case Annotation.AllNamedArgsAnnotation(_, args) => counted(names, names.flatMap(args.get))
+      }
 
     private def counted(names: Seq[String], args: Seq[Tree]): Option[Seq[Tree]] =
       Some(args).filter(_.size >= names.size)

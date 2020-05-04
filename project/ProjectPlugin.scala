@@ -33,10 +33,10 @@ object ProjectPlugin extends AutoPlugin {
         "io.higherkindness"          %% "skeuomorph"               % V.skeuomorph,
         "com.julianpeeters"          %% "avrohugger-core"          % V.avrohugger,
         "io.circe"                   %% "circe-generic"            % V.circe,
-        "org.scalatest"              %% "scalatest"                % V.scalatest % Test,
-        "org.scalacheck"             %% "scalacheck"               % V.scalacheck % Test,
+        "org.scalatest"              %% "scalatest"                % V.scalatest           % Test,
+        "org.scalacheck"             %% "scalacheck"               % V.scalacheck          % Test,
         "org.scalatestplus"          %% "scalatestplus-scalacheck" % V.scalatestplusScheck % Test,
-        "org.slf4j"                  % "slf4j-nop"                 % V.slf4j % Test
+        "org.slf4j"                   % "slf4j-nop"                % V.slf4j               % Test
       )
     )
 

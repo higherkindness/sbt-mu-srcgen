@@ -41,13 +41,14 @@ object Model {
   final case class RpcMessage(name: String, params: Seq[ValDef]) {
 
     // Workaround for `Term.Param` using referential equality; needed mostly for unit testing
-    override def equals(other: Any): Boolean = other match {
-      case that: RpcMessage =>
-        this.name == that.name && this.params.map(_.toString.trimAll) == that.params.map(
-          _.toString.trimAll
-        )
-      case _ => false
-    }
+    override def equals(other: Any): Boolean =
+      other match {
+        case that: RpcMessage =>
+          this.name == that.name && this.params.map(_.toString.trimAll) == that.params.map(
+            _.toString.trimAll
+          )
+        case _ => false
+      }
   }
 
   final case class RpcService(
@@ -64,14 +65,15 @@ object Model {
   ) {
 
     // Workaround for `Type` using referential equality; needed mostly for unit testing
-    override def equals(other: Any): Boolean = other match {
-      case that: RpcRequest =>
-        this.name == that.name &&
-          this.requestType.toString.trimAll == that.requestType.toString.trimAll &&
-          this.responseType.toString.trimAll == that.responseType.toString.trimAll &&
-          this.streamingType == that.streamingType
-      case _ => false
-    }
+    override def equals(other: Any): Boolean =
+      other match {
+        case that: RpcRequest =>
+          this.name == that.name &&
+            this.requestType.toString.trimAll == that.requestType.toString.trimAll &&
+            this.responseType.toString.trimAll == that.responseType.toString.trimAll &&
+            this.streamingType == that.streamingType
+        case _ => false
+      }
   }
 
   sealed trait IdlType extends Product with Serializable
