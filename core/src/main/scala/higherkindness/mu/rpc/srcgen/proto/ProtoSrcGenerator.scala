@@ -48,62 +48,65 @@ object ProtoSrcGenerator {
       useIdiomaticEndpoints: UseIdiomaticEndpoints,
       streamingImplementation: StreamingImplementation,
       idlTargetDir: File
-  ): SrcGenerator = new SrcGenerator {
+  ): SrcGenerator =
+    new SrcGenerator {
 
-    val idlType: IdlType = IdlType.Proto
+      val idlType: IdlType = IdlType.Proto
 
-    def inputFiles(files: Set[File]): Seq[File] =
-      files.filter(_.getName.endsWith(ProtoExtension)).toSeq
+      def inputFiles(files: Set[File]): Seq[File] =
+        files.filter(_.getName.endsWith(ProtoExtension)).toSeq
 
-    def generateFrom(
-        inputFile: File,
-        serializationType: SerializationType
-    ): Option[(String, Seq[String])] =
-      getCode[IO](inputFile).map(Some(_)).unsafeRunSync
+      def generateFrom(
+          inputFile: File,
+          serializationType: SerializationType
+      ): Option[(String, Seq[String])] =
+        getCode[IO](inputFile).map(Some(_)).unsafeRunSync
 
-    val streamCtor: (Type, Type) => Type.Apply = streamingImplementation match {
-      case Fs2Stream       => { case (f, a) => t"_root_.fs2.Stream[$f, $a]" }
-      case MonixObservable => { case (_, a) => t"_root_.monix.reactive.Observable[$a]" }
-    }
+      val streamCtor: (Type, Type) => Type.Apply = streamingImplementation match {
+        case Fs2Stream       => { case (f, a) => t"_root_.fs2.Stream[$f, $a]" }
+        case MonixObservable => { case (_, a) => t"_root_.monix.reactive.Observable[$a]" }
+      }
 
-    val skeuomorphCompression: CompressionType = compressionTypeGen match {
-      case GzipGen          => CompressionType.Gzip
-      case NoCompressionGen => CompressionType.Identity
-    }
+      val skeuomorphCompression: CompressionType = compressionTypeGen match {
+        case GzipGen          => CompressionType.Gzip
+        case NoCompressionGen => CompressionType.Identity
+      }
 
-    val transformToMuProtocol: Protocol[Mu[ProtobufF]] => higherkindness.skeuomorph.mu.Protocol[Mu[
-      MuF
-    ]] =
-      higherkindness.skeuomorph.mu.Protocol
-        .fromProtobufProto(skeuomorphCompression, useIdiomaticEndpoints)
+      val transformToMuProtocol: Protocol[Mu[ProtobufF]] => higherkindness.skeuomorph.mu.Protocol[
+        Mu[
+          MuF
+        ]
+      ] =
+        higherkindness.skeuomorph.mu.Protocol
+          .fromProtobufProto(skeuomorphCompression, useIdiomaticEndpoints)
 
-    val generateScalaSource: higherkindness.skeuomorph.mu.Protocol[Mu[MuF]] => Either[
-      String,
-      String
-    ] =
-      higherkindness.skeuomorph.mu.codegen.protocol(_, streamCtor).map(_.syntax)
+      val generateScalaSource: higherkindness.skeuomorph.mu.Protocol[Mu[MuF]] => Either[
+        String,
+        String
+      ] =
+        higherkindness.skeuomorph.mu.codegen.protocol(_, streamCtor).map(_.syntax)
 
-    val splitLines: String => List[String] = _.split("\n").toList
+      val splitLines: String => List[String] = _.split("\n").toList
 
-    private def getCode[F[_]](file: File)(implicit F: Sync[F]): F[(String, Seq[String])] =
-      parseProto[F, Mu[ProtobufF]]
-        .parse(ProtoSource(file.getName, file.getParent, Some(idlTargetDir.getCanonicalPath)))
-        .flatMap { protocol =>
-          val path = getPath(protocol)
-          (transformToMuProtocol andThen generateScalaSource)(protocol) match {
-            case Left(error) =>
-              F.raiseError(
-                ProtobufSrcGenException(
-                  s"Failed to generate Scala source from Protobuf file ${file.getAbsolutePath}. Error details: $error"
+      private def getCode[F[_]](file: File)(implicit F: Sync[F]): F[(String, Seq[String])] =
+        parseProto[F, Mu[ProtobufF]]
+          .parse(ProtoSource(file.getName, file.getParent, Some(idlTargetDir.getCanonicalPath)))
+          .flatMap { protocol =>
+            val path = getPath(protocol)
+            (transformToMuProtocol andThen generateScalaSource)(protocol) match {
+              case Left(error) =>
+                F.raiseError(
+                  ProtobufSrcGenException(
+                    s"Failed to generate Scala source from Protobuf file ${file.getAbsolutePath}. Error details: $error"
+                  )
                 )
-              )
-            case Right(fileContent) =>
-              F.pure(path -> splitLines(fileContent))
+              case Right(fileContent) =>
+                F.pure(path -> splitLines(fileContent))
+            }
           }
-        }
 
-    private def getPath(p: Protocol[Mu[ProtobufF]]): String =
-      s"${p.pkg.replace('.', '/')}/${p.name}$ScalaFileExtension"
+      private def getPath(p: Protocol[Mu[ProtobufF]]): String =
+        s"${p.pkg.replace('.', '/')}/${p.name}$ScalaFileExtension"
 
-  }
+    }
 }
