@@ -18,7 +18,7 @@ package higherkindness.mu.rpc.srcgen
 
 import java.io.File
 
-import higherkindness.mu.rpc.internal.util.FileUtil._
+import FileUtil._
 import higherkindness.mu.rpc.srcgen.Model.{IdlType, SerializationType}
 import org.log4s.getLogger
 
