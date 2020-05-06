@@ -1,8 +1,8 @@
 version := sys.props("version")
 
 libraryDependencies ++= Seq(
-  "io.higherkindness" %% "mu-rpc-channel" % sys.props("version"),
-  "io.higherkindness" %% "mu-rpc-marshallers-jodatime" % sys.props("version")
+  "io.higherkindness" %% "mu-rpc-service" % sys.props("mu"),
+  "io.higherkindness" %% "mu-rpc-marshallers-jodatime" % sys.props("mu")
 )
 
 addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.1" cross CrossVersion.patch)

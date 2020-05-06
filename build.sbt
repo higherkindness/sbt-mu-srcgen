@@ -2,7 +2,7 @@ ThisBuild / scalaVersion := "2.12.11"
 ThisBuild / organization := "io.higherkindness"
 ThisBuild / githubOrganization := "47degrees"
 
-addCommandAlias("ci-test", "scalafmtCheckAll; scalafmtSbtCheck; test; scripted")
+addCommandAlias("ci-test", "scalafmtCheckAll; scalafmtSbtCheck; test; publishLocal; scripted")
 addCommandAlias("ci-docs", "project-docs/mdoc; headerCreateAll")
 
 lazy val core = project
