@@ -131,13 +131,13 @@ class ProtoSrcGenTests extends AnyWordSpec with Matchers with OneInstancePerTest
       |
       |@service(Protobuf, Identity) trait BookService[F[_]] {
       |  def GetBook(req: _root_.com.proto.book.GetBookRequest): F[_root_.com.proto.book.Book]
-      |  def GetBooksViaAuthor(req: _root_.com.proto.book.GetBookViaAuthor): ${streamOf(
-         "_root_.com.proto.book.Book"
-       )}
+      |  def GetBooksViaAuthor(req: _root_.com.proto.book.GetBookViaAuthor): F[${streamOf(
+      "_root_.com.proto.book.Book"
+    )}]
       |  def GetGreatestBook(req: ${streamOf("_root_.com.proto.book.GetBookRequest")}): F[_root_.com.proto.book.Book]
-      |  def GetBooks(req: ${streamOf("_root_.com.proto.book.GetBookRequest")}): ${streamOf(
-         "_root_.com.proto.book.Book"
-       )}
+      |  def GetBooks(req: ${streamOf("_root_.com.proto.book.GetBookRequest")}): F[${streamOf(
+      "_root_.com.proto.book.Book"
+    )}]
       |}
       |
       |}""".stripMargin

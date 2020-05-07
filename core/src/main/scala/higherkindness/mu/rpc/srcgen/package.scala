@@ -43,26 +43,29 @@ package object srcgen {
 
   object BaseType {
 
-    def unapply(tpe: Tree): Option[String] = tpe match {
-      case ast._Ident(Ident(TypeName(name))) => Some(name)
-      case _                                 => None
-    }
+    def unapply(tpe: Tree): Option[String] =
+      tpe match {
+        case ast._Ident(Ident(TypeName(name))) => Some(name)
+        case _                                 => None
+      }
   }
 
   object SingleAppliedTypeTree {
 
-    def unapply(tpe: Tree): Option[(String, Tree)] = tpe match {
-      case ast._AppliedTypeTree(AppliedTypeTree(ast._Ident(Ident(TypeName(ctor))), List(tree))) =>
-        Some((ctor, tree))
-      case _ => None
-    }
+    def unapply(tpe: Tree): Option[(String, Tree)] =
+      tpe match {
+        case ast._AppliedTypeTree(AppliedTypeTree(ast._Ident(Ident(TypeName(ctor))), List(tree))) =>
+          Some((ctor, tree))
+        case _ => None
+      }
   }
 
   object SingletonType {
 
-    def unapply(tpe: Tree): Option[String] = tpe match {
-      case ast._SingletonTypeTree(SingletonTypeTree(ast._Ident(Ident(TermName(t))))) => Some(t)
-      case _                                                                         => None
-    }
+    def unapply(tpe: Tree): Option[String] =
+      tpe match {
+        case ast._SingletonTypeTree(SingletonTypeTree(ast._Ident(Ident(TermName(t))))) => Some(t)
+        case _                                                                         => None
+      }
   }
 }

@@ -15,7 +15,7 @@ lazy val domain = project
     muSrcGenSourceDirs := Seq((Compile / resourceDirectory).value),
     muSrcGenTargetDir := (Compile / sourceManaged).value / "generated_from_avro",
     libraryDependencies ++= Seq(
-      "io.higherkindness" %% "mu-rpc-channel" % sys.props("version")
+      "io.higherkindness" %% "mu-rpc-service" % sys.props("mu")
     )
   ))
 

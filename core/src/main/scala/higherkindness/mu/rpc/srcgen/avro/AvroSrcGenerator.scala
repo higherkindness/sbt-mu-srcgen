@@ -157,7 +157,10 @@ final case class AvroSrcGenerator(
     val serviceLines =
       if (requestLines.isEmpty) Seq.empty
       else
-        Seq(s"@service($serviceParams) trait ${protocol.getName}[F[_]] {", "") ++ requestLines :+ "}"
+        Seq(
+          s"@service($serviceParams) trait ${protocol.getName}[F[_]] {",
+          ""
+        ) ++ requestLines :+ "}"
 
     outputPath -> (packageLines ++ importLines ++ messageLines ++ serviceLines)
   }

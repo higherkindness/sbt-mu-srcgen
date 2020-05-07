@@ -1,5 +1,16 @@
 # Changelog
 
+## [v0.22.0](https://github.com/higherkindness/sbt-mu-srcgen/tree/v0.22.0) (2020-05-06)
+
+[Full Changelog](https://github.com/higherkindness/sbt-mu-srcgen/compare/v0.21.4...v0.22.0)
+
+**Merged pull requests:**
+
+- Updates to mu-scala 0.22.0 [\#33](https://github.com/higherkindness/sbt-mu-srcgen/pull/33) ([juanpedromoreno](https://github.com/juanpedromoreno))
+- Update skeuomorph 0.0.23 [\#32](https://github.com/higherkindness/sbt-mu-srcgen/pull/32) ([juanpedromoreno](https://github.com/juanpedromoreno))
+- Update scalafmt-core to 2.5.1 [\#29](https://github.com/higherkindness/sbt-mu-srcgen/pull/29) ([BenFradet](https://github.com/BenFradet))
+- Update sbt-github to allow overriding organization [\#26](https://github.com/higherkindness/sbt-mu-srcgen/pull/26) ([alejandrohdezma](https://github.com/alejandrohdezma))
+
 ## [v0.21.4](https://github.com/higherkindness/sbt-mu-srcgen/tree/v0.21.4) (2020-04-21)
 
 [Full Changelog](https://github.com/higherkindness/sbt-mu-srcgen/compare/v0.21.3-MIGRATION...v0.21.4)
