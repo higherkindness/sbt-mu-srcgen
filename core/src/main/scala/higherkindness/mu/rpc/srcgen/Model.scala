@@ -74,6 +74,12 @@ object Model {
     }
   }
 
+  sealed trait ExecutionMode extends Product with Serializable
+  object ExecutionMode {
+    case object Compendium extends ExecutionMode
+    case object MuScala    extends ExecutionMode
+  }
+
   sealed trait IdlType extends Product with Serializable
 
   object IdlType {

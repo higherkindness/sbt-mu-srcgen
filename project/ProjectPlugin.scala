@@ -17,6 +17,7 @@ object ProjectPlugin extends AutoPlugin {
     lazy val V = new {
       val avrohugger: String          = "1.0.0-RC22"
       val circe: String               = "0.13.0"
+      val hammock                     = "0.10.0"
       val monocle: String             = "2.0.4"
       val mu                          = "0.21.3"
       val scalacheck: String          = "1.14.3"
@@ -33,6 +34,9 @@ object ProjectPlugin extends AutoPlugin {
         "io.higherkindness"          %% "skeuomorph"               % V.skeuomorph,
         "com.julianpeeters"          %% "avrohugger-core"          % V.avrohugger,
         "io.circe"                   %% "circe-generic"            % V.circe,
+        "com.pepegar"                %% "hammock-core"             % V.hammock,
+        "com.pepegar"                %% "hammock-circe"            % V.hammock,
+        "com.pepegar"                %% "hammock-asynchttpclient"  % V.hammock,
         "org.scalatest"              %% "scalatest"                % V.scalatest % Test,
         "org.scalacheck"             %% "scalacheck"               % V.scalacheck % Test,
         "org.scalatestplus"          %% "scalatestplus-scalacheck" % V.scalatestplusScheck % Test,
