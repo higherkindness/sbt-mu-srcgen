@@ -20,7 +20,7 @@ object ProjectPlugin extends AutoPlugin {
       val monocle: String             = "2.0.4"
       val mu                          = "0.22.0"
       val scalacheck: String          = "1.14.3"
-      val scalatest: String           = "3.1.1"
+      val scalatest: String           = "3.1.2"
       val scalatestplusScheck: String = "3.1.0.0-RC2"
       val skeuomorph: String          = "0.0.23"
       val slf4j: String               = "1.7.30"
