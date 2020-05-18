@@ -1,5 +1,14 @@
 # Changelog
 
+## [v0.22.1](https://github.com/higherkindness/sbt-mu-srcgen/tree/v0.22.1) (2020-05-18)
+
+[Full Changelog](https://github.com/higherkindness/sbt-mu-srcgen/compare/v0.22.0...v0.22.1)
+
+📈 **Dependency updates**
+
+- Updates to mu-scala 0.22.1 [\#41](https://github.com/higherkindness/sbt-mu-srcgen/pull/41) ([juanpedromoreno](https://github.com/juanpedromoreno))
+- Update scalatest to 3.1.2 [\#39](https://github.com/higherkindness/sbt-mu-srcgen/pull/39) ([scala-steward](https://github.com/scala-steward))
+
 ## [v0.22.0](https://github.com/higherkindness/sbt-mu-srcgen/tree/v0.22.0) (2020-05-06)
 
 [Full Changelog](https://github.com/higherkindness/sbt-mu-srcgen/compare/v0.21.4...v0.22.0)
