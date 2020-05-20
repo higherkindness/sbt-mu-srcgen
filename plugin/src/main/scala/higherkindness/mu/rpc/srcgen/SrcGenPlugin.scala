@@ -159,7 +159,7 @@ object SrcGenPlugin extends AutoPlugin {
     muSrcGenIdiomaticEndpoints := false,
     muSrcGenOpenApiHttpImpl := HttpImpl.Http4sV20,
     muSrcGenStreamingImplementation := Fs2Stream,
-    muSrcGenExecutionMode := Compendium, //TODO change, use MuScala as default. Compendium for testing
+    muSrcGenExecutionMode := MuScala, //TODO change, use MuScala as default. Compendium for testing
     muSrcGenCompendiumProtocolIdentifiers := Nil,
     muSrcGenCompendiumServerHost := "localhost",
     muSrcGenCompendiumServerPort := 47047
