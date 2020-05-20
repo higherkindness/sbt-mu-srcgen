@@ -37,8 +37,8 @@ object ProjectPlugin extends AutoPlugin {
         "com.pepegar"                %% "hammock-core"             % V.hammock,
         "com.pepegar"                %% "hammock-circe"            % V.hammock,
         "com.pepegar"                %% "hammock-asynchttpclient"  % V.hammock,
-        "org.scalatest"              %% "scalatest"                % V.scalatest % Test,
-        "org.scalacheck"             %% "scalacheck"               % V.scalacheck % Test,
+        "org.scalatest"              %% "scalatest"                % V.scalatest           % Test,
+        "org.scalacheck"             %% "scalacheck"               % V.scalacheck          % Test,
         "org.scalatestplus"          %% "scalatestplus-scalacheck" % V.scalatestplusScheck % Test,
         "org.slf4j"                   % "slf4j-nop"                % V.slf4j               % Test
       )
