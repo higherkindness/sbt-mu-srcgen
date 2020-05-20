@@ -28,8 +28,8 @@ trait CompendiumClient[F[_]] {
 
 object CompendiumClient {
 
-  def apply[F[_]]()(
-      implicit interp: InterpTrans[F],
+  def apply[F[_]]()(implicit
+      interp: InterpTrans[F],
       clientConfig: HttpConfig,
       F: Sync[F]
   ): CompendiumClient[F] =

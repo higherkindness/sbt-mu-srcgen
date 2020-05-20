@@ -181,8 +181,7 @@ object SrcGenPlugin extends AutoPlugin {
           },
           Def.task {
             muSrcGenExecutionMode.value match {
-              case Compendium => {
-
+              case Compendium =>
                 CompendiumMode[IOCats](
                   muSrcGenCompendiumProtocolIdentifiers.value.toList,
                   muSrcGenIdlExtension.value,
@@ -200,7 +199,6 @@ object SrcGenPlugin extends AutoPlugin {
                       )
                     )
                   )
-              }
               case MuScala =>
                 muSrcGenSourceDirs.value.toSet.foreach { f: File =>
                   IO.copyDirectory(
