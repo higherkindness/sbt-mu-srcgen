@@ -159,7 +159,7 @@ object SrcGenPlugin extends AutoPlugin {
     muSrcGenIdiomaticEndpoints := false,
     muSrcGenOpenApiHttpImpl := HttpImpl.Http4sV20,
     muSrcGenStreamingImplementation := Fs2Stream,
-    muSrcGenExecutionMode := MuScala, //TODO change, use MuScala as default. Compendium for testing
+    muSrcGenExecutionMode := Local,
     muSrcGenCompendiumProtocolIdentifiers := Nil,
     muSrcGenCompendiumServerHost := "localhost",
     muSrcGenCompendiumServerPort := 47047
@@ -192,7 +192,7 @@ object SrcGenPlugin extends AutoPlugin {
                   muSrcGenIdlTargetDir.value.getAbsolutePath
                 ).run()
                   .unsafeRunSync()
-              case MuScala =>
+              case Local =>
                 muSrcGenSourceDirs.value.toSet.foreach { f: File =>
                   IO.copyDirectory(
                     f,
