@@ -12,7 +12,8 @@ final case class FilePrintWriter(file: File, pw: PrintWriter)
 case class CompendiumMode[F[_]: Async](
     protocols: List[ProtocolAndVersion],
     fileType: String,
-    httpConfig: HttpConfig
+    httpConfig: HttpConfig,
+    path: String
 ) {
 
   implicit val interpreter  = AsyncHttpClientInterpreter.instance[F]
@@ -28,7 +29,12 @@ case class CompendiumMode[F[_]: Async](
           )
         file <- protocol match {
           case Some(raw) =>
-            writeTempFile(raw.raw, extension = fileType, identifier = protocolAndVersion.name)
+            writeTempFile(
+              raw.raw,
+              extension = fileType,
+              identifier = protocolAndVersion.name,
+              path = path
+            )
           case None =>
             Async[F].raiseError[File](
               ProtocolNotFound(s"Protocol ${protocolAndVersion.name} not found in Compendium. ")
@@ -42,12 +48,13 @@ case class CompendiumMode[F[_]: Async](
   private def writeTempFile(
       msg: String,
       extension: String,
-      identifier: String
+      identifier: String,
+      path: String
   ): F[File] =
     Resource
       .make(Sync[F].delay {
-        val tmpDir = System.getProperty("java.io.tmpdir")
-        val file   = new File(tmpDir + s"/$identifier.$extension")
+        if (!new File(path).exists()) new File(path).mkdirs()
+        val file = new File(path + s"/$identifier.$extension")
         file.deleteOnExit()
         FilePrintWriter(file, new PrintWriter(file))
       }) { fpw: FilePrintWriter => Sync[F].delay(fpw.pw.close()) }

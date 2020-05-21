@@ -185,20 +185,13 @@ object SrcGenPlugin extends AutoPlugin {
                 CompendiumMode[IOCats](
                   muSrcGenCompendiumProtocolIdentifiers.value.toList,
                   muSrcGenIdlExtension.value,
-                  HttpConfig(muSrcGenCompendiumServerHost.value, muSrcGenCompendiumServerPort.value)
+                  HttpConfig(
+                    muSrcGenCompendiumServerHost.value,
+                    muSrcGenCompendiumServerPort.value
+                  ),
+                  muSrcGenIdlTargetDir.value.getAbsolutePath
                 ).run()
                   .unsafeRunSync()
-                  .foreach(f =>
-                    IO.copyDirectory(
-                      f,
-                      muSrcGenIdlTargetDir.value,
-                      CopyOptions(
-                        overwrite = true,
-                        preserveLastModified = true,
-                        preserveExecutable = true
-                      )
-                    )
-                  )
               case MuScala =>
                 muSrcGenSourceDirs.value.toSet.foreach { f: File =>
                   IO.copyDirectory(

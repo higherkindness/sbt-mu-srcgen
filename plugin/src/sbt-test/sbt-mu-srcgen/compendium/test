@@ -1,0 +1,7 @@
+> 'set muSrcGenExecutionMode := higherkindness.mu.rpc.srcgen.Model.ExecutionMode.Compendium'
+> 'set muSrcGenIdlType := higherkindness.mu.rpc.srcgen.Model.IdlType.Proto'
+> 'set muSrcGenCompendiumProtocolIdentifiers := Seq(higherkindness.mu.rpc.srcgen.compendium.ProtocolAndVersion.apply("shop",None))'
+> 'set muSrcGenCompendiumServerPort := 8080'
+# > compile
+# $ exists target/scala-2.12/resource_managed/main/proto/shop.proto
+
