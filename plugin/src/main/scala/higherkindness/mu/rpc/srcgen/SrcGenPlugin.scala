@@ -18,7 +18,7 @@ package higherkindness.mu.rpc.srcgen
 
 import java.io.File
 
-import cats.effect.{IO => IOCats}
+import cats.effect.{ContextShift, IO => IOCats}
 import higherkindness.mu.rpc.srcgen.Model.ExecutionMode._
 import sbt.Keys._
 import sbt.{Def, settingKey, _}
@@ -26,6 +26,8 @@ import sbt.io.{Path, PathFinder}
 import higherkindness.mu.rpc.srcgen.Model._
 import higherkindness.mu.rpc.srcgen.compendium.{CompendiumMode, HttpConfig, ProtocolAndVersion}
 import higherkindness.mu.rpc.srcgen.openapi.OpenApiSrcGenerator.HttpImpl
+
+import scala.concurrent.ExecutionContext.global
 
 object SrcGenPlugin extends AutoPlugin {
 
@@ -108,19 +110,19 @@ object SrcGenPlugin extends AutoPlugin {
       )
 
     lazy val muSrcGenExecutionMode = settingKey[ExecutionMode](
-      "Execution mode of the plugin. If Compendium, it's required a compendium instance where IDL files are saved."
+      "Execution mode of the plugin. If Compendium, it's required a compendium instance where IDL files are saved. `Local` by default."
     )
 
     lazy val muSrcGenCompendiumProtocolIdentifiers: SettingKey[Seq[ProtocolAndVersion]] =
       settingKey[Seq[ProtocolAndVersion]](
-        "Protocol identifiers (and version) to be retrieved from compendium server"
+        "Protocol identifiers (and version) to be retrieved from compendium server. By default is an empty list."
       )
 
     lazy val muSrcGenCompendiumServerHost: SettingKey[String] =
-      settingKey[String]("Host of the compendium server")
+      settingKey[String]("Host of the compendium server. By default, `localhost`.")
 
     lazy val muSrcGenCompendiumServerPort: SettingKey[Int] =
-      settingKey[Int]("Port of the compendium server")
+      settingKey[Int]("Port of the compendium server. `47047` by default.")
 
   }
 
@@ -182,6 +184,7 @@ object SrcGenPlugin extends AutoPlugin {
           Def.task {
             muSrcGenExecutionMode.value match {
               case Compendium =>
+                implicit val cs: ContextShift[IOCats] = IOCats.contextShift(global)
                 CompendiumMode[IOCats](
                   muSrcGenCompendiumProtocolIdentifiers.value.toList,
                   muSrcGenIdlExtension.value,

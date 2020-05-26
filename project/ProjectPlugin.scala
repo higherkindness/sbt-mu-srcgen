@@ -25,6 +25,7 @@ object ProjectPlugin extends AutoPlugin {
       val scalatestplusScheck: String = "3.1.0.0-RC2"
       val skeuomorph: String          = "0.0.23"
       val slf4j: String               = "1.7.30"
+      val http4s: String              = "0.21.1"
     }
 
     lazy val srcGenSettings: Seq[Def.Setting[_]] = Seq(
@@ -34,9 +35,8 @@ object ProjectPlugin extends AutoPlugin {
         "io.higherkindness"          %% "skeuomorph"               % V.skeuomorph,
         "com.julianpeeters"          %% "avrohugger-core"          % V.avrohugger,
         "io.circe"                   %% "circe-generic"            % V.circe,
-        "com.pepegar"                %% "hammock-core"             % V.hammock,
-        "com.pepegar"                %% "hammock-circe"            % V.hammock,
-        "com.pepegar"                %% "hammock-asynchttpclient"  % V.hammock,
+        "org.http4s"                 %% "http4s-blaze-client"      % V.http4s,
+        "org.http4s"                 %% "http4s-circe"             % V.http4s,
         "org.scalatest"              %% "scalatest"                % V.scalatest           % Test,
         "org.scalacheck"             %% "scalacheck"               % V.scalacheck          % Test,
         "org.scalatestplus"          %% "scalatestplus-scalacheck" % V.scalatestplusScheck % Test,

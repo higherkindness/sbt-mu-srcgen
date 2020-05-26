@@ -1,46 +1,52 @@
 package higherkindness.mu.rpc.srcgen.compendium
 
 import java.io.{File, PrintWriter}
-import cats.effect.{Async, Resource, Sync}
+
+import cats.effect.{Async, ConcurrentEffect, Resource, Sync}
+
 import scala.util.Try
 import cats.implicits._
-import hammock.asynchttpclient.AsyncHttpClientInterpreter
+import org.http4s.client.blaze._
+
+import scala.concurrent.ExecutionContext.global
 
 final case class ProtocolAndVersion(name: String, version: Option[String])
 final case class FilePrintWriter(file: File, pw: PrintWriter)
 
-case class CompendiumMode[F[_]: Async](
+case class CompendiumMode[F[_]: Async: ConcurrentEffect](
     protocols: List[ProtocolAndVersion],
     fileType: String,
     httpConfig: HttpConfig,
     path: String
 ) {
 
-  implicit val interpreter  = AsyncHttpClientInterpreter.instance[F]
-  implicit val clientConfig = httpConfig
+  val httpClient = BlazeClientBuilder[F](global).resource
 
   def run(): F[List[File]] =
     protocols.traverse(protocolAndVersion =>
-      for {
-        protocol <- CompendiumClient()
-          .retrieveProtocol(
-            protocolAndVersion.name,
-            safeInt(protocolAndVersion.version)
-          )
-        file <- protocol match {
-          case Some(raw) =>
-            writeTempFile(
-              raw.raw,
-              extension = fileType,
-              identifier = protocolAndVersion.name,
-              path = path
+      httpClient.use(client => {
+        for {
+
+          protocol <- CompendiumClient(client, httpConfig)
+            .retrieveProtocol(
+              protocolAndVersion.name,
+              safeInt(protocolAndVersion.version)
             )
-          case None =>
-            Async[F].raiseError[File](
-              ProtocolNotFound(s"Protocol ${protocolAndVersion.name} not found in Compendium. ")
-            )
-        }
-      } yield file
+          file <- protocol match {
+            case Some(raw) =>
+              writeTempFile(
+                raw.raw,
+                extension = fileType,
+                identifier = protocolAndVersion.name,
+                path = path
+              )
+            case None =>
+              Async[F].raiseError[File](
+                ProtocolNotFound(s"Protocol ${protocolAndVersion.name} not found in Compendium. ")
+              )
+          }
+        } yield file
+      })
     )
 
   private def safeInt(s: Option[String]): Option[Int] = s.flatMap(str => Try(str.toInt).toOption)

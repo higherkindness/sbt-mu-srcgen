@@ -24,4 +24,5 @@ final case class RawProtocol(raw: String)
 object RawProtocol {
   implicit val decoder: Decoder[RawProtocol] = deriveDecoder[RawProtocol]
   implicit val encoder: Encoder[RawProtocol] = deriveEncoder[RawProtocol]
+
 }
