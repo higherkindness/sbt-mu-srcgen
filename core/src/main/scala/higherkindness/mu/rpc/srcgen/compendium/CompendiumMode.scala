@@ -2,7 +2,7 @@ package higherkindness.mu.rpc.srcgen.compendium
 
 import java.io.{File, PrintWriter}
 
-import cats.effect.{Async, ConcurrentEffect, Resource, Sync}
+import cats.effect.{ConcurrentEffect, Resource}
 
 import scala.util.Try
 import cats.implicits._
@@ -13,7 +13,7 @@ import scala.concurrent.ExecutionContext.global
 final case class ProtocolAndVersion(name: String, version: Option[String])
 final case class FilePrintWriter(file: File, pw: PrintWriter)
 
-case class CompendiumMode[F[_]: Async: ConcurrentEffect](
+final case class CompendiumMode[F[_]: ConcurrentEffect](
     protocols: List[ProtocolAndVersion],
     fileType: String,
     httpConfig: HttpConfig,
@@ -41,7 +41,7 @@ case class CompendiumMode[F[_]: Async: ConcurrentEffect](
                 path = path
               )
             case None =>
-              Async[F].raiseError[File](
+              ConcurrentEffect[F].raiseError[File](
                 ProtocolNotFound(s"Protocol ${protocolAndVersion.name} not found in Compendium. ")
               )
           }
@@ -58,13 +58,13 @@ case class CompendiumMode[F[_]: Async: ConcurrentEffect](
       path: String
   ): F[File] =
     Resource
-      .make(Sync[F].delay {
+      .make(ConcurrentEffect[F].delay {
         if (!new File(path).exists()) new File(path).mkdirs()
         val file = new File(path + s"/$identifier.$extension")
         file.deleteOnExit()
         FilePrintWriter(file, new PrintWriter(file))
-      }) { fpw: FilePrintWriter => Sync[F].delay(fpw.pw.close()) }
-      .use((fpw: FilePrintWriter) => Sync[F].delay(fpw.pw.write(msg)).as(fpw))
+      }) { fpw: FilePrintWriter => ConcurrentEffect[F].delay(fpw.pw.close()) }
+      .use((fpw: FilePrintWriter) => ConcurrentEffect[F].delay(fpw.pw.write(msg)).as(fpw))
       .map(_.file)
 
 }

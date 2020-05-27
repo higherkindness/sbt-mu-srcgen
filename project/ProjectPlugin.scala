@@ -25,7 +25,7 @@ object ProjectPlugin extends AutoPlugin {
       val scalatestplusScheck: String = "3.1.0.0-RC2"
       val skeuomorph: String          = "0.0.23"
       val slf4j: String               = "1.7.30"
-      val http4s: String              = "0.21.1"
+      val http4s: String              = "0.21.4"
     }
 
     lazy val srcGenSettings: Seq[Def.Setting[_]] = Seq(
