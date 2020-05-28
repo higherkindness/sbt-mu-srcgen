@@ -40,9 +40,8 @@ final case class CompendiumMode[F[_]: ConcurrentEffect](
                 path = path
               )
             case None =>
-              ConcurrentEffect[F].raiseError[File](
-                ProtocolNotFound(s"Protocol ${protocolAndVersion.name} not found in Compendium. ")
-              )
+              ProtocolNotFound(s"Protocol ${protocolAndVersion.name} not found in Compendium. ")
+                .raiseError[F, File]
           }
         } yield file
       })

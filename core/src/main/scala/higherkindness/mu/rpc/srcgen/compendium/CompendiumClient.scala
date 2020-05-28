@@ -4,7 +4,7 @@ import cats.effect.Sync
 import org.http4s._
 import org.http4s.circe._
 import cats.implicits._
-import org.http4s.client.Client
+import org.http4s.client.{Client, UnexpectedStatus}
 
 trait CompendiumClient[F[_]] {
 
@@ -39,11 +39,7 @@ object CompendiumClient {
           res.status match {
             case Status.Ok       => res.as[RawProtocol].map(Option(_))
             case Status.NotFound => Sync[F].pure(None)
-            case Status.InternalServerError =>
-              Sync[F].raiseError(UnknownError(s"Error in compendium server"))
-            case _ =>
-              Sync[F].raiseError(UnknownError(s"Unknown error with status code ${res.status.code}"))
-
+            case s               => Sync[F].raiseError(UnexpectedStatus(s))
           }
         )
       }
