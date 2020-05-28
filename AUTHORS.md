@@ -9,6 +9,7 @@
 The maintainers of the project are:
 
 - [![47erbot](https://avatars1.githubusercontent.com/u/24799081?v=4&s=20) **47erbot**](https://github.com/47erbot)
+- [![mrtmmr](https://avatars2.githubusercontent.com/u/44172755?v=4&s=20) **mrtmmr**](https://github.com/mrtmmr)
 - [![naree](https://avatars0.githubusercontent.com/u/4437502?v=4&s=20) **naree**](https://github.com/naree)
 - [![alejandrohdezma](https://avatars0.githubusercontent.com/u/9027541?v=4&s=20) **Alejandro Hernández (alejandrohdezma)**](https://github.com/alejandrohdezma)
 - [![BenFradet](https://avatars2.githubusercontent.com/u/1737211?v=4&s=20) **Ben Fradet (BenFradet)**](https://github.com/BenFradet)
@@ -25,3 +26,4 @@ These are the people that have contributed to the _sbt-mu-srcgen_ project:
 - [![naree](https://avatars0.githubusercontent.com/u/4437502?v=4&s=20) **naree**](https://github.com/naree)
 - [![alejandrohdezma](https://avatars0.githubusercontent.com/u/9027541?v=4&s=20) **alejandrohdezma**](https://github.com/alejandrohdezma)
 - [![BenFradet](https://avatars2.githubusercontent.com/u/1737211?v=4&s=20) **BenFradet**](https://github.com/BenFradet)
+- [![mrtmmr](https://avatars2.githubusercontent.com/u/44172755?v=4&s=20) **mrtmmr**](https://github.com/mrtmmr)
