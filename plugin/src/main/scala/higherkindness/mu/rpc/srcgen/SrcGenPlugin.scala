@@ -118,11 +118,8 @@ object SrcGenPlugin extends AutoPlugin {
         "Protocol identifiers (and version) to be retrieved from compendium server. By default is an empty list."
       )
 
-    lazy val muSrcGenCompendiumServerHost: SettingKey[String] =
-      settingKey[String]("Host of the compendium server. By default, `localhost`.")
-
-    lazy val muSrcGenCompendiumServerPort: SettingKey[Int] =
-      settingKey[Int]("Port of the compendium server. `47047` by default.")
+    lazy val muSrcGenCompendiumServerUrl: SettingKey[String] =
+      settingKey[String]("Url of the compendium server. By default, `http://localhost:47047`.")
 
   }
 
@@ -163,8 +160,7 @@ object SrcGenPlugin extends AutoPlugin {
     muSrcGenStreamingImplementation := Fs2Stream,
     muSrcGenExecutionMode := Local,
     muSrcGenCompendiumProtocolIdentifiers := Nil,
-    muSrcGenCompendiumServerHost := "localhost",
-    muSrcGenCompendiumServerPort := 47047
+    muSrcGenCompendiumServerUrl := "https://localhost:47047"
   )
 
   lazy val taskSettings: Seq[Def.Setting[_]] = {
@@ -189,8 +185,7 @@ object SrcGenPlugin extends AutoPlugin {
                   muSrcGenCompendiumProtocolIdentifiers.value.toList,
                   muSrcGenIdlExtension.value,
                   HttpConfig(
-                    muSrcGenCompendiumServerHost.value,
-                    muSrcGenCompendiumServerPort.value
+                    muSrcGenCompendiumServerUrl.value
                   ),
                   muSrcGenIdlTargetDir.value.getAbsolutePath
                 ).run()

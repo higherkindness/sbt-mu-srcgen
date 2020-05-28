@@ -26,19 +26,16 @@ object CompendiumClient {
   ): CompendiumClient[F] =
     new CompendiumClient[F] {
 
-      val baseUrl: String          = s"http://${clientConfig.host}:${clientConfig.port}"
-      val versionParamName: String = "version"
-
       override def retrieveProtocol(
           identifier: String,
           version: Option[Int]
       ): F[Option[RawProtocol]] = {
-        val versionParam = version.fold("")(v => s"?$versionParamName=${v.show}")
-        val uri          = s"$baseUrl/v0/protocol/$identifier$versionParam"
+        val versionParam  = version.fold("")(v => s"?version=${v.show}")
+        val connectionUrl = s"${clientConfig.serverUrl}/v0/protocol/$identifier$versionParam"
 
         implicit val rawEntityDecoder = jsonOf[F, RawProtocol]
 
-        clientF.get(uri)(res =>
+        clientF.get(connectionUrl)(res =>
           res.status match {
             case Status.Ok       => res.as[RawProtocol].map(Option(_))
             case Status.NotFound => Sync[F].pure(None)

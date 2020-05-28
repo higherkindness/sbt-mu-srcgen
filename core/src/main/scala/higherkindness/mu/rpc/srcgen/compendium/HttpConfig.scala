@@ -16,4 +16,4 @@
 
 package higherkindness.mu.rpc.srcgen.compendium
 
-final case class HttpConfig(host: String, port: Int)
+final case class HttpConfig(serverUrl: String)

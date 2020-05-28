@@ -26,7 +26,6 @@ final case class CompendiumMode[F[_]: ConcurrentEffect](
     protocols.traverse(protocolAndVersion =>
       httpClient.use(client => {
         for {
-
           protocol <- CompendiumClient(client, httpConfig)
             .retrieveProtocol(
               protocolAndVersion.name,
