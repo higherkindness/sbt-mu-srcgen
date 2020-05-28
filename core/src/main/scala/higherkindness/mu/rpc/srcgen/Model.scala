@@ -76,6 +76,12 @@ object Model {
       }
   }
 
+  sealed trait ExecutionMode extends Product with Serializable
+  object ExecutionMode {
+    case object Compendium extends ExecutionMode
+    case object Local      extends ExecutionMode
+  }
+
   sealed trait IdlType extends Product with Serializable
 
   object IdlType {

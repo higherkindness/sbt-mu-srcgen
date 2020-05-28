@@ -18,12 +18,16 @@ package higherkindness.mu.rpc.srcgen
 
 import java.io.File
 
+import cats.effect.{ContextShift, IO => IOCats}
+import higherkindness.mu.rpc.srcgen.Model.ExecutionMode._
 import sbt.Keys._
-import sbt._
+import sbt.{Def, settingKey, _}
 import sbt.io.{Path, PathFinder}
-
 import higherkindness.mu.rpc.srcgen.Model._
+import higherkindness.mu.rpc.srcgen.compendium.{CompendiumMode, HttpConfig, ProtocolAndVersion}
 import higherkindness.mu.rpc.srcgen.openapi.OpenApiSrcGenerator.HttpImpl
+
+import scala.concurrent.ExecutionContext.global
 
 object SrcGenPlugin extends AutoPlugin {
 
@@ -105,6 +109,18 @@ object SrcGenPlugin extends AutoPlugin {
           "By default, the streaming implementation is FS2 Stream."
       )
 
+    lazy val muSrcGenExecutionMode = settingKey[ExecutionMode](
+      "Execution mode of the plugin. If Compendium, it's required a compendium instance where IDL files are saved. `Local` by default."
+    )
+
+    lazy val muSrcGenCompendiumProtocolIdentifiers: SettingKey[Seq[ProtocolAndVersion]] =
+      settingKey[Seq[ProtocolAndVersion]](
+        "Protocol identifiers (and version) to be retrieved from compendium server. By default is an empty list."
+      )
+
+    lazy val muSrcGenCompendiumServerUrl: SettingKey[String] =
+      settingKey[String]("Url of the compendium server. By default, `http://localhost:47047`.")
+
   }
 
   import autoImport._
@@ -141,7 +157,10 @@ object SrcGenPlugin extends AutoPlugin {
     muSrcGenCompressionType := NoCompressionGen,
     muSrcGenIdiomaticEndpoints := false,
     muSrcGenOpenApiHttpImpl := HttpImpl.Http4sV20,
-    muSrcGenStreamingImplementation := Fs2Stream
+    muSrcGenStreamingImplementation := Fs2Stream,
+    muSrcGenExecutionMode := Local,
+    muSrcGenCompendiumProtocolIdentifiers := Nil,
+    muSrcGenCompendiumServerUrl := "http://localhost:47047"
   )
 
   lazy val taskSettings: Seq[Def.Setting[_]] = {
@@ -159,16 +178,30 @@ object SrcGenPlugin extends AutoPlugin {
             )
           },
           Def.task {
-            muSrcGenSourceDirs.value.toSet.foreach { f: File =>
-              IO.copyDirectory(
-                f,
-                muSrcGenIdlTargetDir.value,
-                CopyOptions(
-                  overwrite = true,
-                  preserveLastModified = true,
-                  preserveExecutable = true
-                )
-              )
+            muSrcGenExecutionMode.value match {
+              case Compendium =>
+                implicit val cs: ContextShift[IOCats] = IOCats.contextShift(global)
+                CompendiumMode[IOCats](
+                  muSrcGenCompendiumProtocolIdentifiers.value.toList,
+                  muSrcGenIdlExtension.value,
+                  HttpConfig(
+                    muSrcGenCompendiumServerUrl.value
+                  ),
+                  muSrcGenIdlTargetDir.value.getAbsolutePath
+                ).run()
+                  .unsafeRunSync()
+              case Local =>
+                muSrcGenSourceDirs.value.toSet.foreach { f: File =>
+                  IO.copyDirectory(
+                    f,
+                    muSrcGenIdlTargetDir.value,
+                    CopyOptions(
+                      overwrite = true,
+                      preserveLastModified = true,
+                      preserveExecutable = true
+                    )
+                  )
+                }
             }
           },
           Def.task {
