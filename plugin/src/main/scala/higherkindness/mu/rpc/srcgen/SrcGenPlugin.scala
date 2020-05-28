@@ -119,7 +119,7 @@ object SrcGenPlugin extends AutoPlugin {
       )
 
     lazy val muSrcGenCompendiumServerUrl: SettingKey[String] =
-      settingKey[String]("Url of the compendium server. By default, `http://localhost:47047`.")
+      settingKey[String]("Url of the compendium server. By default, `https://localhost:47047`.")
 
   }
 

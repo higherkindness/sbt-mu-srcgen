@@ -17,7 +17,6 @@ object ProjectPlugin extends AutoPlugin {
     lazy val V = new {
       val avrohugger: String          = "1.0.0-RC22"
       val circe: String               = "0.13.0"
-      val hammock                     = "0.10.0"
       val monocle: String             = "2.0.4"
       val mu                          = "0.22.1"
       val scalacheck: String          = "1.14.3"
