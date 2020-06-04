@@ -43,10 +43,7 @@ lazy val plugin = project
     )
   )
 
-lazy val `project-docs` = (project in file(".docs"))
-  .settings(moduleName := "sbt-mu-srcgen-project-docs")
-  .settings(mdocIn := file(".docs"))
+lazy val documentation = project
   .settings(mdocOut := file("."))
-  .settings(skip in publish := true)
+  .settings(publish / skip := true)
   .enablePlugins(MdocPlugin)
-  .dependsOn(core, plugin)
