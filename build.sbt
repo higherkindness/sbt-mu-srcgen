@@ -8,13 +8,11 @@ addCommandAlias("ci-test", "scalafmtCheckAll; scalafmtSbtCheck; test; publishLoc
 addCommandAlias("ci-docs", "github; mdoc; headerCreateAll")
 addCommandAlias("ci-publish", "github; ci-release")
 
-lazy val muVersion: String = "0.22.2"
-
 lazy val core = project
   .settings(moduleName := "mu-srcgen-core")
   .settings(
     libraryDependencies ++= Seq(
-      "io.higherkindness"          %% "mu-rpc-service"      % muVersion,
+      "io.higherkindness"          %% "mu-rpc-service"      % "0.22.2",
       "com.github.julien-truffaut" %% "monocle-core"        % "2.0.4",
       "io.higherkindness"          %% "skeuomorph"          % "0.0.23",
       "com.julianpeeters"          %% "avrohugger-core"     % "1.0.0-RC22",
@@ -36,7 +34,7 @@ lazy val plugin = project
     scriptedLaunchOpts ++= Seq(
       "-Xmx2048M",
       "-XX:ReservedCodeCacheSize=256m",
-      "-Dmu=" + muVersion,
+      "-Dmu=0.22.2",
       "-Dversion=" + version.value,
       // See https://github.com/sbt/sbt/issues/3469#issuecomment-521326813
       s"-Dsbt.boot.directory=${file(sys.props("user.home")) / ".sbt" / "boot"}"
