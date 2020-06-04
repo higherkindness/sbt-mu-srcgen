@@ -31,6 +31,7 @@ lazy val core = project
 lazy val plugin = project
   .dependsOn(core)
   .settings(moduleName := "sbt-mu-srcgen")
+  .enablePlugins(SbtPlugin)
   .settings(
     scriptedLaunchOpts ++= Seq(
       "-Xmx2048M",
@@ -41,10 +42,6 @@ lazy val plugin = project
       s"-Dsbt.boot.directory=${file(sys.props("user.home")) / ".sbt" / "boot"}"
     )
   )
-  .enablePlugins(BuildInfoPlugin)
-  .settings(buildInfoKeys := Seq[BuildInfoKey](name, version, scalaVersion, sbtVersion))
-  .settings(buildInfoPackage := "mu.rpc.srcgen")
-  .enablePlugins(SbtPlugin)
 
 lazy val `project-docs` = (project in file(".docs"))
   .settings(moduleName := "sbt-mu-srcgen-project-docs")
