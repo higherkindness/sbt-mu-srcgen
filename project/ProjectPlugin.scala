@@ -18,7 +18,7 @@ object ProjectPlugin extends AutoPlugin {
       val avrohugger: String          = "1.0.0-RC22"
       val circe: String               = "0.13.0"
       val monocle: String             = "2.0.4"
-      val mu                          = "0.22.1"
+      val mu                          = "0.22.2"
       val scalacheck: String          = "1.14.3"
       val scalatest: String           = "3.1.2"
       val scalatestplusScheck: String = "3.1.0.0-RC2"
