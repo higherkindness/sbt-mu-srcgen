@@ -5,7 +5,8 @@ ThisBuild / githubOrganization := "47degrees"
 publish / skip := true
 
 addCommandAlias("ci-test", "scalafmtCheckAll; scalafmtSbtCheck; test; publishLocal; scripted")
-addCommandAlias("ci-docs", "project-docs/mdoc; headerCreateAll")
+addCommandAlias("ci-docs", "github; mdoc; headerCreateAll")
+addCommandAlias("ci-publish", "github; ci-release")
 
 lazy val muVersion: String = "0.22.2"
 
