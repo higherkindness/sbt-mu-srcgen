@@ -1,5 +1,22 @@
 # Changelog
 
+## [v0.22.2](https://github.com/higherkindness/sbt-mu-srcgen/tree/v0.22.2) (2020-06-05)
+
+[Full Changelog](https://github.com/higherkindness/sbt-mu-srcgen/compare/v0.22.1...v0.22.2)
+
+🚀 **Features**
+
+- Prepare repository for next `.github` release and SBT build improvements [\#50](https://github.com/higherkindness/sbt-mu-srcgen/pull/50) ([juanpedromoreno](https://github.com/juanpedromoreno))
+
+📈 **Dependency updates**
+
+- Update sbt-tpolecat to 0.1.12 [\#47](https://github.com/higherkindness/sbt-mu-srcgen/pull/47) ([scala-steward](https://github.com/scala-steward))
+
+**Merged pull requests:**
+
+- Change default port [\#48](https://github.com/higherkindness/sbt-mu-srcgen/pull/48) ([mrtmmr](https://github.com/mrtmmr))
+- Merge plugins [\#43](https://github.com/higherkindness/sbt-mu-srcgen/pull/43) ([mrtmmr](https://github.com/mrtmmr))
+
 ## [v0.22.1](https://github.com/higherkindness/sbt-mu-srcgen/tree/v0.22.1) (2020-05-18)
 
 [Full Changelog](https://github.com/higherkindness/sbt-mu-srcgen/compare/v0.22.0...v0.22.1)
