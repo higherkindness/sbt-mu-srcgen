@@ -35,9 +35,7 @@ lazy val plugin = project
       "-Xmx2048M",
       "-XX:ReservedCodeCacheSize=256m",
       "-Dmu=0.22.2",
-      "-Dversion=" + version.value,
-      // See https://github.com/sbt/sbt/issues/3469#issuecomment-521326813
-      s"-Dsbt.boot.directory=${file(sys.props("user.home")) / ".sbt" / "boot"}"
+      "-Dversion=" + version.value
     )
   )
 
