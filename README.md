@@ -12,7 +12,7 @@
 For installing this plugin, add the following line to your `plugins.sbt` file:
 
 ```scala
-addSbtPlugin("io.higherkindness" % "sbt-mu-srcgen" % "0.22.1")
+addSbtPlugin("io.higherkindness" % "sbt-mu-srcgen" % "0.22.2")
 ```
 
 The full documentation is available at the [mu](https://higherkindness.io/mu-scala/guides/generate-sources-from-idl) site.
