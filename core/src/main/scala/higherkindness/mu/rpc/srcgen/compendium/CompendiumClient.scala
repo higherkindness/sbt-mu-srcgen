@@ -24,7 +24,8 @@ import org.http4s.client.{Client, UnexpectedStatus}
 
 trait CompendiumClient[F[_]] {
 
-  /** Retrieve a Protocol by its id
+  /**
+   * Retrieve a Protocol by its id
    *
    * @param identifier the protocol identifier
    * @param version    optional protocol version number
