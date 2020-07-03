@@ -12,9 +12,9 @@ lazy val core = project
   .settings(moduleName := "mu-srcgen-core")
   .settings(
     libraryDependencies ++= Seq(
-      "io.higherkindness"          %% "mu-rpc-service"      % "0.22.2",
+      "io.higherkindness"          %% "mu-rpc-service"      % "0.22.3",
       "com.github.julien-truffaut" %% "monocle-core"        % "2.0.5",
-      "io.higherkindness"          %% "skeuomorph"          % "0.0.23",
+      "io.higherkindness"          %% "skeuomorph"          % "0.0.24",
       "com.julianpeeters"          %% "avrohugger-core"     % "1.0.0-RC22",
       "io.circe"                   %% "circe-generic"       % "0.13.0",
       "org.http4s"                 %% "http4s-blaze-client" % "0.21.6",
@@ -34,7 +34,7 @@ lazy val plugin = project
     scriptedLaunchOpts ++= Seq(
       "-Xmx2048M",
       "-XX:ReservedCodeCacheSize=256m",
-      "-Dmu=0.22.2",
+      "-Dmu=0.22.3",
       "-Dversion=" + version.value
     )
   )
