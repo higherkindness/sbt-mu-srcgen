@@ -2,6 +2,7 @@ import higherkindness.mu.rpc.srcgen.Model.IdlType
 
 lazy val root = project
   .in(file("."))
+  .enablePlugins(SrcGenPlugin)
   .settings(name := "root")
   .settings(version := "1.0.0")
   .settings(Seq(

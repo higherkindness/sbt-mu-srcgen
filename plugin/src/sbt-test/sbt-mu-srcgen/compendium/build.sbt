@@ -1,5 +1,10 @@
 version := sys.props("version")
 
-libraryDependencies ++= Seq(
-  "io.higherkindness" %% "mu-rpc-server" % sys.props("mu")
-)
+lazy val root = project
+  .in(file("."))
+  .enablePlugins(SrcGenPlugin)
+  .settings(Seq(
+    libraryDependencies ++= Seq(
+  "io.higherkindness" %% "mu-rpc-server" % sys.props("mu"),
+  )
+  ))

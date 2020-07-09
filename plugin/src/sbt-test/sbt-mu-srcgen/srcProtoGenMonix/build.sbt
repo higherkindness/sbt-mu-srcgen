@@ -3,6 +3,7 @@ import higherkindness.mu.rpc.srcgen.Model.IdlType
 
 lazy val root = project
   .in(file("."))
+  .enablePlugins(SrcGenPlugin)
   .settings(
     muSrcGenIdlType := IdlType.Proto,
     muSrcGenTargetDir := (Compile / sourceManaged).value / "generated_from_proto",

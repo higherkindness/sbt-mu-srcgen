@@ -14,6 +14,7 @@ lazy val root = project
   .in(file("."))
   .settings(name := "root")
   .settings(version := "1.0.0")
+  .enablePlugins(SrcGenPlugin)
   .settings(Seq(
     muSrcGenIdlType := IdlType.OpenAPI,
     muSrcGenSourceDirs := Seq((Compile / resourceDirectory).value),
