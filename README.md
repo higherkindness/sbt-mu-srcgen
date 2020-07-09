@@ -27,6 +27,8 @@ auto-generate [mu-scala] code, like such:
 **this is a breaking change between the versions**, so be sure to make sure that you're choosing your modules to enable source generation
 intentionally if you want to upgrade this library.
 
+
+
 The full documentation is available at the [mu](https://higherkindness.io/mu-scala/guides/generate-sources-from-idl) site.
 
 [RPC]: https://en.wikipedia.org/wiki/Remote_procedure_call
