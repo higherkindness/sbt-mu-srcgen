@@ -70,7 +70,7 @@ object SrcGenPlugin extends AutoPlugin {
     lazy val muSrcGenTargetDir: SettingKey[File] =
       settingKey[File](
         "The Scala target directory, where the `srcGen` task will write the generated files " +
-          "in sub-packages based on the namespaces declared in the IDL files."
+          "in subpackages based on the namespaces declared in the IDL files."
       )
 
     lazy val muSrcGenBigDecimal: SettingKey[BigDecimalTypeGen] =
