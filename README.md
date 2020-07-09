@@ -17,7 +17,7 @@ addSbtPlugin("io.higherkindness" % "sbt-mu-srcgen" % "$version") // see badge in
 ### NOTE
 
 For any users using version `0.22.x` and below, the `SrcGenPlugin` is enabled on every module by default.  However, for everyone using 
-version `0.23.3` and beyond (the latest version), you'll need to manually enable the plugin for any module for which you want to 
+version `0.23.x` and beyond (the latest version), you'll need to manually enable the plugin for any module for which you want to 
 auto-generate [mu-scala] code, like such:
 
 ```scala
