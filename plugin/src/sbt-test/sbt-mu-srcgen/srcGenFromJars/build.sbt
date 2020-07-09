@@ -3,6 +3,7 @@ import higherkindness.mu.rpc.srcgen.Model.IdlType
 lazy val domain = project
   .in(file("domain"))
   .settings(name := "domain")
+  .enablePlugins(SrcGenPlugin)
   .settings(
     Seq(
       organization := "foo.bar",
@@ -21,6 +22,7 @@ lazy val domain = project
 
 lazy val root = project
   .in(file("."))
+  .enablePlugins(SrcGenPlugin)
   .settings(name := "root")
   .settings(Seq(
     version := sys.props("version"),

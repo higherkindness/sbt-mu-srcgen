@@ -14,6 +14,20 @@ For installing this plugin, add the following line to your `plugins.sbt` file:
 ```scala
 addSbtPlugin("io.higherkindness" % "sbt-mu-srcgen" % "@VERSION@")
 ```
+### NOTE
+
+For any users using version `0.22.x` and below, the `SrcGenPlugin` is enabled on every module by default.  However, for everyone using 
+version `0.23.x` and beyond (the latest version), you'll need to manually enable the plugin for any module for which you want to 
+auto-generate [mu-scala] code, like such:
+
+```scala
+.enablePlugins(SrcGenPlugin)
+```
+
+**this is a breaking change between the versions**, so be sure to make sure that you're choosing your modules to enable source generation
+intentionally if you want to upgrade this library.
+
+
 
 The full documentation is available at the [mu](https://higherkindness.io/mu-scala/guides/generate-sources-from-idl) site.
 

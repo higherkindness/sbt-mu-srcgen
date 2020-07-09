@@ -1,5 +1,7 @@
 version := sys.props("version")
 
+enablePlugins(SrcGenPlugin)
+
 libraryDependencies ++= Seq(
   "io.higherkindness" %% "mu-rpc-service" % sys.props("mu"),
   "io.higherkindness" %% "mu-rpc-marshallers-jodatime" % sys.props("mu")

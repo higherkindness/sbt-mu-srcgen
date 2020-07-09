@@ -31,7 +31,7 @@ import scala.concurrent.ExecutionContext.global
 
 object SrcGenPlugin extends AutoPlugin {
 
-  override def trigger: PluginTrigger = allRequirements
+  override def trigger: PluginTrigger = noTrigger
 
   object autoImport {
 
