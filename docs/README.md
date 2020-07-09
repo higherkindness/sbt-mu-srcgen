@@ -15,6 +15,8 @@ For installing this plugin, add the following line to your `plugins.sbt` file:
 addSbtPlugin("io.higherkindness" % "sbt-mu-srcgen" % "@VERSION@")
 ```
 
+
+
 The full documentation is available at the [mu](https://higherkindness.io/mu-scala/guides/generate-sources-from-idl) site.
 
 [RPC]: https://en.wikipedia.org/wiki/Remote_procedure_call

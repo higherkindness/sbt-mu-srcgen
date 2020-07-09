@@ -31,7 +31,7 @@ import scala.concurrent.ExecutionContext.global
 
 object SrcGenPlugin extends AutoPlugin {
 
-  override def trigger: PluginTrigger = allRequirements
+  override def trigger: PluginTrigger = noTrigger
 
   object autoImport {
 
@@ -70,7 +70,7 @@ object SrcGenPlugin extends AutoPlugin {
     lazy val muSrcGenTargetDir: SettingKey[File] =
       settingKey[File](
         "The Scala target directory, where the `srcGen` task will write the generated files " +
-          "in subpackages based on the namespaces declared in the IDL files."
+          "in sub-packages based on the namespaces declared in the IDL files."
       )
 
     lazy val muSrcGenBigDecimal: SettingKey[BigDecimalTypeGen] =
@@ -131,6 +131,8 @@ object SrcGenPlugin extends AutoPlugin {
       muSrcGenIdlType.value match {
         case IdlType.Avro  => "avdl"
         case IdlType.Proto => "proto"
+        // I thought we needed to include this; I wonder if we've never noticed bc we never use it?
+        case IdlType.OpenAPI => "open api" 
         case _             => "unknown"
       }
     },
