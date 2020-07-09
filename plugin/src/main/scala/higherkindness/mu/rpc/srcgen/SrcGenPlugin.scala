@@ -129,10 +129,9 @@ object SrcGenPlugin extends AutoPlugin {
     muSrcGenIdlType := IdlType.Unknown,
     muSrcGenIdlExtension := {
       muSrcGenIdlType.value match {
-        case IdlType.Avro    => "avdl"
-        case IdlType.Proto   => "proto"
-        case IdlType.OpenAPI => "open api"
-        case _               => "unknown"
+        case IdlType.Avro  => "avdl"
+        case IdlType.Proto => "proto"
+        case _             => "unknown"
       }
     },
     muSrcGenSerializationType := SerializationType.Avro,
