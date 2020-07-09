@@ -22,7 +22,6 @@ lazy val domain = project
 
 lazy val root = project
   .in(file("."))
-  .enablePlugins(SrcGenPlugin)
   .settings(name := "root")
   .settings(Seq(
     version := sys.props("version"),

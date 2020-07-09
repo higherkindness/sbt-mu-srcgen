@@ -131,7 +131,6 @@ object SrcGenPlugin extends AutoPlugin {
       muSrcGenIdlType.value match {
         case IdlType.Avro  => "avdl"
         case IdlType.Proto => "proto"
-        // I thought we needed to include this; I wonder if we've never noticed bc we never use it?
         case IdlType.OpenAPI => "open api"
         case _               => "unknown"
       }
