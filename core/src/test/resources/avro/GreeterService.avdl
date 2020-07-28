@@ -16,6 +16,4 @@ protocol MyGreeterService {
   foo.bar.HelloResponse sayHelloAvro(foo.bar.HelloRequest arg);
 
   void sayNothingAvro();
-
-  string sayHelloPrimitive(foo.bar.HelloRequest arg);
 }
