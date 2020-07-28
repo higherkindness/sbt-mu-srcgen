@@ -183,7 +183,7 @@ final case class AvroSrcGenerator(
       if (response.getType == Schema.Type.NULL) EmptyType
       else {
         if (response.getType != Schema.Type.RECORD)
-          throw ParseException("RPC method response parameter is not a record type")        
+          throw ParseException("RPC method response parameter is not a record type")
         s"${response.getNamespace}.${response.getName}"
       }
     }
