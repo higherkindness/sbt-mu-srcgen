@@ -166,22 +166,30 @@ final case class AvroSrcGenerator(
   }
 
   private def parseMessage(name: String, request: Schema, response: Schema): String = {
-    val args = request.getFields.asScala
-    if (args.size > 1)
+    val requestArgs = request.getFields.asScala
+    println(s"the request ${request.getName} looks like this ${requestArgs.toString}")
+    if (requestArgs.size > 1)
       throw ParseException("RPC method has more than 1 request parameter")
     val requestParam = {
-      if (args.isEmpty)
+      if (requestArgs.isEmpty)
         s"$DefaultRequestParamName: $EmptyType"
       else {
-        val arg = args.head
-        if (arg.schema.getType != Schema.Type.RECORD)
+        val requestArg = requestArgs.head
+        if (requestArg.schema.getType != Schema.Type.RECORD)
           throw ParseException("RPC method request parameter is not a record type")
-        s"${arg.name}: ${arg.schema.getFullName}"
+        s"${requestArg.name}: ${requestArg.schema.getFullName}"
       }
     }
+    val responseArgs = response.getFields.asScala
+    println(s"the response ${response.getName} looks like this ${responseArgs.toString}")
     val responseParam = {
-      if (response.getType == Schema.Type.NULL) EmptyType
-      else s"${response.getNamespace}.${response.getName}"
+      val responseArg = responseArgs.head
+      if (responseArg.schema.getType == Schema.Type.NULL) EmptyType
+      else {
+        if (responseArg.schema.getType != Schema.Type.RECORD)
+          throw ParseException("RPC method is not a record type")
+        s"${response.getNamespace}.${response.getName}"
+      }
     }
     s"  def $name($requestParam): F[$responseParam]"
   }
