@@ -65,6 +65,15 @@
       "request" : [
       ],
       "response" : "null"
+    },
+    "sayHelloPrimitive": {
+      "request": [
+        {
+          "name": "arg",
+          "type": "HelloRequest"
+        }
+      ],
+      "response": "string"
     }
   }
 }
