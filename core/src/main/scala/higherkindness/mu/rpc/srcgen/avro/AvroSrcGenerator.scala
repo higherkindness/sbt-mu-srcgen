@@ -174,18 +174,16 @@ final case class AvroSrcGenerator(
         s"$DefaultRequestParamName: $EmptyType"
       else {
         val requestArg = requestArgs.head
-        if (requestArg.schema.getType != Schema.Type.RECORD) {
+        if (requestArg.schema.getType != Schema.Type.RECORD)
           throw ParseException("RPC method request parameter is not a record type")
-        }
         s"${requestArg.name}: ${requestArg.schema.getFullName}"
       }
     }
     val responseParam = {
       if (response.getType == Schema.Type.NULL) EmptyType
       else {
-        if (response.getType != Schema.Type.RECORD) {
+        if (response.getType != Schema.Type.RECORD)
           throw ParseException("RPC method response parameter is not a record type")
-        }
         s"${response.getNamespace}.${response.getName}"
       }
     }
