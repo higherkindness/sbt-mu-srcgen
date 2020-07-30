@@ -1,0 +1,19 @@
+@namespace("com.example")
+protocol Greeter {
+
+  record HelloRequest {
+    string name;
+  }
+
+  record GoodByeRequest {
+    string name;
+  }
+
+  record HelloResponse {
+    string greeting;
+    boolean happy;
+  }
+
+  HelloResponse SayHello(HelloRequest request);
+  string SayGoodBye(string request);
+}

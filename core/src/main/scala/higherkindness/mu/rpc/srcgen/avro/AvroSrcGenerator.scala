@@ -27,7 +27,7 @@ import avrohugger.types._
 import higherkindness.mu.rpc.srcgen.Model._
 import higherkindness.mu.rpc.srcgen._
 import org.apache.avro._
-import org.log4s._
+// import org.log4s._
 
 final case class AvroSrcGenerator(
     marshallersImports: List[MarshallersImport],
@@ -36,7 +36,7 @@ final case class AvroSrcGenerator(
     useIdiomaticEndpoints: UseIdiomaticEndpoints
 ) extends SrcGenerator {
 
-  private[this] val logger = getLogger
+  // private[this] val logger = getLogger
 
   private val avroBigDecimal: AvroScalaDecimalType = bigDecimalTypeGen match {
     case ScalaBigDecimalGen       => ScalaBigDecimal(None)
@@ -138,8 +138,7 @@ final case class AvroSrcGenerator(
         try comment ++ Seq(parseMessage(name, message.getRequest, message.getResponse), "")
         catch {
           case ParseException(msg) =>
-            logger.error(s"$msg, cannot be converted to mu: $message")
-            Seq.empty
+            throw new RuntimeException(s"$msg; the following protocol cannot be converted to mu: $message")
         }
     }
 
@@ -175,7 +174,8 @@ final case class AvroSrcGenerator(
       else {
         val requestArg = requestArgs.head
         if (requestArg.schema.getType != Schema.Type.RECORD)
-          throw ParseException("RPC method request parameter is not a record type")
+          throw ParseException(s"RPC method request parameter is of type ${requestArg.schema.getType}," +
+            s" should be of type RECORD")
         s"${requestArg.name}: ${requestArg.schema.getFullName}"
       }
     }
@@ -183,13 +183,14 @@ final case class AvroSrcGenerator(
       if (response.getType == Schema.Type.NULL) EmptyType
       else {
         if (response.getType != Schema.Type.RECORD)
-          throw ParseException("RPC method response parameter is not a record type")
+          throw ParseException(s"RPC method response parameter is of type ${response.getType}," +
+            s" should be of type RECORD")
         s"${response.getNamespace}.${response.getName}"
       }
     }
     s"  def $name($requestParam): F[$responseParam]"
   }
 
-  private case class ParseException(msg: String) extends Exception
+  private case class ParseException(msg: String) extends RuntimeException
 
 }
