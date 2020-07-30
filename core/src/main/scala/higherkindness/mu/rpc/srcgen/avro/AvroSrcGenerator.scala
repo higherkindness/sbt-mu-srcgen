@@ -26,8 +26,7 @@ import avrohugger.format.Standard
 import avrohugger.types._
 import higherkindness.mu.rpc.srcgen.Model._
 import higherkindness.mu.rpc.srcgen._
-import org.apache.avro._
-// import org.log4s._
+import org.apache.avro._s
 
 final case class AvroSrcGenerator(
     marshallersImports: List[MarshallersImport],
@@ -35,8 +34,6 @@ final case class AvroSrcGenerator(
     compressionTypeGen: CompressionTypeGen,
     useIdiomaticEndpoints: UseIdiomaticEndpoints
 ) extends SrcGenerator {
-
-  // private[this] val logger = getLogger
 
   private val avroBigDecimal: AvroScalaDecimalType = bigDecimalTypeGen match {
     case ScalaBigDecimalGen       => ScalaBigDecimal(None)
