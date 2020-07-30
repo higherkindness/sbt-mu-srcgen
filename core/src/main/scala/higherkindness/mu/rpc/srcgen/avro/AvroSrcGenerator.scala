@@ -26,7 +26,7 @@ import avrohugger.format.Standard
 import avrohugger.types._
 import higherkindness.mu.rpc.srcgen.Model._
 import higherkindness.mu.rpc.srcgen._
-import org.apache.avro._s
+import org.apache.avro._
 
 final case class AvroSrcGenerator(
     marshallersImports: List[MarshallersImport],
