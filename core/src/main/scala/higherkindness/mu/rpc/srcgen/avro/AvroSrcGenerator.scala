@@ -138,7 +138,9 @@ final case class AvroSrcGenerator(
         try comment ++ Seq(parseMessage(name, message.getRequest, message.getResponse), "")
         catch {
           case ParseException(msg) =>
-            throw new RuntimeException(s"$msg; the following protocol cannot be converted to mu: $message")
+            throw new RuntimeException(
+              s"$msg; the following protocol cannot be converted to mu: $message"
+            )
         }
     }
 
@@ -174,8 +176,10 @@ final case class AvroSrcGenerator(
       else {
         val requestArg = requestArgs.head
         if (requestArg.schema.getType != Schema.Type.RECORD)
-          throw ParseException(s"RPC method request parameter is of type ${requestArg.schema.getType}," +
-            s" should be of type RECORD")
+          throw ParseException(
+            s"RPC method request parameter is of type ${requestArg.schema.getType}," +
+              s" should be of type RECORD"
+          )
         s"${requestArg.name}: ${requestArg.schema.getFullName}"
       }
     }
@@ -183,8 +187,10 @@ final case class AvroSrcGenerator(
       if (response.getType == Schema.Type.NULL) EmptyType
       else {
         if (response.getType != Schema.Type.RECORD)
-          throw ParseException(s"RPC method response parameter is of type ${response.getType}," +
-            s" should be of type RECORD")
+          throw ParseException(
+            s"RPC method response parameter is of type ${response.getType}," +
+              s" should be of type RECORD"
+          )
         s"${response.getNamespace}.${response.getName}"
       }
     }
