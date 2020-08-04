@@ -27,6 +27,7 @@ import avrohugger.types._
 import higherkindness.mu.rpc.srcgen.Model._
 import higherkindness.mu.rpc.srcgen._
 import org.apache.avro._
+import cats.syntax.validated._
 
 final case class AvroSrcGenerator(
     marshallersImports: List[MarshallersImport],
@@ -61,7 +62,7 @@ final case class AvroSrcGenerator(
   override def generateFrom(
       files: Set[File],
       serializationType: SerializationType
-  ): Seq[(File, String, Seq[String])] =
+  ): Seq[(File, String, Seq[ErrorOr[String]])] =
     super
       .generateFrom(files, serializationType)
       .filter(output => files.contains(output._1))
@@ -69,7 +70,7 @@ final case class AvroSrcGenerator(
   def generateFrom(
       inputFile: File,
       serializationType: SerializationType
-  ): Option[(String, Seq[String])] =
+  ): Option[(String, Seq[ErrorOr[String]])] =
     generateFromSchemaProtocols(
       mainGenerator.fileParser
         .getSchemaOrProtocols(
@@ -84,7 +85,7 @@ final case class AvroSrcGenerator(
   def generateFrom(
       input: String,
       serializationType: SerializationType
-  ): Option[(String, Seq[String])] =
+  ): Option[(String, Seq[ErrorOr[String]])] =
     generateFromSchemaProtocols(
       mainGenerator.stringParser
         .getSchemaOrProtocols(input, mainGenerator.schemaStore),
@@ -94,7 +95,7 @@ final case class AvroSrcGenerator(
   private def generateFromSchemaProtocols(
       schemasOrProtocols: List[Either[Schema, Protocol]],
       serializationType: SerializationType
-  ): Option[(String, Seq[String])] =
+  ): Option[(String, Seq[ErrorOr[String]])] =
     Some(schemasOrProtocols)
       .filter(_.nonEmpty)
       .flatMap(_.last match {
@@ -106,7 +107,7 @@ final case class AvroSrcGenerator(
   def generateFrom(
       protocol: Protocol,
       serializationType: SerializationType
-  ): (String, Seq[String]) = {
+  ): (String, Seq[ErrorOr[String]]) = {
 
     val outputPath =
       s"${protocol.getNamespace.replace('.', '/')}/${protocol.getName}$ScalaFileExtension"
@@ -120,25 +121,22 @@ final case class AvroSrcGenerator(
       .tail                 // remove top comment and get package declaration on first line
       .filterNot(_ == "()") // https://github.com/julianpeeters/sbt-avrohugger/issues/33
 
-    val packageLines = Seq(schemaLines.head, "")
+    val packageLines = Seq(schemaLines.head.validNel, "".validNel)
 
     val importLines =
       ("import higherkindness.mu.rpc.protocol._" :: marshallersImports
         .map(_.marshallersImport)
         .map("import " + _)).sorted
+        .map(_.validNel)
 
-    val messageLines = schemaLines.tail :+ ""
+    val messageLines = (schemaLines.tail :+ "").map(_.validNel)
 
     val requestLines = protocol.getMessages.asScala.toSeq.flatMap {
       case (name, message) =>
-        val comment = Seq(Option(message.getDoc).map(doc => s"  /** $doc */")).flatten
-        try comment ++ Seq(parseMessage(name, message.getRequest, message.getResponse), "")
-        catch {
-          case ParseException(msg) =>
-            throw new RuntimeException(
-              s"$msg; the following protocol cannot be converted to mu: $message"
-            )
-        }
+        val comment =
+          Seq(Option(message.getDoc).map(doc => s"  /** $doc */").map(_.validNel)).flatten
+        val signature = Seq(buildMethodSignature(name, message.getRequest, message.getResponse))
+        comment ++ signature
     }
 
     val extraParams: List[String] =
@@ -153,47 +151,52 @@ final case class AvroSrcGenerator(
     val serviceParams: String = (serializationType.toString +: extraParams).mkString(",")
 
     val serviceLines =
-      if (requestLines.isEmpty) Seq.empty
-      else
-        Seq(
-          s"@service($serviceParams) trait ${protocol.getName}[F[_]] {",
-          ""
-        ) ++ requestLines :+ "}"
+      Seq(
+        s"@service(${serviceParams}) trait ${protocol.getName}[F[_]] {".validNel,
+        "".validNel
+      ) ++ requestLines :+ "}".validNel
 
-    outputPath -> (packageLines ++ importLines ++ messageLines ++ serviceLines)
+    val seqOfValidatedNels = packageLines ++ importLines ++ messageLines ++ serviceLines
+
+    outputPath -> seqOfValidatedNels
   }
 
-  private def parseMessage(name: String, request: Schema, response: Schema): String = {
+  private def validateRequest(request: Schema): ErrorOr[String] = {
     val requestArgs = request.getFields.asScala
     if (requestArgs.size > 1)
-      throw ParseException("RPC method has more than 1 request parameter")
-    val requestParam = {
-      if (requestArgs.isEmpty)
-        s"$DefaultRequestParamName: $EmptyType"
-      else {
-        val requestArg = requestArgs.head
-        if (requestArg.schema.getType != Schema.Type.RECORD)
-          throw ParseException(
-            s"RPC method request parameter is of type ${requestArg.schema.getType}," +
-              s" should be of type RECORD"
-          )
-        s"${requestArg.name}: ${requestArg.schema.getFullName}"
-      }
+      ("RPC method has more than 1 request parameter").invalidNel
+    if (requestArgs.isEmpty) s"$DefaultRequestParamName: $EmptyType".validNel
+    else {
+      val requestArg = requestArgs.head
+      if (requestArg.schema.getType != Schema.Type.RECORD)
+        (s"RPC method request parameter ${requestArg.name} is of type ${requestArg.schema.getType}," +
+          s" should be of type RECORD").invalidNel
+      else s"${requestArg.name}: ${requestArg.schema.getFullName}".validNel
     }
-    val responseParam = {
-      if (response.getType == Schema.Type.NULL) EmptyType
-      else {
-        if (response.getType != Schema.Type.RECORD)
-          throw ParseException(
-            s"RPC method response parameter is of type ${response.getType}," +
-              s" should be of type RECORD"
-          )
-        s"${response.getNamespace}.${response.getName}"
-      }
+  }
+
+  private def validateResponse(response: Schema): ErrorOr[String] = {
+    if (response.getType == Schema.Type.NULL) EmptyType.validNel
+    else {
+      if (response.getType != Schema.Type.RECORD)
+        (s"RPC method response parameter is of type ${response.getType}," +
+          s" should be of type RECORD").invalidNel
+      else s"${response.getNamespace}.${response.getName}".validNel
     }
-    s"  def $name($requestParam): F[$responseParam]"
+  }
+
+  private def buildMethodSignature(
+      name: String,
+      request: Schema,
+      response: Schema
+  ): ErrorOr[String] = {
+    validateRequest(request).andThen(requestParam =>
+      validateResponse(response).map(responseParam =>
+        s"  def $name($requestParam): F[$responseParam]"
+      )
+    )
+
   }
 
   private case class ParseException(msg: String) extends RuntimeException
-
 }

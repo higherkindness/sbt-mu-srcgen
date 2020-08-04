@@ -17,15 +17,19 @@
 package higherkindness.mu.rpc.srcgen
 
 import java.io.File
+import cats.data.ValidatedNel
 
 trait Generator {
+
+  type Error      = String
+  type ErrorOr[A] = ValidatedNel[Error, A]
 
   def idlType: Model.IdlType
 
   def generateFrom(
       files: Set[File],
       serializationType: Model.SerializationType
-  ): Seq[(File, String, Seq[String])] =
+  ): Seq[(File, String, Seq[ErrorOr[String]])] =
     inputFiles(files).flatMap(inputFile =>
       generateFrom(inputFile, serializationType).map {
         case (outputPath, output) =>
@@ -38,5 +42,5 @@ trait Generator {
   protected def generateFrom(
       inputFile: File,
       serializationType: Model.SerializationType
-  ): Option[(String, Seq[String])]
+  ): Option[(String, Seq[ErrorOr[String]])]
 }

@@ -18,6 +18,7 @@ package higherkindness.mu.rpc.srcgen.openapi
 
 import java.io.File
 import java.nio.file.{Path, Paths}
+
 import higherkindness.mu.rpc.srcgen._
 import higherkindness.mu.rpc.srcgen.Model.IdlType
 import higherkindness.skeuomorph.openapi._
@@ -27,13 +28,13 @@ import print._
 import client.print._
 import client.http4s.circe._
 import client.http4s.print._
-
 import cats.data.Nested
+import cats.data.Validated.Valid
 import cats.implicits._
-
 import higherkindness.skeuomorph.Parser
 import cats.effect._
 import higherkindness.skeuomorph.openapi.JsonSchemaF
+
 import scala.collection.JavaConverters._
 
 object OpenApiSrcGenerator {
@@ -60,10 +61,12 @@ object OpenApiSrcGenerator {
       protected def generateFrom(
           inputFile: File,
           serializationType: Model.SerializationType
-      ): Option[(String, Seq[String])] =
+      ): Option[(String, Seq[ErrorOr[String]])] =
         getCode[IO](inputFile).value.unsafeRunSync()
 
-      private def getCode[F[_]: Sync](file: File): Nested[F, Option, (String, Seq[String])] =
+      private def getCode[F[_]: Sync](
+          file: File
+      ): Nested[F, Option, (String, Seq[ErrorOr[String]])] =
         parseFile[F]
           .apply(file)
           .map(OpenApi.extractNestedTypes[JsonSchemaF.Fixed])
@@ -81,7 +84,7 @@ object OpenApiSrcGenerator {
                 model[JsonSchemaF.Fixed].print(openApi),
                 interfaceDefinition.print(openApi),
                 impl.print(pkg -> openApi)
-              ).filter(_.nonEmpty)
+              ).filter(_.nonEmpty).map(Valid(_))
           }
 
       private def packageName(path: Path): PackageName =

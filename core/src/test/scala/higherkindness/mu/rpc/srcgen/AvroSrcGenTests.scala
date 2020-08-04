@@ -17,7 +17,7 @@
 package higherkindness.mu.rpc.srcgen
 
 import scala.io._
-
+import cats.syntax.validated._
 import higherkindness.mu.rpc.srcgen.AvroScalaGeneratorArbitrary._
 import higherkindness.mu.rpc.srcgen.Model.ScalaBigDecimalTaggedGen
 import higherkindness.mu.rpc.srcgen.avro._
@@ -53,7 +53,7 @@ class AvroSrcGenTests extends AnyWordSpec with Matchers with OneInstancePerTest 
     output forall {
       case (filePath, contents) =>
         filePath shouldBe scenario.expectedOutputFilePath
-        contents.toList.filter(_.length > 0) shouldBe scenario.expectedOutput
+        contents.toList.map(_.toString).filter(!_.equals("Valid()")) shouldBe scenario.expectedOutput.map(_.validNel).map(_.toString)
         true
     }
   }

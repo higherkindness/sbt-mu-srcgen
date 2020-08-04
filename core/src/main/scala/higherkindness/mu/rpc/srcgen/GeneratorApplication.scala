@@ -21,6 +21,9 @@ import java.io.File
 import FileUtil._
 import higherkindness.mu.rpc.srcgen.Model.{IdlType, SerializationType}
 import org.log4s.getLogger
+import cats.data.Validated.Invalid
+import cats.data.Validated.Valid
+import cats.implicits._
 
 class GeneratorApplication[T <: Generator](generators: T*) {
   // Code covered by plugin tests
@@ -40,11 +43,18 @@ class GeneratorApplication[T <: Generator](generators: T*) {
     if (idlTypes.contains(idlType))
       generatorsByType(idlType).generateFrom(inputFiles, serializationType).map {
         case (inputFile, outputFilePath, output) =>
-          val outputFile = new File(outputDir, outputFilePath)
-          logger.info(s"$inputFile -> $outputFile")
-          Option(outputFile.getParentFile).foreach(_.mkdirs())
-          outputFile.write(output)
-          outputFile
+          // some black magic shit
+          output.toList.sequence match {
+            // returns the list of any parsing errors before making new files (easier to clean up)
+            case Invalid(e) => throw new RuntimeException(s"look at all those CHICKENS: $e")
+            // write the valid content
+            case Valid(content) =>
+              val outputFile = new File(outputDir, outputFilePath)
+              logger.info(s"$inputFile -> $outputFile")
+              Option(outputFile.getParentFile).foreach(_.mkdirs())
+              outputFile.write(content)
+              outputFile
+          }
       }
     else {
       System.out.println(
