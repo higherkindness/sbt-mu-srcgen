@@ -53,7 +53,13 @@ class AvroSrcGenTests extends AnyWordSpec with Matchers with OneInstancePerTest 
     output forall {
       case (filePath, contents) =>
         filePath shouldBe scenario.expectedOutputFilePath
-        contents.toList.map(_.toString).filter(!_.equals("Valid()")) shouldBe scenario.expectedOutput.map(_.validNel).map(_.toString)
+        // this is a gross hack to remove empties
+        // TODO fix this
+        contents.toList
+          .map(_.toString)
+          .filter(!_.equals("Valid()")) shouldBe scenario.expectedOutput
+          .map(_.validNel)
+          .map(_.toString)
         true
     }
   }

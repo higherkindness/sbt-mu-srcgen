@@ -78,25 +78,25 @@ class ProtoSrcGenTests extends AnyWordSpec with Matchers with OneInstancePerTest
   }
 
   def bookExpectation(streamOf: String => String): String =
-    s"""package com.proto
+    s"""Valid(package com.proto)
       |
-      |import _root_.higherkindness.mu.rpc.protocol._
+      |Valid(import _root_.higherkindness.mu.rpc.protocol._)
       |
-      |object book {
+      |Valid(object book {)
       |
-      |final case class Book(
+      |Valid(final case class Book(
       |  @_root_.pbdirect.pbIndex(1) isbn: _root_.scala.Long,
       |  @_root_.pbdirect.pbIndex(2) title: _root_.java.lang.String,
       |  @_root_.pbdirect.pbIndex(3) author: _root_.scala.List[_root_.com.proto.author.Author],
       |  @_root_.pbdirect.pbIndex(9) binding_type: _root_.scala.Option[_root_.com.proto.book.BindingType]
-      |)
-      |final case class GetBookRequest(
+      |))
+      |Valid(final case class GetBookRequest(
       |  @_root_.pbdirect.pbIndex(1) isbn: _root_.scala.Long
-      |)
-      |final case class GetBookViaAuthor(
+      |))
+      |Valid(final case class GetBookViaAuthor(
       |  @_root_.pbdirect.pbIndex(1) author: _root_.scala.Option[_root_.com.proto.author.Author]
-      |)
-      |final case class BookStore(
+      |))
+      |Valid(final case class BookStore(
       |  @_root_.pbdirect.pbIndex(1) name: _root_.java.lang.String,
       |  @_root_.pbdirect.pbIndex(2) books: _root_.scala.Predef.Map[_root_.scala.Long, _root_.java.lang.String],
       |  @_root_.pbdirect.pbIndex(3) genres: _root_.scala.List[_root_.com.proto.book.Genre],
@@ -110,37 +110,37 @@ class ProtoSrcGenTests extends AnyWordSpec with Matchers with OneInstancePerTest
       |          _root_.shapeless.:+:[
       |            _root_.com.proto.book.Book,
       |            _root_.shapeless.CNil]]]]]
-      |)
+      |))
       |
-      |sealed abstract class Genre(val value: _root_.scala.Int) extends _root_.enumeratum.values.IntEnumEntry
-      |object Genre extends _root_.enumeratum.values.IntEnum[Genre] {
-      |  case object UNKNOWN extends Genre(0)
-      |  case object SCIENCE_FICTION extends Genre(1)
-      |  case object POETRY extends Genre(2)
+      |Valid(sealed abstract class Genre(val value: _root_.scala.Int) extends _root_.enumeratum.values.IntEnumEntry)
+      |Valid(object Genre extends _root_.enumeratum.values.IntEnum[Genre] {)
+      |  Valid(case object UNKNOWN extends Genre(0))
+      |  Valid(case object SCIENCE_FICTION extends Genre(1))
+      |  Valid(case object POETRY extends Genre(2))
       |
-      |  val values = findValues
-      |}
+      |  Valid(val values = findValues)
+      |Valid(})
       |
-      |sealed abstract class BindingType(val value: _root_.scala.Int) extends _root_.enumeratum.values.IntEnumEntry
-      |object BindingType extends _root_.enumeratum.values.IntEnum[BindingType] {
-      |  case object HARDCOVER extends BindingType(0)
-      |  case object PAPERBACK extends BindingType(1)
+      |Valid(sealed abstract class BindingType(val value: _root_.scala.Int) extends _root_.enumeratum.values.IntEnumEntry)
+      |Valid(object BindingType extends _root_.enumeratum.values.IntEnum[BindingType] {)
+      |  Valid(case object HARDCOVER extends BindingType(0))
+      |  Valid(case object PAPERBACK extends BindingType(1))
       |
-      |  val values = findValues
-      |}
+      |  Valid(val values = findValues)
+      |Valid(})
       |
-      |@service(Protobuf, Identity) trait BookService[F[_]] {
-      |  def GetBook(req: _root_.com.proto.book.GetBookRequest): F[_root_.com.proto.book.Book]
-      |  def GetBooksViaAuthor(req: _root_.com.proto.book.GetBookViaAuthor): F[${streamOf(
+      |Valid(@service(Protobuf, Identity) trait BookService[F[_]] {)
+      |  Valid(def GetBook(req: _root_.com.proto.book.GetBookRequest): F[_root_.com.proto.book.Book])
+      |  Valid(def GetBooksViaAuthor(req: _root_.com.proto.book.GetBookViaAuthor): F[${streamOf(
       "_root_.com.proto.book.Book"
-    )}]
-      |  def GetGreatestBook(req: ${streamOf("_root_.com.proto.book.GetBookRequest")}): F[_root_.com.proto.book.Book]
-      |  def GetBooks(req: ${streamOf("_root_.com.proto.book.GetBookRequest")}): F[${streamOf(
+    )}])
+      |  Valid(def GetGreatestBook(req: ${streamOf("_root_.com.proto.book.GetBookRequest")}): F[_root_.com.proto.book.Book])
+      |  Valid(def GetBooks(req: ${streamOf("_root_.com.proto.book.GetBookRequest")}): F[${streamOf(
       "_root_.com.proto.book.Book"
-    )}]
-      |}
+    )}])
+      |Valid(})
       |
-      |}""".stripMargin
+      |Valid(})""".stripMargin
 
   implicit class StringOps(self: String) {
     def clean: String = self.replaceAll("\\s", "")

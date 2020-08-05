@@ -18,6 +18,7 @@ package higherkindness.mu.rpc.srcgen
 
 import org.scalatest.OptionValues
 import java.io.File
+import cats.syntax.validated._
 
 import higherkindness.mu.rpc.srcgen.openapi.OpenApiSrcGenerator
 import higherkindness.mu.rpc.srcgen.openapi.OpenApiSrcGenerator.HttpImpl
@@ -59,7 +60,7 @@ class OpenApiSrcGenTests extends AnyFlatSpec with OptionValues {
            |
            |}
            |}""".stripMargin
-      )
+      ).map(_.validNel)
     )
   }
 
