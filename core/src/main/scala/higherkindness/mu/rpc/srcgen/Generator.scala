@@ -22,14 +22,14 @@ import cats.data.ValidatedNel
 trait Generator {
 
   type Error      = String
-  type ErrorOr[A] = ValidatedNel[Error, A]
+  type ErrorsOr[A] = ValidatedNel[Error, A]
 
   def idlType: Model.IdlType
 
   def generateFrom(
       files: Set[File],
       serializationType: Model.SerializationType
-  ): Seq[(File, String, Seq[ErrorOr[String]])] =
+  ): Seq[(File, String, Seq[ErrorsOr[String]])] =
     inputFiles(files).flatMap(inputFile =>
       generateFrom(inputFile, serializationType).map {
         case (outputPath, output) =>
@@ -42,5 +42,5 @@ trait Generator {
   protected def generateFrom(
       inputFile: File,
       serializationType: Model.SerializationType
-  ): Option[(String, Seq[ErrorOr[String]])]
+  ): Option[(String, Seq[ErrorsOr[String]])]
 }

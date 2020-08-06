@@ -61,12 +61,12 @@ object OpenApiSrcGenerator {
       protected def generateFrom(
           inputFile: File,
           serializationType: Model.SerializationType
-      ): Option[(String, Seq[ErrorOr[String]])] =
+      ): Option[(String, Seq[ErrorsOr[String]])] =
         getCode[IO](inputFile).value.unsafeRunSync()
 
       private def getCode[F[_]: Sync](
           file: File
-      ): Nested[F, Option, (String, Seq[ErrorOr[String]])] =
+      ): Nested[F, Option, (String, Seq[ErrorsOr[String]])] =
         parseFile[F]
           .apply(file)
           .map(OpenApi.extractNestedTypes[JsonSchemaF.Fixed])

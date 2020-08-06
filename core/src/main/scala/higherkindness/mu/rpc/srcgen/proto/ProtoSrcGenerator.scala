@@ -60,7 +60,7 @@ object ProtoSrcGenerator {
       def generateFrom(
           inputFile: File,
           serializationType: SerializationType
-      ): Option[(String, Seq[ErrorOr[String]])] =
+      ): Option[(String, ErrorsOr[Seq[String]])] =
         getCode[IO](inputFile).map(Some(_)).unsafeRunSync
 
       val streamCtor: (Type, Type) => Type.Apply = streamingImplementation match {
@@ -91,7 +91,7 @@ object ProtoSrcGenerator {
 
       private def getCode[F[_]](
           file: File
-      )(implicit F: Sync[F]): F[(String, Seq[ErrorOr[String]])] =
+      )(implicit F: Sync[F]): F[(String, Seq[ErrorsOr[String]])] =
         parseProto[F, Mu[ProtobufF]]
           .parse(ProtoSource(file.getName, file.getParent, Some(idlTargetDir.getCanonicalPath)))
           .flatMap { protocol =>
@@ -104,7 +104,7 @@ object ProtoSrcGenerator {
                   )
                 )
               case Right(fileContent) =>
-                F.pure(path -> splitLines(fileContent).map(_.validNel))
+                F.pure(path -> splitLines(fileContent))
             }
           }
 

@@ -43,6 +43,7 @@ class GeneratorApplication[T <: Generator](generators: T*) {
     if (idlTypes.contains(idlType))
       generatorsByType(idlType).generateFrom(inputFiles, serializationType).map {
         case (inputFile, outputFilePath, output) =>
+
           // some black magic shit
           output.toList.sequence match {
             // returns the list of any parsing errors before making new files (easier to clean up)

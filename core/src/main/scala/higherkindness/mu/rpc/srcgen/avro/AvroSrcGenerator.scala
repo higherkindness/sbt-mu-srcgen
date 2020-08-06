@@ -62,7 +62,7 @@ final case class AvroSrcGenerator(
   override def generateFrom(
       files: Set[File],
       serializationType: SerializationType
-  ): Seq[(File, String, Seq[ErrorOr[String]])] =
+  ): Seq[(File, String, Seq[ErrorsOr[String]])] =
     super
       .generateFrom(files, serializationType)
       .filter(output => files.contains(output._1))
@@ -70,7 +70,7 @@ final case class AvroSrcGenerator(
   def generateFrom(
       inputFile: File,
       serializationType: SerializationType
-  ): Option[(String, Seq[ErrorOr[String]])] =
+  ): Option[(String, Seq[ErrorsOr[String]])] =
     generateFromSchemaProtocols(
       mainGenerator.fileParser
         .getSchemaOrProtocols(
@@ -85,7 +85,7 @@ final case class AvroSrcGenerator(
   def generateFrom(
       input: String,
       serializationType: SerializationType
-  ): Option[(String, Seq[ErrorOr[String]])] =
+  ): Option[(String, ErrorsOr[Seq[String]])] =
     generateFromSchemaProtocols(
       mainGenerator.stringParser
         .getSchemaOrProtocols(input, mainGenerator.schemaStore),
@@ -95,7 +95,7 @@ final case class AvroSrcGenerator(
   private def generateFromSchemaProtocols(
       schemasOrProtocols: List[Either[Schema, Protocol]],
       serializationType: SerializationType
-  ): Option[(String, Seq[ErrorOr[String]])] =
+  ): Option[(String, ErrorsOr[Seq[String]])] =
     Some(schemasOrProtocols)
       .filter(_.nonEmpty)
       .flatMap(_.last match {
@@ -107,7 +107,7 @@ final case class AvroSrcGenerator(
   def generateFrom(
       protocol: Protocol,
       serializationType: SerializationType
-  ): (String, Seq[ErrorOr[String]]) = {
+  ): (String, ErrorsOr[Seq[String]]) = {
 
     val outputPath =
       s"${protocol.getNamespace.replace('.', '/')}/${protocol.getName}$ScalaFileExtension"
@@ -133,6 +133,7 @@ final case class AvroSrcGenerator(
 
     val requestLines = protocol.getMessages.asScala.toSeq.flatMap {
       case (name, message) =>
+        // map over signature to catch the errors
         val comment =
           Seq(Option(message.getDoc).map(doc => s"  /** $doc */").map(_.validNel)).flatten
         val signature = Seq(buildMethodSignature(name, message.getRequest, message.getResponse))
@@ -161,7 +162,7 @@ final case class AvroSrcGenerator(
     outputPath -> seqOfValidatedNels
   }
 
-  private def validateRequest(request: Schema): ErrorOr[String] = {
+  private def validateRequest(request: Schema): ErrorsOr[String] = {
     val requestArgs = request.getFields.asScala
     if (requestArgs.size > 1)
       ("RPC method has more than 1 request parameter").invalidNel
@@ -175,7 +176,7 @@ final case class AvroSrcGenerator(
     }
   }
 
-  private def validateResponse(response: Schema): ErrorOr[String] = {
+  private def validateResponse(response: Schema): ErrorsOr[String] = {
     if (response.getType == Schema.Type.NULL) EmptyType.validNel
     else {
       if (response.getType != Schema.Type.RECORD)
@@ -189,7 +190,8 @@ final case class AvroSrcGenerator(
       name: String,
       request: Schema,
       response: Schema
-  ): ErrorOr[String] = {
+  ): ErrorsOr[String] = {
+    // this can be done with (req, resp).parMapN
     validateRequest(request).andThen(requestParam =>
       validateResponse(response).map(responseParam =>
         s"  def $name($requestParam): F[$responseParam]"
