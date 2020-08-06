@@ -21,6 +21,7 @@ import java.io.File
 import FileUtil._
 import higherkindness.mu.rpc.srcgen.Model.{IdlType, SerializationType}
 import org.log4s.getLogger
+import cats.data.ValidatedNel
 import cats.data.Validated.Invalid
 import cats.data.Validated.Valid
 import cats.implicits._
@@ -40,24 +41,35 @@ class GeneratorApplication[T <: Generator](generators: T*) {
       inputFiles: Set[File],
       outputDir: File
   ): Seq[File] =
-    if (idlTypes.contains(idlType))
-      generatorsByType(idlType).generateFrom(inputFiles, serializationType).map {
-        case (inputFile, outputFilePath, output) =>
-
-          // some black magic shit
-          output.toList.sequence match {
-            // returns the list of any parsing errors before making new files (easier to clean up)
-            case Invalid(e) => throw new RuntimeException(s"look at all those CHICKENS: $e")
-            // write the valid content
-            case Valid(content) =>
-              val outputFile = new File(outputDir, outputFilePath)
-              logger.info(s"$inputFile -> $outputFile")
-              Option(outputFile.getParentFile).foreach(_.mkdirs())
-              outputFile.write(content)
-              outputFile
-          }
+    if (idlTypes.contains(idlType)) {
+      val result: ValidatedNel[String, Seq[File]] = generatorsByType(idlType).generateFrom(inputFiles, serializationType).toList.traverse {
+        case (inputFile, outputFilePath, output) => output match {
+          case Invalid(e) =>
+            // TODO here we have a list of the errors in a single file.
+            // Accumulate them into a single error message, giving the input filename
+            // and the details of each error. Maybe something like:
+            //
+            // IDL file $inputFile is invalid. Error details:
+            // - method Foo has more than one parameter
+            // - method Bar has non-record return type 'string'
+            //
+            throw new RuntimeException(s"look at all those CHICKENS: $e")
+          case Valid(content) =>
+            val outputFile = new File(outputDir, outputFilePath)
+            logger.info(s"$inputFile -> $outputFile")
+            Option(outputFile.getParentFile).foreach(_.mkdirs())
+            outputFile.write(content)
+            outputFile.validNel
+        }
       }
-    else {
+      result match {
+        case Invalid(e) =>
+          // TODO we found errors in at least one file. Throw an exception
+          ???
+        case Valid(outputFiles) =>
+          outputFiles
+      }
+    } else {
       System.out.println(
         s"Unknown IDL type '$idlType', skipping code generation in this module. " +
           s"Valid values: ${idlTypes.mkString(", ")}"

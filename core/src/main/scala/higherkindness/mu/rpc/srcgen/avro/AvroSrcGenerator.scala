@@ -70,7 +70,7 @@ final case class AvroSrcGenerator(
   def generateFrom(
       inputFile: File,
       serializationType: SerializationType
-  ): Option[(String, Seq[ErrorsOr[String]])] =
+  ): Option[(String, ErrorsOr[Seq[String]])] =
     generateFromSchemaProtocols(
       mainGenerator.fileParser
         .getSchemaOrProtocols(
