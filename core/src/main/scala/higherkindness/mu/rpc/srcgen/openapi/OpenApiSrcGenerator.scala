@@ -61,12 +61,12 @@ object OpenApiSrcGenerator {
       protected def generateFrom(
           inputFile: File,
           serializationType: Model.SerializationType
-      ): Option[(String, Seq[ErrorsOr[String]])] =
+      ): Option[(String, ErrorsOr[Seq[String]])] =
         getCode[IO](inputFile).value.unsafeRunSync()
 
       private def getCode[F[_]: Sync](
           file: File
-      ): Nested[F, Option, (String, Seq[ErrorsOr[String]])] =
+      ): Nested[F, Option, (String, ErrorsOr[Seq[String]])] =
         parseFile[F]
           .apply(file)
           .map(OpenApi.extractNestedTypes[JsonSchemaF.Fixed])
@@ -79,12 +79,14 @@ object OpenApiSrcGenerator {
             val path: Path = Paths.get(paths.map(_.toString()).mkString("/"))
             val pkg        = packageName(path)
             pathFrom(path, file).toString ->
-              Seq(
-                s"package ${pkg.value}",
-                model[JsonSchemaF.Fixed].print(openApi),
-                interfaceDefinition.print(openApi),
-                impl.print(pkg -> openApi)
-              ).filter(_.nonEmpty).map(Valid(_))
+              Valid(
+                Seq(
+                  s"package ${pkg.value}",
+                  model[JsonSchemaF.Fixed].print(openApi),
+                  interfaceDefinition.print(openApi),
+                  impl.print(pkg -> openApi)
+                ).filter(_.nonEmpty)
+              )
           }
 
       private def packageName(path: Path): PackageName =

@@ -18,13 +18,13 @@ package higherkindness.mu.rpc.srcgen
 
 import org.scalatest.OptionValues
 import java.io.File
-import cats.syntax.validated._
 
 import higherkindness.mu.rpc.srcgen.openapi.OpenApiSrcGenerator
 import higherkindness.mu.rpc.srcgen.openapi.OpenApiSrcGenerator.HttpImpl
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.matchers.should.Matchers
 import Matchers._
+import cats.data.Validated.Valid
 
 class OpenApiSrcGenTests extends AnyFlatSpec with OptionValues {
   val module: String       = new java.io.File(".").getCanonicalPath
@@ -38,9 +38,10 @@ class OpenApiSrcGenTests extends AnyFlatSpec with OptionValues {
       .value
     path should ===("bookstore/book.scala")
     code should ===(
-      List(
-        "package bookstore",
-        """|object models {
+      Valid(
+        List(
+          "package bookstore",
+          """|object models {
            |import shapeless.{:+:, CNil}
            |import shapeless.Coproduct
            |final case class Book(isbn: Long, title: String)
@@ -60,7 +61,8 @@ class OpenApiSrcGenTests extends AnyFlatSpec with OptionValues {
            |
            |}
            |}""".stripMargin
-      ).map(_.validNel)
+        )
+      )
     )
   }
 

@@ -129,7 +129,7 @@ final case class AvroSrcGenerator(
 
     val messageLines = schemaLines.tail :+ ""
 
-    val extraParams: List[String] =
+    val extraParams =
       s"compressionType = ${compressionTypeGen.value}" +:
         (if (useIdiomaticEndpoints) {
            List(
@@ -138,39 +138,40 @@ final case class AvroSrcGenerator(
            )
          } else Nil)
 
-    val serviceParams: String = (serializationType.toString +: extraParams).mkString(",")
+    val serviceParams = (serializationType.toString +: extraParams).mkString(",")
 
-    def convertedFile = {
-      // the fact that this won't compile is driving me bananas
-      protocol.getMessages.asScala.toList.flatTraverse {
+    val requestLines = {
+      val result = protocol.getMessages.asScala.toList.traverse {
         case (name, message) =>
-          // map over signature to catch the errors
-          val comment: Seq[String] = Seq(Option(message.getDoc).map(doc => s"  /** $doc */")).flatten
-          buildMethodSignature(name, message.getRequest, message.getResponse).map { sig =>
-            val signature = comment ++ Seq(sig)
-            val serviceLines =
-              Seq(
-                s"@service(${serviceParams}) trait ${protocol.getName}[F[_]] {",
-                ""
-              ) ++ signature :+ "}"
-            packageLines ++ importLines ++ messageLines ++ serviceLines
+          val comment = Seq(Option(message.getDoc).map(doc => s"  /** $doc */")).flatten
+          buildMethodSignature(name, message.getRequest, message.getResponse).map { content =>
+            comment ++ Seq(content)
           }
       }
+      result.map(_.flatten)
     }
 
-    outputPath -> convertedFile
+    val outputCode = requestLines.map { requests =>
+      val serviceLines =
+        Seq(
+          s"@service(${serviceParams}) trait ${protocol.getName}[F[_]] {",
+          ""
+        ) ++ requests :+ "}"
+      packageLines ++ importLines ++ messageLines ++ serviceLines
+    }
+
+    outputPath -> outputCode
   }
 
   def validateRequest(request: Schema): ErrorsOr[String] = {
     val requestArgs = request.getFields.asScala
     if (requestArgs.size > 1)
-      ("RPC method has more than 1 request parameter").invalidNel
+      (s"RPC method ${request.getName} has more than 1 request parameter").invalidNel
     if (requestArgs.isEmpty) s"$DefaultRequestParamName: $EmptyType".validNel
     else {
       val requestArg = requestArgs.head
       if (requestArg.schema.getType != Schema.Type.RECORD)
-        (s"RPC method request parameter ${requestArg.name} is of type ${requestArg.schema.getType}," +
-          s" should be of type RECORD").invalidNel
+        (s"RPC method request parameter '${requestArg.name}' has non-record return type '${requestArg.schema.getType}'").invalidNel
       else s"${requestArg.name}: ${requestArg.schema.getFullName}".validNel
     }
   }
@@ -179,8 +180,7 @@ final case class AvroSrcGenerator(
     if (response.getType == Schema.Type.NULL) EmptyType.validNel
     else {
       if (response.getType != Schema.Type.RECORD)
-        (s"RPC method response parameter is of type ${response.getType}," +
-          s" should be of type RECORD").invalidNel
+        (s"RPC method response parameter has non-record return type '${response.getType}'").invalidNel
       else s"${response.getNamespace}.${response.getName}".validNel
     }
   }
@@ -190,8 +190,6 @@ final case class AvroSrcGenerator(
       request: Schema,
       response: Schema
   ): ErrorsOr[String] = {
-    // TODO should I evaluate this in parallel?
-    // this can be done with (req, resp).parMapN)
     validateRequest(request).andThen(requestParam =>
       validateResponse(response).map(responseParam =>
         s"  def $name($requestParam): F[$responseParam]"

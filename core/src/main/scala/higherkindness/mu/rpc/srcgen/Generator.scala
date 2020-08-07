@@ -21,7 +21,7 @@ import cats.data.ValidatedNel
 
 trait Generator {
 
-  type Error      = String
+  type Error       = String
   type ErrorsOr[A] = ValidatedNel[Error, A]
 
   def idlType: Model.IdlType

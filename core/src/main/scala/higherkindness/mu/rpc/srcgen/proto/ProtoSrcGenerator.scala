@@ -23,7 +23,6 @@ import scala.util.control.NoStackTrace
 
 import cats.effect.{IO, Sync}
 import cats.syntax.flatMap._
-import cats.data._
 import cats.data.Validated._
 
 import higherkindness.droste.data.Mu
@@ -86,7 +85,7 @@ object ProtoSrcGenerator {
         String,
         String
       ] =
-        hirgherkindness.skeuomorph.mu.codegen.protocol(_, streamCtor).map(_.syntax)
+        higherkindness.skeuomorph.mu.codegen.protocol(_, streamCtor).map(_.syntax)
 
       val splitLines: String => List[String] = _.split("\n").toList
 
@@ -105,10 +104,7 @@ object ProtoSrcGenerator {
                   )
                 )
               case Right(fileContent: String) =>
-                // TODO why the heck doesn't this compile?  The signature
-                // for this method is of type Validated[NonEmptyList[String], Seq[String]]
-                //  why wouldn't returning a Seq[String] work?
-                F.pure(path -> splitLines(fileContent))
+                F.pure(path -> Valid(splitLines(fileContent)))
             }
           }
 
