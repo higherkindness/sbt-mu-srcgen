@@ -42,7 +42,7 @@ class GeneratorApplication[T <: Generator](generators: T*) {
       outputDir: File
   ): Seq[File] =
     if (idlTypes.contains(idlType)) {
-      val result: ValidatedNel[String, Seq[File]] = generatorsByType(idlType).generateFrom(inputFiles, serializationType).toList.traverse {
+      val result: ValidatedNel[Nothing, List[File]] = generatorsByType(idlType).generateFrom(inputFiles, serializationType).toList.traverse {
         case (inputFile, outputFilePath, output) => output match {
           case Invalid(e) =>
             // TODO here we have a list of the errors in a single file.
@@ -65,6 +65,7 @@ class GeneratorApplication[T <: Generator](generators: T*) {
       result match {
         case Invalid(e) =>
           // TODO we found errors in at least one file. Throw an exception
+          println(e)
           ???
         case Valid(outputFiles) =>
           outputFiles

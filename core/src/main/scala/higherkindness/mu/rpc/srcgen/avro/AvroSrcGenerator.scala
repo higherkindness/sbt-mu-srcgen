@@ -20,14 +20,13 @@ import java.io.File
 
 import scala.collection.JavaConverters._
 import scala.util.Right
-
 import avrohugger.Generator
 import avrohugger.format.Standard
 import avrohugger.types._
 import higherkindness.mu.rpc.srcgen.Model._
 import higherkindness.mu.rpc.srcgen._
 import org.apache.avro._
-import cats.syntax.validated._
+import cats.implicits._
 
 final case class AvroSrcGenerator(
     marshallersImports: List[MarshallersImport],
@@ -62,7 +61,7 @@ final case class AvroSrcGenerator(
   override def generateFrom(
       files: Set[File],
       serializationType: SerializationType
-  ): Seq[(File, String, Seq[ErrorsOr[String]])] =
+  ): Seq[(File, String, ErrorsOr[Seq[String]])] =
     super
       .generateFrom(files, serializationType)
       .filter(output => files.contains(output._1))
@@ -121,24 +120,14 @@ final case class AvroSrcGenerator(
       .tail                 // remove top comment and get package declaration on first line
       .filterNot(_ == "()") // https://github.com/julianpeeters/sbt-avrohugger/issues/33
 
-    val packageLines = Seq(schemaLines.head.validNel, "".validNel)
+    val packageLines = Seq(schemaLines.head, "")
 
     val importLines =
       ("import higherkindness.mu.rpc.protocol._" :: marshallersImports
         .map(_.marshallersImport)
         .map("import " + _)).sorted
-        .map(_.validNel)
 
-    val messageLines = (schemaLines.tail :+ "").map(_.validNel)
-
-    val requestLines = protocol.getMessages.asScala.toSeq.flatMap {
-      case (name, message) =>
-        // map over signature to catch the errors
-        val comment =
-          Seq(Option(message.getDoc).map(doc => s"  /** $doc */").map(_.validNel)).flatten
-        val signature = Seq(buildMethodSignature(name, message.getRequest, message.getResponse))
-        comment ++ signature
-    }
+    val messageLines = schemaLines.tail :+ ""
 
     val extraParams: List[String] =
       s"compressionType = ${compressionTypeGen.value}" +:
@@ -151,18 +140,28 @@ final case class AvroSrcGenerator(
 
     val serviceParams: String = (serializationType.toString +: extraParams).mkString(",")
 
-    val serviceLines =
-      Seq(
-        s"@service(${serviceParams}) trait ${protocol.getName}[F[_]] {".validNel,
-        "".validNel
-      ) ++ requestLines :+ "}".validNel
+    def convertedFile = {
+      // the fact that this won't compile is driving me bananas
+      protocol.getMessages.asScala.toList.flatTraverse {
+        case (name, message) =>
+          // map over signature to catch the errors
+          val comment: Seq[String] = Seq(Option(message.getDoc).map(doc => s"  /** $doc */")).flatten
+          buildMethodSignature(name, message.getRequest, message.getResponse).map { sig =>
+            val signature = comment ++ Seq(sig)
+            val serviceLines =
+              Seq(
+                s"@service(${serviceParams}) trait ${protocol.getName}[F[_]] {",
+                ""
+              ) ++ signature :+ "}"
+            packageLines ++ importLines ++ messageLines ++ serviceLines
+          }
+      }
+    }
 
-    val seqOfValidatedNels = packageLines ++ importLines ++ messageLines ++ serviceLines
-
-    outputPath -> seqOfValidatedNels
+    outputPath -> convertedFile
   }
 
-  private def validateRequest(request: Schema): ErrorsOr[String] = {
+  def validateRequest(request: Schema): ErrorsOr[String] = {
     val requestArgs = request.getFields.asScala
     if (requestArgs.size > 1)
       ("RPC method has more than 1 request parameter").invalidNel
@@ -176,7 +175,7 @@ final case class AvroSrcGenerator(
     }
   }
 
-  private def validateResponse(response: Schema): ErrorsOr[String] = {
+  def validateResponse(response: Schema): ErrorsOr[String] = {
     if (response.getType == Schema.Type.NULL) EmptyType.validNel
     else {
       if (response.getType != Schema.Type.RECORD)
@@ -186,18 +185,18 @@ final case class AvroSrcGenerator(
     }
   }
 
-  private def buildMethodSignature(
+  def buildMethodSignature(
       name: String,
       request: Schema,
       response: Schema
   ): ErrorsOr[String] = {
-    // this can be done with (req, resp).parMapN
+    // TODO should I evaluate this in parallel?
+    // this can be done with (req, resp).parMapN)
     validateRequest(request).andThen(requestParam =>
       validateResponse(response).map(responseParam =>
         s"  def $name($requestParam): F[$responseParam]"
       )
     )
-
   }
 
   private case class ParseException(msg: String) extends RuntimeException

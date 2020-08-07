@@ -23,7 +23,8 @@ import scala.util.control.NoStackTrace
 
 import cats.effect.{IO, Sync}
 import cats.syntax.flatMap._
-import cats.syntax.validated._
+import cats.data._
+import cats.data.Validated._
 
 import higherkindness.droste.data.Mu
 import higherkindness.droste.data.Mu._
@@ -85,13 +86,13 @@ object ProtoSrcGenerator {
         String,
         String
       ] =
-        higherkindness.skeuomorph.mu.codegen.protocol(_, streamCtor).map(_.syntax)
+        hirgherkindness.skeuomorph.mu.codegen.protocol(_, streamCtor).map(_.syntax)
 
       val splitLines: String => List[String] = _.split("\n").toList
 
       private def getCode[F[_]](
           file: File
-      )(implicit F: Sync[F]): F[(String, Seq[ErrorsOr[String]])] =
+      )(implicit F: Sync[F]): F[(String, ErrorsOr[Seq[String]])] =
         parseProto[F, Mu[ProtobufF]]
           .parse(ProtoSource(file.getName, file.getParent, Some(idlTargetDir.getCanonicalPath)))
           .flatMap { protocol =>
@@ -103,7 +104,10 @@ object ProtoSrcGenerator {
                     s"Failed to generate Scala source from Protobuf file ${file.getAbsolutePath}. Error details: $error"
                   )
                 )
-              case Right(fileContent) =>
+              case Right(fileContent: String) =>
+                // TODO why the heck doesn't this compile?  The signature
+                // for this method is of type Validated[NonEmptyList[String], Seq[String]]
+                //  why wouldn't returning a Seq[String] work?
                 F.pure(path -> splitLines(fileContent))
             }
           }
