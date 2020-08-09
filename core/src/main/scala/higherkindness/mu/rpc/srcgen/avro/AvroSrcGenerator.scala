@@ -141,7 +141,7 @@ final case class AvroSrcGenerator(
 
     val serviceParams = (serializationType.toString +: extraParams).mkString(",")
 
-    val requestLines: Validated[NonEmptyList[Error], List[String]] = {
+    val requestLines = {
       val result = protocol.getMessages.asScala.toList.traverse {
         case (name, message) =>
           val comment = Seq(Option(message.getDoc).map(doc => s"  /** $doc */")).flatten
