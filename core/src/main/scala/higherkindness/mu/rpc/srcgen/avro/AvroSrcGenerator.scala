@@ -23,7 +23,6 @@ import scala.util.Right
 import avrohugger.Generator
 import avrohugger.format.Standard
 import avrohugger.types._
-import cats.data.{NonEmptyList, Validated}
 import higherkindness.mu.rpc.srcgen.Model._
 import higherkindness.mu.rpc.srcgen._
 import org.apache.avro._
