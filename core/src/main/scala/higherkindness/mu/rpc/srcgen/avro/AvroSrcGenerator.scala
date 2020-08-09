@@ -23,6 +23,7 @@ import scala.util.Right
 import avrohugger.Generator
 import avrohugger.format.Standard
 import avrohugger.types._
+import cats.data.{NonEmptyList, Validated}
 import higherkindness.mu.rpc.srcgen.Model._
 import higherkindness.mu.rpc.srcgen._
 import org.apache.avro._
@@ -140,12 +141,12 @@ final case class AvroSrcGenerator(
 
     val serviceParams = (serializationType.toString +: extraParams).mkString(",")
 
-    val requestLines = {
+    val requestLines: Validated[NonEmptyList[Error], List[String]] = {
       val result = protocol.getMessages.asScala.toList.traverse {
         case (name, message) =>
           val comment = Seq(Option(message.getDoc).map(doc => s"  /** $doc */")).flatten
           buildMethodSignature(name, message.getRequest, message.getResponse).map { content =>
-            comment ++ Seq(content)
+            comment ++ Seq(content, "")
           }
       }
       result.map(_.flatten)
