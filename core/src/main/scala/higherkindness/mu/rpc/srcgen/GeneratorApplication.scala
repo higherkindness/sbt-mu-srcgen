@@ -42,28 +42,31 @@ class GeneratorApplication[T <: Generator](generators: T*) {
       outputDir: File
   ): Seq[File] =
     if (idlTypes.contains(idlType)) {
-      val result: ValidatedNel[(File, NonEmptyList[T#Error]), List[File]] = generatorsByType(idlType)
-        .generateFrom(inputFiles, serializationType)
-        .toList
-        .traverse {
-          case (inputFile, outputFilePath, output) =>
-            output match {
-              case Invalid(readErrors) =>
-                (inputFile, readErrors).invalidNel
-              case Valid(content) =>
-                val outputFile = new File(outputDir, outputFilePath)
-                logger.info(s"$inputFile -> $outputFile")
-                Option(outputFile.getParentFile).foreach(_.mkdirs())
-                outputFile.write(content)
-                outputFile.validNel
-            }
-        }
+      val result: ValidatedNel[(File, NonEmptyList[T#Error]), List[File]] =
+        generatorsByType(idlType)
+          .generateFrom(inputFiles, serializationType)
+          .toList
+          .traverse {
+            case (inputFile, outputFilePath, output) =>
+              output match {
+                case Invalid(readErrors) =>
+                  (inputFile, readErrors).invalidNel
+                case Valid(content) =>
+                  val outputFile = new File(outputDir, outputFilePath)
+                  logger.info(s"$inputFile -> $outputFile")
+                  Option(outputFile.getParentFile).foreach(_.mkdirs())
+                  outputFile.write(content)
+                  outputFile.validNel
+              }
+          }
       result match {
         case Invalid(listOfFilesAndReadErrors) =>
           val formattedErrorMessage = listOfFilesAndReadErrors.map { tpls =>
             s"${tpls._1.toString} has the following errors: ${tpls._2.toString}"
           }
-          throw new RuntimeException(s"One or more IDL files are invalid. Error details:\n $formattedErrorMessage")
+          throw new RuntimeException(
+            s"One or more IDL files are invalid. Error details:\n $formattedErrorMessage"
+          )
         case Valid(outputFiles) =>
           outputFiles
       }
