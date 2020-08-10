@@ -49,9 +49,6 @@ class GeneratorApplication[T <: Generator](generators: T*) {
           case (inputFile, outputFilePath, output) =>
             output match {
               case Invalid(e) =>
-                // we want to wrap the bad files with the list of
-                // errors so that we can return both the filename
-                // and the errors in that file to the user
                 (inputFile, e).invalidNel
               case Valid(content) =>
                 val outputFile = new File(outputDir, outputFilePath)
@@ -62,8 +59,8 @@ class GeneratorApplication[T <: Generator](generators: T*) {
             }
         }
       result match {
-        case Invalid(e) =>
-          val formattedErrorMessage = e.map { tpls =>
+        case Invalid(listOfErrors) =>
+          val formattedErrorMessage = listOfErrors.map { tpls =>
             s"${tpls._1.toString} has the following errors: ${tpls._2.toString}"
           }
           throw new RuntimeException(s"One or more IDL files are invalid. Error details:\n $formattedErrorMessage")
