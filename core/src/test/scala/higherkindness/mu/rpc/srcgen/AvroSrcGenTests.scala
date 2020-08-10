@@ -19,7 +19,6 @@ package higherkindness.mu.rpc.srcgen
 import cats.data.Validated.Valid
 
 import scala.io._
-//import cats.syntax.validated._
 import higherkindness.mu.rpc.srcgen.AvroScalaGeneratorArbitrary._
 import higherkindness.mu.rpc.srcgen.Model.ScalaBigDecimalTaggedGen
 import higherkindness.mu.rpc.srcgen.avro._

@@ -12,7 +12,6 @@ lazy val root = project
       (Compile / resourceDirectory).value / "protocol"
     ),
     muSrcGenTargetDir := (Compile / sourceManaged).value / "generated_from_avro",
-    addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.1" cross CrossVersion.patch),
     libraryDependencies ++= Seq(
       "io.higherkindness" %% "mu-rpc-service" % sys.props("mu")
     )
