@@ -199,6 +199,4 @@ final case class AvroSrcGenerator(
       )
     )
   }
-
-  private case class ParseException(msg: String) extends RuntimeException
 }
