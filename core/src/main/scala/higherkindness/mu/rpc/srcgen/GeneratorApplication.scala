@@ -19,9 +19,9 @@ package higherkindness.mu.rpc.srcgen
 import java.io.File
 
 import FileUtil._
+import cats.data.{NonEmptyList, ValidatedNel}
 import higherkindness.mu.rpc.srcgen.Model.{IdlType, SerializationType}
 import org.log4s.getLogger
-import cats.data.ValidatedNel
 import cats.data.Validated.Invalid
 import cats.data.Validated.Valid
 import cats.implicits._
@@ -42,14 +42,17 @@ class GeneratorApplication[T <: Generator](generators: T*) {
       outputDir: File
   ): Seq[File] =
     if (idlTypes.contains(idlType)) {
-      val result: ValidatedNel[Nothing, List[File]] = generatorsByType(idlType)
+      val result: ValidatedNel[(File, NonEmptyList[T#Error]), List[File]] = generatorsByType(idlType)
         .generateFrom(inputFiles, serializationType)
         .toList
         .traverse {
           case (inputFile, outputFilePath, output) =>
             output match {
               case Invalid(e) =>
-                throw new RuntimeException(s"IDL file $inputFile is invalid.  Error details: $e")
+                // we want to wrap the bad files with the list of
+                // errors so that we can return both the filename
+                // and the errors in that file to the user
+                (inputFile, e).invalidNel
               case Valid(content) =>
                 val outputFile = new File(outputDir, outputFilePath)
                 logger.info(s"$inputFile -> $outputFile")
@@ -60,7 +63,10 @@ class GeneratorApplication[T <: Generator](generators: T*) {
         }
       result match {
         case Invalid(e) =>
-          throw new RuntimeException(s"IDL files are invalid.  Error details: $e")
+          val formattedErrorMessage = e.map { tpls =>
+            s"${tpls._1.toString} has the following errors: ${tpls._2.toString}"
+          }
+          throw new RuntimeException(s"One or more IDL files are invalid. Error details:\n $formattedErrorMessage")
         case Valid(outputFiles) =>
           outputFiles
       }
