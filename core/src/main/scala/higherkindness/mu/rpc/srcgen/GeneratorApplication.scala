@@ -48,8 +48,8 @@ class GeneratorApplication[T <: Generator](generators: T*) {
         .traverse {
           case (inputFile, outputFilePath, output) =>
             output match {
-              case Invalid(e) =>
-                (inputFile, e).invalidNel
+              case Invalid(readErrors) =>
+                (inputFile, readErrors).invalidNel
               case Valid(content) =>
                 val outputFile = new File(outputDir, outputFilePath)
                 logger.info(s"$inputFile -> $outputFile")
@@ -59,8 +59,8 @@ class GeneratorApplication[T <: Generator](generators: T*) {
             }
         }
       result match {
-        case Invalid(listOfErrors) =>
-          val formattedErrorMessage = listOfErrors.map { tpls =>
+        case Invalid(listOfFilesAndReadErrors) =>
+          val formattedErrorMessage = listOfFilesAndReadErrors.map { tpls =>
             s"${tpls._1.toString} has the following errors: ${tpls._2.toString}"
           }
           throw new RuntimeException(s"One or more IDL files are invalid. Error details:\n $formattedErrorMessage")
