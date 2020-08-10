@@ -14,7 +14,6 @@ lazy val domain = project
     mappings in (Compile, packageBin) ~= { _.filter(!_._1.getName.endsWith(".class")) },
     muSrcGenIdlType := IdlType.Avro,
     muSrcGenSourceDirs := Seq((Compile / resourceDirectory).value),
-    addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.1" cross CrossVersion.patch),
     muSrcGenTargetDir := (Compile / sourceManaged).value / "generated_from_avro",
     libraryDependencies ++= Seq(
       "io.higherkindness" %% "mu-rpc-service" % sys.props("mu")
