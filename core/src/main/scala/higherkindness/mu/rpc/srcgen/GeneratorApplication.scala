@@ -45,7 +45,6 @@ class GeneratorApplication[T <: Generator](generators: T*) {
       val result: ValidatedNel[(File, NonEmptyList[T#Error]), List[File]] =
         generatorsByType(idlType)
           .generateFrom(inputFiles, serializationType)
-          .toList
           .traverse {
             case (inputFile, outputFilePath, output) =>
               output match {

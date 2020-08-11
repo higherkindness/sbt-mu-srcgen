@@ -48,12 +48,12 @@ final case class AvroSrcGenerator(
 
   val idlType: IdlType = IdlType.Avro
 
-  def inputFiles(files: Set[File]): Seq[File] = {
+  def inputFiles(files: Set[File]): List[File] = {
     val avprFiles = files.filter(_.getName.endsWith(AvprExtension))
     val avdlFiles = files.filter(_.getName.endsWith(AvdlExtension))
     // Using custom FileSorter that can process imports outside the initial fileset
     // Note: this will add all imported files to our fileset, even those from other modules
-    avprFiles.toSeq ++ AvdlFileSorter.sortSchemaFiles(avdlFiles)
+    avprFiles.toList ++ AvdlFileSorter.sortSchemaFiles(avdlFiles)
   }
 
   // We must process all inputs including imported files from outside our initial fileset,
@@ -61,7 +61,7 @@ final case class AvroSrcGenerator(
   override def generateFrom(
       files: Set[File],
       serializationType: SerializationType
-  ): Seq[(File, String, ErrorsOr[Seq[String]])] =
+  ): List[(File, String, ErrorsOr[List[String]])] =
     super
       .generateFrom(files, serializationType)
       .filter(output => files.contains(output._1))
@@ -69,7 +69,7 @@ final case class AvroSrcGenerator(
   def generateFrom(
       inputFile: File,
       serializationType: SerializationType
-  ): Option[(String, ErrorsOr[Seq[String]])] =
+  ): Option[(String, ErrorsOr[List[String]])] =
     generateFromSchemaProtocols(
       mainGenerator.fileParser
         .getSchemaOrProtocols(
@@ -84,7 +84,7 @@ final case class AvroSrcGenerator(
   def generateFrom(
       input: String,
       serializationType: SerializationType
-  ): Option[(String, ErrorsOr[Seq[String]])] =
+  ): Option[(String, ErrorsOr[List[String]])] =
     generateFromSchemaProtocols(
       mainGenerator.stringParser
         .getSchemaOrProtocols(input, mainGenerator.schemaStore),
@@ -94,7 +94,7 @@ final case class AvroSrcGenerator(
   private def generateFromSchemaProtocols(
       schemasOrProtocols: List[Either[Schema, Protocol]],
       serializationType: SerializationType
-  ): Option[(String, ErrorsOr[Seq[String]])] =
+  ): Option[(String, ErrorsOr[List[String]])] =
     Some(schemasOrProtocols)
       .filter(_.nonEmpty)
       .flatMap(_.last match {
@@ -106,7 +106,7 @@ final case class AvroSrcGenerator(
   def generateFrom(
       protocol: Protocol,
       serializationType: SerializationType
-  ): (String, ErrorsOr[Seq[String]]) = {
+  ): (String, ErrorsOr[List[String]]) = {
 
     val outputPath =
       s"${protocol.getNamespace.replace('.', '/')}/${protocol.getName}$ScalaFileExtension"
@@ -120,14 +120,14 @@ final case class AvroSrcGenerator(
       .tail                 // remove top comment and get package declaration on first line
       .filterNot(_ == "()") // https://github.com/julianpeeters/sbt-avrohugger/issues/33
 
-    val packageLines = Seq(schemaLines.head, "")
+    val packageLines = List(schemaLines.head, "")
 
     val importLines =
       ("import higherkindness.mu.rpc.protocol._" :: marshallersImports
         .map(_.marshallersImport)
         .map("import " + _)).sorted
 
-    val messageLines = schemaLines.tail :+ ""
+    val messageLines = (schemaLines.tail :+ "").toList
 
     val extraParams =
       s"compressionType = ${compressionTypeGen.value}" +:
@@ -140,22 +140,19 @@ final case class AvroSrcGenerator(
 
     val serviceParams = (serializationType.toString +: extraParams).mkString(",")
 
-    val requestLines = {
-      val result = protocol.getMessages.asScala.toList.traverse {
-        case (name, message) =>
-          val comment = Option(message.getDoc).map(doc => s"  /** $doc */").toList
-          buildMethodSignature(name, message.getRequest, message.getResponse).map { content =>
-            comment ++ Seq(content, "")
-          }
-      }
-      result.map(_.flatten)
+    val requestLines = protocol.getMessages.asScala.toList.flatTraverse {
+      case (name, message) =>
+        val comment = Option(message.getDoc).map(doc => s"  /** $doc */").toList
+        buildMethodSignature(name, message.getRequest, message.getResponse).map { content =>
+          comment ++ List(content, "")
+        }
     }
 
     val outputCode = requestLines.map { requests =>
       val serviceLines =
-        if (requests.isEmpty) Seq.empty
+        if (requests.isEmpty) List.empty
         else {
-          Seq(
+          List(
             s"@service(${serviceParams}) trait ${protocol.getName}[F[_]] {",
             ""
           ) ++ requests :+ "}"

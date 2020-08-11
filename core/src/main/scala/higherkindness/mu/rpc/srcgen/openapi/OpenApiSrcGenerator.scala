@@ -55,18 +55,18 @@ object OpenApiSrcGenerator {
           case HttpImpl.Http4sV20 => client.http4s.print.v20.v20Http4sSpecifics
         }
 
-      protected def inputFiles(files: Set[File]): Seq[File] =
-        files.filter(handleFile(_)(_ => true, _ => true, false)).toSeq
+      protected def inputFiles(files: Set[File]): List[File] =
+        files.filter(handleFile(_)(_ => true, _ => true, false)).toList
 
       protected def generateFrom(
           inputFile: File,
           serializationType: Model.SerializationType
-      ): Option[(String, ErrorsOr[Seq[String]])] =
+      ): Option[(String, ErrorsOr[List[String]])] =
         getCode[IO](inputFile).value.unsafeRunSync()
 
       private def getCode[F[_]: Sync](
           file: File
-      ): Nested[F, Option, (String, ErrorsOr[Seq[String]])] =
+      ): Nested[F, Option, (String, ErrorsOr[List[String]])] =
         parseFile[F]
           .apply(file)
           .map(OpenApi.extractNestedTypes[JsonSchemaF.Fixed])
@@ -80,7 +80,7 @@ object OpenApiSrcGenerator {
             val pkg        = packageName(path)
             pathFrom(path, file).toString ->
               Valid(
-                Seq(
+                List(
                   s"package ${pkg.value}",
                   model[JsonSchemaF.Fixed].print(openApi),
                   interfaceDefinition.print(openApi),
@@ -109,8 +109,8 @@ object OpenApiSrcGenerator {
           file: File
       )(json: JsonSource => T, yaml: YamlSource => T, none: T): T =
         file match {
-          case x if (x.getName().endsWith(JsonExtension)) => json(JsonSource(file))
-          case x if (x.getName().endsWith(YamlExtension)) => yaml(YamlSource(file))
+          case x if (x.getName.endsWith(JsonExtension)) => json(JsonSource(file))
+          case x if (x.getName.endsWith(YamlExtension)) => yaml(YamlSource(file))
           case _                                          => none
         }
     }
