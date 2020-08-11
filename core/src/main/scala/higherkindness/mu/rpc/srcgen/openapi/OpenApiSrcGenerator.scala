@@ -111,7 +111,7 @@ object OpenApiSrcGenerator {
         file match {
           case x if (x.getName.endsWith(JsonExtension)) => json(JsonSource(file))
           case x if (x.getName.endsWith(YamlExtension)) => yaml(YamlSource(file))
-          case _                                          => none
+          case _                                        => none
         }
     }
 }
