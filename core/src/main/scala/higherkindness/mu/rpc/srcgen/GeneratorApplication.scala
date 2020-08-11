@@ -42,7 +42,7 @@ class GeneratorApplication[T <: Generator](generators: T*) {
       outputDir: File
   ): Seq[File] =
     if (idlTypes.contains(idlType)) {
-      val result: ValidatedNel[(File, NonEmptyList[T#Error]), List[File]] =
+      val result: ValidatedNel[(File, NonEmptyList[Error]), List[File]] =
         generatorsByType(idlType)
           .generateFrom(inputFiles, serializationType)
           .traverse {

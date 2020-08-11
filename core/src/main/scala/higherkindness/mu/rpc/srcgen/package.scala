@@ -16,9 +16,10 @@
 
 package higherkindness.mu.rpc
 
+import cats.data.ValidatedNel
+
 import scala.reflect.runtime.universe.runtimeMirror
 import scala.tools.reflect.ToolBox
-
 import higherkindness.mu.rpc.protocol.{Avro, AvroWithSchema, Custom, Protobuf, SerializationType}
 import higherkindness.mu.rpc.srcgen.util.AstOptics.ast
 
@@ -30,6 +31,9 @@ package object srcgen {
 
   val DefaultRequestParamName = "arg"
   val EmptyType               = "Empty.type"
+
+  type Error       = String
+  type ErrorsOr[A] = ValidatedNel[Error, A]
 
   val ScalaFileExtension = ".scala"
 
