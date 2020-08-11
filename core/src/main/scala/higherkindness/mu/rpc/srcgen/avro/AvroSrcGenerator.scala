@@ -168,23 +168,26 @@ final case class AvroSrcGenerator(
 
   def validateRequest(request: Schema): ErrorsOr[String] = {
     val requestArgs = request.getFields.asScala
-    if (requestArgs.size > 1)
-      (s"RPC method ${request.getName} has more than 1 request parameter").invalidNel
-    if (requestArgs.isEmpty) s"$DefaultRequestParamName: $EmptyType".validNel
-    else {
-      val requestArg = requestArgs.head
-      if (requestArg.schema.getType != Schema.Type.RECORD)
-        (s"RPC method request parameter '${requestArg.name}' has non-record return type '${requestArg.schema.getType}'").invalidNel
-      else s"${requestArg.name}: ${requestArg.schema.getFullName}".validNel
+    requestArgs.toList match {
+      case Nil =>
+        s"$DefaultRequestParamName: $EmptyType".validNel
+      case x :: Nil if x.schema.getType == Schema.Type.RECORD =>
+        s"${requestArgs.head.name}: ${requestArgs.head.schema.getFullName}".validNel
+      case _ :: Nil =>
+        s"RPC method request parameter '${requestArgs.head.name}' has non-record request type '${requestArgs.head.schema.getType}'".invalidNel
+      case _ =>
+        s"RPC method ${request.getName} has more than 1 request parameter".invalidNel
     }
   }
 
   def validateResponse(response: Schema): ErrorsOr[String] = {
-    if (response.getType == Schema.Type.NULL) EmptyType.validNel
-    else {
-      if (response.getType != Schema.Type.RECORD)
-        (s"RPC method response parameter has non-record return type '${response.getType}'").invalidNel
-      else s"${response.getNamespace}.${response.getName}".validNel
+    response.getType match {
+      case Schema.Type.NULL =>
+        EmptyType.validNel
+      case Schema.Type.RECORD =>
+        s"${response.getNamespace}.${response.getName}".validNel
+      case _ =>
+        s"RPC method response parameter has non-record response type '${response.getType}'".invalidNel
     }
   }
 
@@ -193,10 +196,9 @@ final case class AvroSrcGenerator(
       request: Schema,
       response: Schema
   ): ErrorsOr[String] = {
-    validateRequest(request).andThen(requestParam =>
-      validateResponse(response).map(responseParam =>
+    (validateRequest(request), validateResponse(response)).mapN {
+      case (requestParam, responseParam) =>
         s"  def $name($requestParam): F[$responseParam]"
-      )
-    )
+    }
   }
 }
