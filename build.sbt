@@ -31,7 +31,6 @@ lazy val plugin = project
   .settings(moduleName := "sbt-mu-srcgen")
   .enablePlugins(SbtPlugin)
   .settings(
-    scalacOptions += "-Ypartial-unification",
     scriptedLaunchOpts ++= Seq(
       "-Xmx2048M",
       "-XX:ReservedCodeCacheSize=256m",

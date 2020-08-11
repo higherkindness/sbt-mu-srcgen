@@ -103,7 +103,7 @@ object ProtoSrcGenerator {
                     s"Failed to generate Scala source from Protobuf file ${file.getAbsolutePath}. Error details: $error"
                   )
                 )
-              case Right(fileContent: String) =>
+              case Right(fileContent) =>
                 F.pure(path -> Valid(splitLines(fileContent)))
             }
           }
