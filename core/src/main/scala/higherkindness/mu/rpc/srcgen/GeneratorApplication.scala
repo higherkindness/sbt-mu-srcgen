@@ -42,7 +42,7 @@ class GeneratorApplication[T <: Generator](generators: T*) {
       outputDir: File
   ): Seq[File] =
     if (idlTypes.contains(idlType)) {
-      val result: ValidatedNel[(File, NonEmptyList[Error]), List[File]] =
+      val result: ValidatedNel[(File, NonEmptyList[Error]), List[(File, List[String])]] =
         generatorsByType(idlType)
           .generateFrom(inputFiles, serializationType)
           .traverse {
@@ -53,9 +53,7 @@ class GeneratorApplication[T <: Generator](generators: T*) {
                 case Valid(content) =>
                   val outputFile = new File(outputDir, outputFilePath)
                   logger.info(s"$inputFile -> $outputFile")
-                  Option(outputFile.getParentFile).foreach(_.mkdirs())
-                  outputFile.write(content)
-                  outputFile.validNel
+                  (outputFile, content).validNel
               }
           }
       result match {
@@ -71,7 +69,12 @@ class GeneratorApplication[T <: Generator](generators: T*) {
             s"One or more IDL files are invalid. Error details:\n $formattedErrorMessage"
           )
         case Valid(outputFiles) =>
-          outputFiles
+          outputFiles.map {
+            case (outputFile, content) =>
+              Option(outputFile.getParentFile).foreach(_.mkdirs())
+              outputFile.write(content)
+              outputFile
+          }
       }
     } else {
       System.out.println(
