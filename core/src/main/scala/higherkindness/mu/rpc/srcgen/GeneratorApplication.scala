@@ -63,7 +63,7 @@ class GeneratorApplication[T <: Generator](generators: T*) {
           val formattedErrorMessage = listOfFilesAndReadErrors.map {
             case (inputFile, errors) =>
               s"$inputFile has the following errors: ${errors.toList.mkString(", ")}"
-          }
+          }.mkString("\n")
           throw new RuntimeException(
             s"One or more IDL files are invalid. Error details:\n $formattedErrorMessage"
           )
