@@ -46,7 +46,7 @@ class ProtoSrcGenTests extends AnyWordSpec with Matchers with OneInstancePerTest
             files = Set(protoFile("book")),
             serializationType = SerializationType.Protobuf
           )
-          .map(t => (t._2, t._3.mkString("\n").clean))
+          .map(t => (t._2, t._3.getOrElse(Seq("")).mkString("\n").clean))
           .headOption
 
       val expectedFileContent = bookExpectation(tpe => s"_root_.fs2.Stream[F, $tpe]").clean
@@ -66,7 +66,7 @@ class ProtoSrcGenTests extends AnyWordSpec with Matchers with OneInstancePerTest
             files = Set(protoFile("book")),
             serializationType = SerializationType.Protobuf
           )
-          .map(t => (t._2, t._3.mkString("\n").clean))
+          .map(t => (t._2, t._3.getOrElse(Seq("")).mkString("\n").clean))
           .headOption
 
       val expectedFileContent =
@@ -79,68 +79,68 @@ class ProtoSrcGenTests extends AnyWordSpec with Matchers with OneInstancePerTest
 
   def bookExpectation(streamOf: String => String): String =
     s"""package com.proto
-      |
-      |import _root_.higherkindness.mu.rpc.protocol._
-      |
-      |object book {
-      |
-      |final case class Book(
-      |  @_root_.pbdirect.pbIndex(1) isbn: _root_.scala.Long,
-      |  @_root_.pbdirect.pbIndex(2) title: _root_.java.lang.String,
-      |  @_root_.pbdirect.pbIndex(3) author: _root_.scala.List[_root_.com.proto.author.Author],
-      |  @_root_.pbdirect.pbIndex(9) binding_type: _root_.scala.Option[_root_.com.proto.book.BindingType]
-      |)
-      |final case class GetBookRequest(
-      |  @_root_.pbdirect.pbIndex(1) isbn: _root_.scala.Long
-      |)
-      |final case class GetBookViaAuthor(
-      |  @_root_.pbdirect.pbIndex(1) author: _root_.scala.Option[_root_.com.proto.author.Author]
-      |)
-      |final case class BookStore(
-      |  @_root_.pbdirect.pbIndex(1) name: _root_.java.lang.String,
-      |  @_root_.pbdirect.pbIndex(2) books: _root_.scala.Predef.Map[_root_.scala.Long, _root_.java.lang.String],
-      |  @_root_.pbdirect.pbIndex(3) genres: _root_.scala.List[_root_.com.proto.book.Genre],
-      |  @_root_.pbdirect.pbIndex(4,5,6,7) payment_method: _root_.scala.Option[
-      |    _root_.shapeless.:+:[
-      |      _root_.scala.Long,
-      |      _root_.shapeless.:+:[
-      |        _root_.scala.Int,
-      |        _root_.shapeless.:+:[
-      |          _root_.java.lang.String,
-      |          _root_.shapeless.:+:[
-      |            _root_.com.proto.book.Book,
-      |            _root_.shapeless.CNil]]]]]
-      |)
-      |
-      |sealed abstract class Genre(val value: _root_.scala.Int) extends _root_.enumeratum.values.IntEnumEntry
-      |object Genre extends _root_.enumeratum.values.IntEnum[Genre] {
-      |  case object UNKNOWN extends Genre(0)
-      |  case object SCIENCE_FICTION extends Genre(1)
-      |  case object POETRY extends Genre(2)
-      |
-      |  val values = findValues
-      |}
-      |
-      |sealed abstract class BindingType(val value: _root_.scala.Int) extends _root_.enumeratum.values.IntEnumEntry
-      |object BindingType extends _root_.enumeratum.values.IntEnum[BindingType] {
-      |  case object HARDCOVER extends BindingType(0)
-      |  case object PAPERBACK extends BindingType(1)
-      |
-      |  val values = findValues
-      |}
-      |
-      |@service(Protobuf, Identity) trait BookService[F[_]] {
-      |  def GetBook(req: _root_.com.proto.book.GetBookRequest): F[_root_.com.proto.book.Book]
-      |  def GetBooksViaAuthor(req: _root_.com.proto.book.GetBookViaAuthor): F[${streamOf(
+       |
+       |import _root_.higherkindness.mu.rpc.protocol._
+       |
+       |object book {
+       |
+       |final case class Book(
+       |  @_root_.pbdirect.pbIndex(1) isbn: _root_.scala.Long,
+       |  @_root_.pbdirect.pbIndex(2) title: _root_.java.lang.String,
+       |  @_root_.pbdirect.pbIndex(3) author: _root_.scala.List[_root_.com.proto.author.Author],
+       |  @_root_.pbdirect.pbIndex(9) binding_type: _root_.scala.Option[_root_.com.proto.book.BindingType]
+       |)
+       |final case class GetBookRequest(
+       |  @_root_.pbdirect.pbIndex(1) isbn: _root_.scala.Long
+       |)
+       |final case class GetBookViaAuthor(
+       |  @_root_.pbdirect.pbIndex(1) author: _root_.scala.Option[_root_.com.proto.author.Author]
+       |)
+       |final case class BookStore(
+       |  @_root_.pbdirect.pbIndex(1) name: _root_.java.lang.String,
+       |  @_root_.pbdirect.pbIndex(2) books: _root_.scala.Predef.Map[_root_.scala.Long, _root_.java.lang.String],
+       |  @_root_.pbdirect.pbIndex(3) genres: _root_.scala.List[_root_.com.proto.book.Genre],
+       |  @_root_.pbdirect.pbIndex(4,5,6,7) payment_method: _root_.scala.Option[
+       |    _root_.shapeless.:+:[
+       |      _root_.scala.Long,
+       |      _root_.shapeless.:+:[
+       |        _root_.scala.Int,
+       |        _root_.shapeless.:+:[
+       |          _root_.java.lang.String,
+       |          _root_.shapeless.:+:[
+       |            _root_.com.proto.book.Book,
+       |            _root_.shapeless.CNil]]]]]
+       |)
+       |
+       |sealed abstract class Genre(val value: _root_.scala.Int) extends _root_.enumeratum.values.IntEnumEntry
+       |object Genre extends _root_.enumeratum.values.IntEnum[Genre] {
+       |  case object UNKNOWN extends Genre(0)
+       |  case object SCIENCE_FICTION extends Genre(1)
+       |  case object POETRY extends Genre(2)
+       |
+       |  val values = findValues
+       |}
+       |
+       |sealed abstract class BindingType(val value: _root_.scala.Int) extends _root_.enumeratum.values.IntEnumEntry
+       |object BindingType extends _root_.enumeratum.values.IntEnum[BindingType] {
+       |  case object HARDCOVER extends BindingType(0)
+       |  case object PAPERBACK extends BindingType(1)
+       |
+       |  val values = findValues
+       |}
+       |
+       |@service(Protobuf, Identity) trait BookService[F[_]] {
+       |  def GetBook(req: _root_.com.proto.book.GetBookRequest): F[_root_.com.proto.book.Book]
+       |  def GetBooksViaAuthor(req: _root_.com.proto.book.GetBookViaAuthor): F[${streamOf(
       "_root_.com.proto.book.Book"
     )}]
-      |  def GetGreatestBook(req: ${streamOf("_root_.com.proto.book.GetBookRequest")}): F[_root_.com.proto.book.Book]
-      |  def GetBooks(req: ${streamOf("_root_.com.proto.book.GetBookRequest")}): F[${streamOf(
+       |  def GetGreatestBook(req: ${streamOf("_root_.com.proto.book.GetBookRequest")}): F[_root_.com.proto.book.Book]
+       |  def GetBooks(req: ${streamOf("_root_.com.proto.book.GetBookRequest")}): F[${streamOf(
       "_root_.com.proto.book.Book"
     )}]
-      |}
-      |
-      |}""".stripMargin
+       |}
+       |
+       |}""".stripMargin
 
   implicit class StringOps(self: String) {
     def clean: String = self.replaceAll("\\s", "")

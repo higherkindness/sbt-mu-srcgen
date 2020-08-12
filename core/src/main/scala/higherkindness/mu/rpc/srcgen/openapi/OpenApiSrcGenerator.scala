@@ -18,6 +18,7 @@ package higherkindness.mu.rpc.srcgen.openapi
 
 import java.io.File
 import java.nio.file.{Path, Paths}
+
 import higherkindness.mu.rpc.srcgen._
 import higherkindness.mu.rpc.srcgen.Model.IdlType
 import higherkindness.skeuomorph.openapi._
@@ -27,13 +28,13 @@ import print._
 import client.print._
 import client.http4s.circe._
 import client.http4s.print._
-
 import cats.data.Nested
+import cats.data.Validated.Valid
 import cats.implicits._
-
 import higherkindness.skeuomorph.Parser
 import cats.effect._
 import higherkindness.skeuomorph.openapi.JsonSchemaF
+
 import scala.collection.JavaConverters._
 
 object OpenApiSrcGenerator {
@@ -54,16 +55,18 @@ object OpenApiSrcGenerator {
           case HttpImpl.Http4sV20 => client.http4s.print.v20.v20Http4sSpecifics
         }
 
-      protected def inputFiles(files: Set[File]): Seq[File] =
-        files.filter(handleFile(_)(_ => true, _ => true, false)).toSeq
+      protected def inputFiles(files: Set[File]): List[File] =
+        files.filter(handleFile(_)(_ => true, _ => true, false)).toList
 
       protected def generateFrom(
           inputFile: File,
           serializationType: Model.SerializationType
-      ): Option[(String, Seq[String])] =
+      ): Option[(String, ErrorsOr[List[String]])] =
         getCode[IO](inputFile).value.unsafeRunSync()
 
-      private def getCode[F[_]: Sync](file: File): Nested[F, Option, (String, Seq[String])] =
+      private def getCode[F[_]: Sync](
+          file: File
+      ): Nested[F, Option, (String, ErrorsOr[List[String]])] =
         parseFile[F]
           .apply(file)
           .map(OpenApi.extractNestedTypes[JsonSchemaF.Fixed])
@@ -76,12 +79,14 @@ object OpenApiSrcGenerator {
             val path: Path = Paths.get(paths.map(_.toString()).mkString("/"))
             val pkg        = packageName(path)
             pathFrom(path, file).toString ->
-              Seq(
-                s"package ${pkg.value}",
-                model[JsonSchemaF.Fixed].print(openApi),
-                interfaceDefinition.print(openApi),
-                impl.print(pkg -> openApi)
-              ).filter(_.nonEmpty)
+              Valid(
+                List(
+                  s"package ${pkg.value}",
+                  model[JsonSchemaF.Fixed].print(openApi),
+                  interfaceDefinition.print(openApi),
+                  impl.print(pkg -> openApi)
+                ).filter(_.nonEmpty)
+              )
           }
 
       private def packageName(path: Path): PackageName =
@@ -104,9 +109,9 @@ object OpenApiSrcGenerator {
           file: File
       )(json: JsonSource => T, yaml: YamlSource => T, none: T): T =
         file match {
-          case x if (x.getName().endsWith(JsonExtension)) => json(JsonSource(file))
-          case x if (x.getName().endsWith(YamlExtension)) => yaml(YamlSource(file))
-          case _                                          => none
+          case x if (x.getName.endsWith(JsonExtension)) => json(JsonSource(file))
+          case x if (x.getName.endsWith(YamlExtension)) => yaml(YamlSource(file))
+          case _                                        => none
         }
     }
 }

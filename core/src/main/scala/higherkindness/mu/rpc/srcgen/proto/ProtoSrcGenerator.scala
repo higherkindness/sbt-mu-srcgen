@@ -23,6 +23,7 @@ import scala.util.control.NoStackTrace
 
 import cats.effect.{IO, Sync}
 import cats.syntax.flatMap._
+import cats.data.Validated._
 
 import higherkindness.droste.data.Mu
 import higherkindness.droste.data.Mu._
@@ -53,13 +54,13 @@ object ProtoSrcGenerator {
 
       val idlType: IdlType = IdlType.Proto
 
-      def inputFiles(files: Set[File]): Seq[File] =
-        files.filter(_.getName.endsWith(ProtoExtension)).toSeq
+      def inputFiles(files: Set[File]): List[File] =
+        files.filter(_.getName.endsWith(ProtoExtension)).toList
 
       def generateFrom(
           inputFile: File,
           serializationType: SerializationType
-      ): Option[(String, Seq[String])] =
+      ): Option[(String, ErrorsOr[List[String]])] =
         getCode[IO](inputFile).map(Some(_)).unsafeRunSync
 
       val streamCtor: (Type, Type) => Type.Apply = streamingImplementation match {
@@ -88,7 +89,9 @@ object ProtoSrcGenerator {
 
       val splitLines: String => List[String] = _.split("\n").toList
 
-      private def getCode[F[_]](file: File)(implicit F: Sync[F]): F[(String, Seq[String])] =
+      private def getCode[F[_]](
+          file: File
+      )(implicit F: Sync[F]): F[(String, ErrorsOr[List[String]])] =
         parseProto[F, Mu[ProtobufF]]
           .parse(ProtoSource(file.getName, file.getParent, Some(idlTargetDir.getCanonicalPath)))
           .flatMap { protocol =>
@@ -101,7 +104,7 @@ object ProtoSrcGenerator {
                   )
                 )
               case Right(fileContent) =>
-                F.pure(path -> splitLines(fileContent))
+                F.pure(path -> Valid(splitLines(fileContent)))
             }
           }
 

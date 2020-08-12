@@ -25,7 +25,7 @@ trait Generator {
   def generateFrom(
       files: Set[File],
       serializationType: Model.SerializationType
-  ): Seq[(File, String, Seq[String])] =
+  ): List[(File, String, ErrorsOr[List[String]])] =
     inputFiles(files).flatMap(inputFile =>
       generateFrom(inputFile, serializationType).map {
         case (outputPath, output) =>
@@ -33,10 +33,10 @@ trait Generator {
       }
     )
 
-  protected def inputFiles(files: Set[File]): Seq[File]
+  protected def inputFiles(files: Set[File]): List[File]
 
   protected def generateFrom(
       inputFile: File,
       serializationType: Model.SerializationType
-  ): Option[(String, Seq[String])]
+  ): Option[(String, ErrorsOr[List[String]])]
 }

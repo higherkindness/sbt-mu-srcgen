@@ -12,5 +12,4 @@ protocol MyService {
   }
 
   io.higherkindness.Person hi(io.higherkindness.Foo request);
-
 }
