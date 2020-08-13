@@ -42,7 +42,9 @@ import higherkindness.skeuomorph.protobuf.{ProtobufF, Protocol}
 
 object ProtoSrcGenerator {
 
-  final case class ProtobufSrcGenException(message: String) extends NoStackTrace
+  final case class ProtobufSrcGenException(message: String) extends NoStackTrace {
+    override def toString: String = s"ProtoBufSrcGenException: $message"
+  }
 
   def build(
       compressionTypeGen: CompressionTypeGen,
