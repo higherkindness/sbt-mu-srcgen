@@ -112,6 +112,7 @@ final case class AvroSrcGenerator(
       s"${protocol.getNamespace.replace('.', '/')}/${protocol.getName}$ScalaFileExtension"
 
     val schemaGenerator = if (protocol.getMessages.isEmpty) adtGenerator else mainGenerator
+
     val schemaLines = schemaGenerator
       .protocolToStrings(protocol)
       .mkString

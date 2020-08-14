@@ -20,7 +20,13 @@ import cats.data.Validated.Valid
 
 import scala.io._
 import higherkindness.mu.rpc.srcgen.AvroScalaGeneratorArbitrary._
-import higherkindness.mu.rpc.srcgen.Model.ScalaBigDecimalTaggedGen
+import higherkindness.mu.rpc.srcgen.Model.SerializationType.Avro
+import higherkindness.mu.rpc.srcgen.Model.{
+  BigDecimalAvroMarshallers,
+  NoCompressionGen,
+  ScalaBigDecimalTaggedGen,
+  UseIdiomaticEndpoints
+}
 import higherkindness.mu.rpc.srcgen.avro._
 import org.scalacheck.Prop.forAll
 import org.scalatest._
@@ -36,6 +42,25 @@ class AvroSrcGenTests extends AnyWordSpec with Matchers with OneInstancePerTest 
       check {
         forAll { scenario: Scenario => test(scenario) }
       }
+    }
+
+    "return a non-empty list of errors instead of generating code from an invalid IDL file" in {
+      val response = {
+        AvroSrcGenerator(
+          List(BigDecimalAvroMarshallers),
+          ScalaBigDecimalTaggedGen,
+          NoCompressionGen,
+          UseIdiomaticEndpoints.trueV
+        ).generateFrom(
+          Source.fromInputStream(getClass.getResourceAsStream("/avro/Invalid.avdl")).mkString,
+          Avro
+        )
+      }
+
+      val expectedResponse =
+        "Some((foo/bar/MyGreeterService.scala,Invalid(NonEmptyList(RPC method response parameter has non-record response type 'STRING'))))"
+
+      assert(response.toString == expectedResponse)
     }
   }
 
