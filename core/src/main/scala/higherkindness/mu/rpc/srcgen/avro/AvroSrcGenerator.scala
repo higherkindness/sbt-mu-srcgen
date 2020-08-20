@@ -112,6 +112,7 @@ final case class AvroSrcGenerator(
       s"${protocol.getNamespace.replace('.', '/')}/${protocol.getName}$ScalaFileExtension"
 
     val schemaGenerator = if (protocol.getMessages.isEmpty) adtGenerator else mainGenerator
+
     val schemaLines = schemaGenerator
       .protocolToStrings(protocol)
       .mkString
@@ -163,7 +164,7 @@ final case class AvroSrcGenerator(
     outputPath -> outputCode
   }
 
-  def validateRequest(request: Schema): ErrorsOr[String] = {
+  private def validateRequest(request: Schema): ErrorsOr[String] = {
     val requestArgs = request.getFields.asScala
     requestArgs.toList match {
       case Nil =>
@@ -177,7 +178,7 @@ final case class AvroSrcGenerator(
     }
   }
 
-  def validateResponse(response: Schema): ErrorsOr[String] = {
+  private def validateResponse(response: Schema): ErrorsOr[String] = {
     response.getType match {
       case Schema.Type.NULL =>
         EmptyType.validNel

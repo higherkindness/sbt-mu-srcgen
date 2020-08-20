@@ -1,0 +1,6 @@
+syntax = "proto3";
+
+message Broken {
+    string name = 1;
+    string nick = 2;
+}
