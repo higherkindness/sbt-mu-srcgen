@@ -16,6 +16,7 @@
 
 package higherkindness.mu.rpc.srcgen
 
+import cats.data.Validated
 import cats.data.Validated.Valid
 
 import scala.io._
@@ -57,7 +58,14 @@ class AvroSrcGenTests extends AnyWordSpec with Matchers with OneInstancePerTest 
         )
       }
 
-      response shouldBe Some(("foo/bar/MyGreeterService.scala", Validated.invalidNel("RPC method response parameter has non-record response type 'STRING'")))
+      response shouldBe Some(
+        (
+          "foo/bar/MyGreeterService.scala",
+          Validated.invalidNel(
+            "RPC method response parameter has non-record response type 'STRING'"
+          )
+        )
+      )
     }
   }
 
