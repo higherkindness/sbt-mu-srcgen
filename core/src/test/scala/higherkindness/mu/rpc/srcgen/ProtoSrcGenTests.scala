@@ -77,7 +77,7 @@ class ProtoSrcGenTests extends AnyWordSpec with Matchers with OneInstancePerTest
     }
 
     "throw an exception on an incorrect Protobuf schema" in {
-      val caught = intercept[ProtobufSrcGenException] {
+      assertThrows[ProtobufSrcGenException] {
         ProtoSrcGenerator
           .build(
             NoCompressionGen,
@@ -90,9 +90,6 @@ class ProtoSrcGenTests extends AnyWordSpec with Matchers with OneInstancePerTest
             serializationType = SerializationType.Protobuf
           )
       }
-
-      assert(caught.toString.contains("ProtoBufSrcGenException"))
-
     }
 
   }
