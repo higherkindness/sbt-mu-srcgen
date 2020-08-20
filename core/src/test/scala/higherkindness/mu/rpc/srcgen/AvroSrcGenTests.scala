@@ -57,10 +57,7 @@ class AvroSrcGenTests extends AnyWordSpec with Matchers with OneInstancePerTest 
         )
       }
 
-      val expectedResponse =
-        "Some((foo/bar/MyGreeterService.scala,Invalid(NonEmptyList(RPC method response parameter has non-record response type 'STRING'))))"
-
-      assert(response.toString == expectedResponse)
+      response shouldBe Some(("foo/bar/MyGreeterService.scala", Validated.invalidNel("RPC method response parameter has non-record response type 'STRING'")))
     }
   }
 
