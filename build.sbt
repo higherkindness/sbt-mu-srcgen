@@ -21,7 +21,7 @@ lazy val core = project
       "org.http4s"                 %% "http4s-circe"        % "0.21.7",
       "org.scalatest"              %% "scalatest"           % "3.2.1"   % Test,
       "org.scalacheck"             %% "scalacheck"          % "1.14.3"  % Test,
-      "org.scalatestplus"          %% "scalacheck-1-14"     % "3.2.1.0" % Test,
+      "org.scalatestplus"          %% "scalacheck-1-14"     % "3.2.2.0" % Test,
       "org.slf4j"                   % "slf4j-nop"           % "1.7.30"  % Test
     )
   )
