@@ -8,7 +8,7 @@ addCommandAlias("ci-test", "scalafmtCheckAll; scalafmtSbtCheck; test; publishLoc
 addCommandAlias("ci-docs", "github; mdoc; headerCreateAll")
 addCommandAlias("ci-publish", "github; ci-release")
 
-val V = new {
+lazy val V = new {
   val mu          = "0.23.0"
 }
 
