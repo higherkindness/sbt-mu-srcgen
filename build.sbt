@@ -14,7 +14,7 @@ lazy val core = project
   .settings(moduleName := "mu-srcgen-core")
   .settings(
     libraryDependencies ++= Seq(
-      "io.higherkindness"          %% "mu-rpc-service"      % V.mu,
+      "io.higherkindness"          %% "mu-rpc-service"      % muV,
       "com.github.julien-truffaut" %% "monocle-core"        % "2.1.0",
       "io.higherkindness"          %% "skeuomorph"          % "0.0.25",
       "com.julianpeeters"          %% "avrohugger-core"     % "1.0.0-RC22",
