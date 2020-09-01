@@ -76,7 +76,6 @@ class ProtoSrcGenTests extends AnyWordSpec with Matchers with OneInstancePerTest
       result shouldBe Some(("com/proto/book.scala", expectedFileContent))
     }
 
-    // TODO: figure out how to actually throw an exception?
     "throw an exception on an invalid Protobuf schema" in {
       assertThrows[ProtobufCompilationException] {
         ProtoSrcGenerator
