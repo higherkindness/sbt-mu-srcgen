@@ -1,5 +1,41 @@
 # Changelog
 
+## [v0.22.4](https://github.com/higherkindness/sbt-mu-srcgen/tree/v0.22.4) (2020-08-24)
+
+[Full Changelog](https://github.com/higherkindness/sbt-mu-srcgen/compare/v0.22.3...v0.22.4)
+
+⚠️ **Breaking changes**
+
+- Make the plugin manual [\#72](https://github.com/higherkindness/sbt-mu-srcgen/pull/72) ([dmarticus](https://github.com/dmarticus))
+
+🐛 **Bug Fixes**
+
+- Improve ProtobufSrcGenExceptions to actually point where the errors are happening [\#82](https://github.com/higherkindness/sbt-mu-srcgen/issues/82)
+
+📈 **Dependency updates**
+
+- Update scalacheck-1-14 to 3.2.2.0 [\#87](https://github.com/higherkindness/sbt-mu-srcgen/pull/87) ([47erbot](https://github.com/47erbot))
+- Update scalatest to 3.2.2 [\#86](https://github.com/higherkindness/sbt-mu-srcgen/pull/86) ([47erbot](https://github.com/47erbot))
+- Update sbt-mdoc to 2.2.5 [\#85](https://github.com/higherkindness/sbt-mu-srcgen/pull/85) ([47erbot](https://github.com/47erbot))
+- Update monocle-core to 2.1.0 [\#84](https://github.com/higherkindness/sbt-mu-srcgen/pull/84) ([47erbot](https://github.com/47erbot))
+- Update sbt-mdoc to 2.2.4 [\#81](https://github.com/higherkindness/sbt-mu-srcgen/pull/81) ([47erbot](https://github.com/47erbot))
+- Update http4s-blaze-client, http4s-circe to 0.21.7 [\#80](https://github.com/higherkindness/sbt-mu-srcgen/pull/80) ([47erbot](https://github.com/47erbot))
+- Update scalacheck-1-14 to 3.2.1.0 [\#79](https://github.com/higherkindness/sbt-mu-srcgen/pull/79) ([47erbot](https://github.com/47erbot))
+- Update scalatest to 3.2.1 [\#78](https://github.com/higherkindness/sbt-mu-srcgen/pull/78) ([47erbot](https://github.com/47erbot))
+- Update sbt-scalafmt to 2.4.2 [\#77](https://github.com/higherkindness/sbt-mu-srcgen/pull/77) ([47erbot](https://github.com/47erbot))
+- Update scalafmt-core to 2.6.4 [\#75](https://github.com/higherkindness/sbt-mu-srcgen/pull/75) ([47erbot](https://github.com/47erbot))
+- Update scalafmt-core to 2.6.3 [\#74](https://github.com/higherkindness/sbt-mu-srcgen/pull/74) ([scala-steward](https://github.com/scala-steward))
+- Update scalafmt-core to 2.6.2 [\#71](https://github.com/higherkindness/sbt-mu-srcgen/pull/71) ([scala-steward](https://github.com/scala-steward))
+
+**Closed issues:**
+
+- Make it a manual plugin [\#38](https://github.com/higherkindness/sbt-mu-srcgen/issues/38)
+
+**Merged pull requests:**
+
+- Write the error output from Protobuf parse exceptions [\#83](https://github.com/higherkindness/sbt-mu-srcgen/pull/83) ([dmarticus](https://github.com/dmarticus))
+- Add exception handling to Avro schema that have non-record response types [\#76](https://github.com/higherkindness/sbt-mu-srcgen/pull/76) ([dmarticus](https://github.com/dmarticus))
+
 ## [v0.22.3](https://github.com/higherkindness/sbt-mu-srcgen/tree/v0.22.3) (2020-07-03)
 
 [Full Changelog](https://github.com/higherkindness/sbt-mu-srcgen/compare/v0.22.2...v0.22.3)
@@ -72,11 +108,14 @@
 
 - Fixes Build [\#21](https://github.com/higherkindness/sbt-mu-srcgen/pull/21) ([juanpedromoreno](https://github.com/juanpedromoreno))
 - Make Mu a normal compile-time dependency [\#20](https://github.com/higherkindness/sbt-mu-srcgen/pull/20) ([cb372](https://github.com/cb372))
-- Adds new Sbt plugins [\#11](https://github.com/higherkindness/sbt-mu-srcgen/pull/11) ([juanpedromoreno](https://github.com/juanpedromoreno))
 
 ## [v0.21.3-MIGRATION](https://github.com/higherkindness/sbt-mu-srcgen/tree/v0.21.3-MIGRATION) (2020-04-02)
 
 [Full Changelog](https://github.com/higherkindness/sbt-mu-srcgen/compare/c4104e069f90cd5d1fbe8d897dadafb2fe0d37b2...v0.21.3-MIGRATION)
+
+**Merged pull requests:**
+
+- Adds new Sbt plugins [\#11](https://github.com/higherkindness/sbt-mu-srcgen/pull/11) ([juanpedromoreno](https://github.com/juanpedromoreno))
 
 
 
