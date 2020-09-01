@@ -1,5 +1,14 @@
 # Changelog
 
+## [v0.23.0](https://github.com/higherkindness/sbt-mu-srcgen/tree/v0.23.0) (2020-09-01)
+
+[Full Changelog](https://github.com/higherkindness/sbt-mu-srcgen/compare/v0.22.4...v0.23.0)
+
+**Merged pull requests:**
+
+- and now I forgot to use the latest version of mu... [\#89](https://github.com/higherkindness/sbt-mu-srcgen/pull/89) ([dmarticus](https://github.com/dmarticus))
+- updating skeuomorph to use new java\_package [\#88](https://github.com/higherkindness/sbt-mu-srcgen/pull/88) ([dmarticus](https://github.com/dmarticus))
+
 ## [v0.22.4](https://github.com/higherkindness/sbt-mu-srcgen/tree/v0.22.4) (2020-08-24)
 
 [Full Changelog](https://github.com/higherkindness/sbt-mu-srcgen/compare/v0.22.3...v0.22.4)

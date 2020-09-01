@@ -12,7 +12,7 @@
 For installing this plugin, add the following line to your `plugins.sbt` file:
 
 ```scala
-addSbtPlugin("io.higherkindness" % "sbt-mu-srcgen" % "0.22.4")
+addSbtPlugin("io.higherkindness" % "sbt-mu-srcgen" % "0.23.0")
 ```
 ### NOTE
 
