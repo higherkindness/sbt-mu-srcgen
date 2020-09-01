@@ -26,7 +26,7 @@ import higherkindness.mu.rpc.srcgen.Model.{
   UseIdiomaticEndpoints
 }
 import higherkindness.mu.rpc.srcgen.proto.ProtoSrcGenerator
-import higherkindness.mu.rpc.srcgen.proto.ProtoSrcGenerator.ProtobufSrcGenException
+import higherkindness.skeuomorph.ProtobufCompilationException
 import org.scalatest._
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
@@ -76,8 +76,9 @@ class ProtoSrcGenTests extends AnyWordSpec with Matchers with OneInstancePerTest
       result shouldBe Some(("com/proto/book.scala", expectedFileContent))
     }
 
-    "throw an exception on an incorrect Protobuf schema" in {
-      assertThrows[ProtobufSrcGenException] {
+    // TODO: figure out how to actually throw an exception?
+    "throw an exception on an invalid Protobuf schema" in {
+      assertThrows[ProtobufCompilationException] {
         ProtoSrcGenerator
           .build(
             NoCompressionGen,
