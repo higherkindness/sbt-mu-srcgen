@@ -38,7 +38,7 @@ lazy val plugin = project
     scriptedLaunchOpts ++= Seq(
       "-Xmx2048M",
       "-XX:ReservedCodeCacheSize=256m",
-      s"-Dmu=${V.mu}",
+      "-Dmu=" + V.mu,
       "-Dversion=" + version.value
     )
   )
