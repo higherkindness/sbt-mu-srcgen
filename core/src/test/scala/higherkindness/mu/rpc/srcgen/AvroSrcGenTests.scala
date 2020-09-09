@@ -81,11 +81,10 @@ class AvroSrcGenTests extends AnyWordSpec with Matchers with OneInstancePerTest 
         scenario.serializationType
       )
     output should not be empty
-    output forall {
-      case (filePath, contents) =>
-        filePath shouldBe scenario.expectedOutputFilePath
-        contents.map(_.filter(_.length > 0)) shouldBe Valid(scenario.expectedOutput)
-        true
+    output forall { case (filePath, contents) =>
+      filePath shouldBe scenario.expectedOutputFilePath
+      contents.map(_.filter(_.length > 0)) shouldBe Valid(scenario.expectedOutput)
+      true
     }
   }
 

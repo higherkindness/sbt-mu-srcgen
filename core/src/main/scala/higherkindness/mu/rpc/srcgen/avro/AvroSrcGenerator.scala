@@ -141,12 +141,11 @@ final case class AvroSrcGenerator(
 
     val serviceParams = (serializationType.toString +: extraParams).mkString(",")
 
-    val requestLines = protocol.getMessages.asScala.toList.flatTraverse {
-      case (name, message) =>
-        val comment = Option(message.getDoc).map(doc => s"  /** $doc */").toList
-        buildMethodSignature(name, message.getRequest, message.getResponse).map { content =>
-          comment ++ List(content, "")
-        }
+    val requestLines = protocol.getMessages.asScala.toList.flatTraverse { case (name, message) =>
+      val comment = Option(message.getDoc).map(doc => s"  /** $doc */").toList
+      buildMethodSignature(name, message.getRequest, message.getResponse).map { content =>
+        comment ++ List(content, "")
+      }
     }
 
     val outputCode = requestLines.map { requests =>

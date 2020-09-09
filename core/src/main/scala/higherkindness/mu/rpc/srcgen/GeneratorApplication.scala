@@ -45,23 +45,21 @@ class GeneratorApplication[T <: Generator](generators: T*) {
       val result: ValidatedNel[(File, NonEmptyList[Error]), List[(File, List[String])]] =
         generatorsByType(idlType)
           .generateFrom(inputFiles, serializationType)
-          .traverse {
-            case (inputFile, outputFilePath, output) =>
-              output match {
-                case Invalid(readErrors) =>
-                  (inputFile, readErrors).invalidNel
-                case Valid(content) =>
-                  val outputFile = new File(outputDir, outputFilePath)
-                  logger.info(s"$inputFile -> $outputFile")
-                  (outputFile, content).validNel
-              }
+          .traverse { case (inputFile, outputFilePath, output) =>
+            output match {
+              case Invalid(readErrors) =>
+                (inputFile, readErrors).invalidNel
+              case Valid(content) =>
+                val outputFile = new File(outputDir, outputFilePath)
+                logger.info(s"$inputFile -> $outputFile")
+                (outputFile, content).validNel
+            }
           }
       result match {
         case Invalid(listOfFilesAndReadErrors) =>
           val formattedErrorMessage = listOfFilesAndReadErrors
-            .map {
-              case (inputFile, errors) =>
-                s"$inputFile has the following errors: ${errors.toList.mkString(", ")}"
+            .map { case (inputFile, errors) =>
+              s"$inputFile has the following errors: ${errors.toList.mkString(", ")}"
             }
             .toList
             .mkString("\n")
@@ -69,11 +67,10 @@ class GeneratorApplication[T <: Generator](generators: T*) {
             s"One or more IDL files are invalid. Error details:\n $formattedErrorMessage"
           )
         case Valid(outputFiles) =>
-          outputFiles.map {
-            case (outputFile, content) =>
-              Option(outputFile.getParentFile).foreach(_.mkdirs())
-              outputFile.write(content)
-              outputFile
+          outputFiles.map { case (outputFile, content) =>
+            Option(outputFile.getParentFile).foreach(_.mkdirs())
+            outputFile.write(content)
+            outputFile
           }
       }
     } else {

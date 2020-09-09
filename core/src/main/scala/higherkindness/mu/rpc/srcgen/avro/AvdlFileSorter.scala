@@ -61,12 +61,11 @@ object AvdlFileSorter {
     try {
       source
         .getLines()
-        .collect {
-          case importPattern(currentImport) =>
-            val importFile = new File(file.getParentFile, currentImport).getCanonicalFile
-            if (!importFile.exists())
-              sys.error(s"Unresolved import in $file: $importFile")
-            importFile
+        .collect { case importPattern(currentImport) =>
+          val importFile = new File(file.getParentFile, currentImport).getCanonicalFile
+          if (!importFile.exists())
+            sys.error(s"Unresolved import in $file: $importFile")
+          importFile
         }
         .toSet
     } finally source.close()
