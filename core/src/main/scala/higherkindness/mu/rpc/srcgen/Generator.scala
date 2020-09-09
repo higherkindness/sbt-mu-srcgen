@@ -27,9 +27,8 @@ trait Generator {
       serializationType: Model.SerializationType
   ): List[(File, String, ErrorsOr[List[String]])] =
     inputFiles(files).flatMap(inputFile =>
-      generateFrom(inputFile, serializationType).map {
-        case (outputPath, output) =>
-          (inputFile, outputPath, output)
+      generateFrom(inputFile, serializationType).map { case (outputPath, output) =>
+        (inputFile, outputPath, output)
       }
     )
 

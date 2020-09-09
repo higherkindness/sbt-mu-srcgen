@@ -198,8 +198,8 @@ trait AstOptics {
   }(_ => identity)
 
   def getNamedArgs(args: List[Tree]): List[(String, Toolbox.u.Tree)] =
-    args.collect {
-      case AssignOrNamedArg(argName, value) => argName.toString -> value
+    args.collect { case AssignOrNamedArg(argName, value) =>
+      argName.toString -> value
     }
 
   val annotations: Lens[Modifiers, List[Tree]] =
