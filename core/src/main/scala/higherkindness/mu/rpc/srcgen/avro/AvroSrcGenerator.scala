@@ -16,23 +16,23 @@
 
 package higherkindness.mu.rpc.srcgen.avro
 
-import java.io.File
-
-import scala.collection.JavaConverters._
-import scala.util.Right
 import avrohugger.Generator
 import avrohugger.format.Standard
 import avrohugger.types._
+import cats.implicits._
 import higherkindness.mu.rpc.srcgen.Model._
 import higherkindness.mu.rpc.srcgen._
+import higherkindness.skeuomorph.mu.CompressionType
+import java.io.File
 import org.apache.avro._
-import cats.implicits._
+import scala.collection.JavaConverters._
+import scala.util.Right
 
 final case class AvroSrcGenerator(
     marshallersImports: List[MarshallersImport],
     bigDecimalTypeGen: BigDecimalTypeGen,
-    compressionTypeGen: CompressionTypeGen,
-    useIdiomaticEndpoints: UseIdiomaticEndpoints
+    compressionType: CompressionType = CompressionType.Identity,
+    useIdiomaticEndpoints: Boolean = true
 ) extends SrcGenerator {
 
   private val avroBigDecimal: AvroScalaDecimalType = bigDecimalTypeGen match {
@@ -103,6 +103,7 @@ final case class AvroSrcGenerator(
       })
       .map(generateFrom(_, serializationType))
 
+  //TODO: implement this using higherkindness.skeuomorph.mu.Protocol.fromAvroProtocol, as is done in ProtoSrcGenerator
   def generateFrom(
       protocol: Protocol,
       serializationType: SerializationType
@@ -130,16 +131,12 @@ final case class AvroSrcGenerator(
 
     val messageLines = (schemaLines.tail :+ "").toList
 
-    val extraParams =
-      s"compressionType = ${compressionTypeGen.value}" +:
-        (if (useIdiomaticEndpoints) {
-           List(
-             s"""namespace = Some("${protocol.getNamespace}")""",
-             "methodNameStyle = Capitalize"
-           )
-         } else Nil)
-
-    val serviceParams = (serializationType.toString +: extraParams).mkString(",")
+    val serviceParams = Seq(
+      serializationType.toString,
+      s"compressionType = $compressionType",
+      if (useIdiomaticEndpoints) s"""namespace = Some("${protocol.getNamespace}")"""
+      else "namespace = None"
+    ).mkString(", ")
 
     val requestLines = protocol.getMessages.asScala.toList.flatTraverse { case (name, message) =>
       val comment = Option(message.getDoc).map(doc => s"  /** $doc */").toList
@@ -153,7 +150,7 @@ final case class AvroSrcGenerator(
         if (requests.isEmpty) List.empty
         else {
           List(
-            s"@service(${serviceParams}) trait ${protocol.getName}[F[_]] {",
+            s"@service($serviceParams) trait ${protocol.getName}[F[_]] {",
             ""
           ) ++ requests :+ "}"
         }

@@ -18,17 +18,12 @@ package higherkindness.mu.rpc.srcgen
 
 import cats.data.Validated
 import cats.data.Validated.Valid
-
 import scala.io._
 import higherkindness.mu.rpc.srcgen.AvroScalaGeneratorArbitrary._
 import higherkindness.mu.rpc.srcgen.Model.SerializationType.Avro
-import higherkindness.mu.rpc.srcgen.Model.{
-  BigDecimalAvroMarshallers,
-  NoCompressionGen,
-  ScalaBigDecimalTaggedGen,
-  UseIdiomaticEndpoints
-}
+import higherkindness.mu.rpc.srcgen.Model._
 import higherkindness.mu.rpc.srcgen.avro._
+import higherkindness.skeuomorph.mu.CompressionType
 import org.scalacheck.Prop.forAll
 import org.scalatest._
 import org.scalatest.matchers.should.Matchers
@@ -50,8 +45,7 @@ class AvroSrcGenTests extends AnyWordSpec with Matchers with OneInstancePerTest 
         AvroSrcGenerator(
           List(BigDecimalAvroMarshallers),
           ScalaBigDecimalTaggedGen,
-          NoCompressionGen,
-          UseIdiomaticEndpoints.trueV
+          CompressionType.Identity,
         ).generateFrom(
           Source.fromInputStream(getClass.getResourceAsStream("/avro/Invalid.avdl")).mkString,
           Avro
@@ -74,7 +68,7 @@ class AvroSrcGenTests extends AnyWordSpec with Matchers with OneInstancePerTest 
       AvroSrcGenerator(
         scenario.marshallersImports,
         ScalaBigDecimalTaggedGen,
-        scenario.compressionTypeGen,
+        scenario.compressionType,
         scenario.useIdiomaticEndpoints
       ).generateFrom(
         Source.fromInputStream(getClass.getResourceAsStream(scenario.inputResourcePath)).mkString,
