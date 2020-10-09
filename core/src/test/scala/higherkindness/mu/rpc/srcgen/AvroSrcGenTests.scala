@@ -18,7 +18,6 @@ package higherkindness.mu.rpc.srcgen
 
 import cats.data.Validated
 import cats.data.Validated.Valid
-import scala.io._
 import higherkindness.mu.rpc.srcgen.AvroScalaGeneratorArbitrary._
 import higherkindness.mu.rpc.srcgen.Model.SerializationType.Avro
 import higherkindness.mu.rpc.srcgen.Model._
@@ -29,6 +28,7 @@ import org.scalatest._
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 import org.scalatestplus.scalacheck.Checkers
+import scala.io._
 
 class AvroSrcGenTests extends AnyWordSpec with Matchers with OneInstancePerTest with Checkers {
 
@@ -45,7 +45,7 @@ class AvroSrcGenTests extends AnyWordSpec with Matchers with OneInstancePerTest 
         AvroSrcGenerator(
           List(BigDecimalAvroMarshallers),
           ScalaBigDecimalTaggedGen,
-          CompressionType.Identity,
+          CompressionType.Identity
         ).generateFrom(
           Source.fromInputStream(getClass.getResourceAsStream("/avro/Invalid.avdl")).mkString,
           Avro
