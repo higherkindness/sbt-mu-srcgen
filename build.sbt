@@ -16,7 +16,7 @@ lazy val core = project
     libraryDependencies ++= Seq(
       "io.higherkindness"          %% "mu-rpc-service"      % muV,
       "com.github.julien-truffaut" %% "monocle-core"        % "2.1.0",
-      "io.higherkindness"          %% "skeuomorph"          % "0.0.25",
+      "io.higherkindness"          %% "skeuomorph"          % "0.0.26",
       "com.julianpeeters"          %% "avrohugger-core"     % "1.0.0-RC22",
       "io.circe"                   %% "circe-generic"       % "0.13.0",
       "org.http4s"                 %% "http4s-blaze-client" % "0.21.7",

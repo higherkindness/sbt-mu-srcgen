@@ -93,7 +93,7 @@ object SrcGenPlugin extends AutoPlugin {
     lazy val muSrcGenIdiomaticEndpoints: SettingKey[Boolean] =
       settingKey[Boolean](
         "If `true`, the gRPC endpoints generated in the services generated from idls will contain the " +
-          "namespace as prefix and their method names will be capitalized. `false` by default."
+          "namespace as prefix. `true` by default."
       )
 
     lazy val muSrcGenOpenApiHttpImpl: SettingKey[HttpImpl] =
@@ -155,7 +155,7 @@ object SrcGenPlugin extends AutoPlugin {
       }
     },
     muSrcGenCompressionType := NoCompressionGen,
-    muSrcGenIdiomaticEndpoints := false,
+    muSrcGenIdiomaticEndpoints := true,
     muSrcGenOpenApiHttpImpl := HttpImpl.Http4sV20,
     muSrcGenStreamingImplementation := Fs2Stream,
     muSrcGenExecutionMode := Local,
@@ -210,7 +210,7 @@ object SrcGenPlugin extends AutoPlugin {
                 muSrcGenMarshallerImports.value,
                 muSrcGenBigDecimal.value,
                 muSrcGenCompressionType.value,
-                UseIdiomaticEndpoints(muSrcGenIdiomaticEndpoints.value),
+                muSrcGenIdiomaticEndpoints.value,
                 muSrcGenStreamingImplementation.value,
                 muSrcGenIdlTargetDir.value,
                 (Compile / resourceManaged).value.toPath,

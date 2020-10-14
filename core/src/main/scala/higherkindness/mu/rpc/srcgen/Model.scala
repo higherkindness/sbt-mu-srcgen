@@ -16,65 +16,7 @@
 
 package higherkindness.mu.rpc.srcgen
 
-import higherkindness.mu.rpc.protocol.{SerializationType => SerType, _}
-import shapeless.tag
-import shapeless.tag.@@
-
 object Model {
-
-  import Toolbox.u._
-
-  implicit private class StringOps(private val s: String) extends AnyVal {
-    def trimAll: String = s.replaceAll("\\s", "")
-  }
-
-  final case class RpcDefinitions(
-      outputName: String,
-      outputPackage: Option[String],
-      options: Seq[RpcOption],
-      messages: Seq[RpcMessage],
-      services: Seq[RpcService]
-  )
-
-  final case class RpcOption(name: String, value: String)
-
-  final case class RpcMessage(name: String, params: Seq[ValDef]) {
-
-    // Workaround for `Term.Param` using referential equality; needed mostly for unit testing
-    override def equals(other: Any): Boolean =
-      other match {
-        case that: RpcMessage =>
-          this.name == that.name && this.params.map(_.toString.trimAll) == that.params.map(
-            _.toString.trimAll
-          )
-        case _ => false
-      }
-  }
-
-  final case class RpcService(
-      serializationType: SerType,
-      name: String,
-      requests: Seq[RpcRequest]
-  )
-
-  final case class RpcRequest(
-      name: String,
-      requestType: Tree,
-      responseType: Tree,
-      streamingType: Option[StreamingType] = None
-  ) {
-
-    // Workaround for `Type` using referential equality; needed mostly for unit testing
-    override def equals(other: Any): Boolean =
-      other match {
-        case that: RpcRequest =>
-          this.name == that.name &&
-            this.requestType.toString.trimAll == that.requestType.toString.trimAll &&
-            this.responseType.toString.trimAll == that.responseType.toString.trimAll &&
-            this.streamingType == that.streamingType
-        case _ => false
-      }
-  }
 
   sealed trait ExecutionMode extends Product with Serializable
   object ExecutionMode {
@@ -83,7 +25,6 @@ object Model {
   }
 
   sealed trait IdlType extends Product with Serializable
-
   object IdlType {
     case object Proto   extends IdlType
     case object Avro    extends IdlType
@@ -92,7 +33,6 @@ object Model {
   }
 
   sealed trait SerializationType extends Product with Serializable
-
   object SerializationType {
     case object Protobuf       extends SerializationType
     case object Avro           extends SerializationType
@@ -131,19 +71,9 @@ object Model {
   case object ScalaBigDecimalGen       extends BigDecimalTypeGen
   case object ScalaBigDecimalTaggedGen extends BigDecimalTypeGen
 
-  sealed abstract class CompressionTypeGen(val value: String) extends Product with Serializable
-  case object GzipGen                                         extends CompressionTypeGen("Gzip")
-  case object NoCompressionGen                                extends CompressionTypeGen("Identity")
-
-  trait UseIdiomaticEndpointsTag
-  type UseIdiomaticEndpoints = Boolean @@ UseIdiomaticEndpointsTag
-
-  object UseIdiomaticEndpoints {
-    val trueV = UseIdiomaticEndpoints(true)
-
-    def apply(v: Boolean): UseIdiomaticEndpoints =
-      tag[UseIdiomaticEndpointsTag][Boolean](v)
-  }
+  sealed abstract class CompressionTypeGen extends Product with Serializable
+  case object GzipGen                      extends CompressionTypeGen
+  case object NoCompressionGen             extends CompressionTypeGen
 
   sealed trait StreamingImplementation
   case object Fs2Stream       extends StreamingImplementation
