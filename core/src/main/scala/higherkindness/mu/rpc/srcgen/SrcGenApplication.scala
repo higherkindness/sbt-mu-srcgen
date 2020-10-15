@@ -19,7 +19,7 @@ package higherkindness.mu.rpc.srcgen
 import java.io.File
 import java.nio.file.Path
 
-import higherkindness.mu.rpc.srcgen.avro.AvroSrcGeneratorSkeuomorph
+import higherkindness.mu.rpc.srcgen.avro.AvroSrcGenerator
 import higherkindness.mu.rpc.srcgen.Model._
 import higherkindness.mu.rpc.srcgen.openapi.OpenApiSrcGenerator
 import higherkindness.mu.rpc.srcgen.openapi.OpenApiSrcGenerator.HttpImpl
@@ -47,7 +47,7 @@ object SrcGenApplication {
         compressionType,
         useIdiomaticEndpoints
       ),
-      AvroSrcGeneratorSkeuomorph(
+      AvroSrcGenerator(
         compressionType,
         useIdiomaticEndpoints,
         streamingImplementation

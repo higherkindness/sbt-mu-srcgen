@@ -18,7 +18,7 @@ import higherkindness.skeuomorph.mu.{CompressionType, MuF, codegen, Protocol => 
 import scala.meta._
 import scala.util.Try
 
-object AvroSrcGeneratorSkeuomorph {
+object AvroSrcGenerator {
   def apply(
       compressionType: CompressionType,
       useIdiomaticEndpoints: Boolean,

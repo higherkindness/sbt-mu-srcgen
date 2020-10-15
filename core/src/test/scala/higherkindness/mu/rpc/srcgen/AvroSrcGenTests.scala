@@ -46,7 +46,7 @@ class AvroSrcGenTests extends AnyWordSpec with Matchers with OneInstancePerTest 
 
     "return a non-empty list of errors instead of generating code from an invalid IDL file" in {
       val actual :: Nil = {
-        AvroSrcGeneratorSkeuomorph(
+        AvroSrcGenerator(
           CompressionType.Identity,
           true,
           MonixObservable
@@ -68,7 +68,7 @@ class AvroSrcGenTests extends AnyWordSpec with Matchers with OneInstancePerTest 
 
   private def test(scenario: Scenario): Boolean = {
     val output =
-      AvroSrcGeneratorSkeuomorph(
+      AvroSrcGenerator(
         scenario.compressionType,
         scenario.useIdiomaticEndpoints,
         scenario.streamingImplementation
