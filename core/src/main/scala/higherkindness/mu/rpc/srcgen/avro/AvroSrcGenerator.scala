@@ -21,8 +21,8 @@ import scala.util.Try
 object AvroSrcGenerator {
   def apply(
       compressionType: CompressionType,
-      useIdiomaticEndpoints: Boolean,
-      streamingImplementation: StreamingImplementation
+      streamingImplementation: StreamingImplementation,
+      useIdiomaticEndpoints: Boolean = true
   ): SrcGenerator = new SrcGenerator {
     private val classStore              = new ClassStore
     private val classLoader             = getClass.getClassLoader
@@ -40,11 +40,12 @@ object AvroSrcGenerator {
       val nativeAvroProtocol: ErrorsOr[Protocol] =
         (new FileInputParser)
           .getSchemaOrProtocols(inputFile, Standard, classStore, classLoader)
-          .collect { case Right(protocol) => protocol } match {
-          case first :: _ =>
-            first.validNel //multiple protocols are returned when imports are present. We assume the first one is the one defined in our file
-          case Nil => s"No protocol definition found in ${inputFile}".invalidNel
-        }
+          //multiple protocols are returned when imports are present.
+          //We assume the first one is the one defined in our file
+          .collectFirst { case Right(protocol) =>
+            protocol
+          }
+          .toValidNel(s"No protocol definition found in ${inputFile}")
 
       val skeuomorphAvroProtocol: ErrorsOr[AvroProtocol[Mu[AvroF]]] =
         nativeAvroProtocol.andThen(p =>

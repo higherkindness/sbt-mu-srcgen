@@ -47,11 +47,7 @@ object SrcGenApplication {
         compressionType,
         useIdiomaticEndpoints
       ),
-      AvroSrcGenerator(
-        compressionType,
-        useIdiomaticEndpoints,
-        streamingImplementation
-      ),
+      AvroSrcGenerator(compressionType, streamingImplementation, useIdiomaticEndpoints),
       OpenApiSrcGenerator(
         httpImpl,
         resourcesBasePath
