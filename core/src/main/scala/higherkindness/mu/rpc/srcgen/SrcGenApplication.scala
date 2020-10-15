@@ -18,8 +18,9 @@ package higherkindness.mu.rpc.srcgen
 
 import java.io.File
 import java.nio.file.Path
+
+import higherkindness.mu.rpc.srcgen.avro.AvroSrcGeneratorSkeuomorph
 import higherkindness.mu.rpc.srcgen.Model._
-import higherkindness.mu.rpc.srcgen.avro.AvroSrcGenerator
 import higherkindness.mu.rpc.srcgen.openapi.OpenApiSrcGenerator
 import higherkindness.mu.rpc.srcgen.openapi.OpenApiSrcGenerator.HttpImpl
 import higherkindness.mu.rpc.srcgen.proto.ProtoSrcGenerator
@@ -28,8 +29,6 @@ import higherkindness.skeuomorph.mu.CompressionType
 object SrcGenApplication {
 
   def apply(
-      marshallersImports: List[MarshallersImport],
-      bigDecimalTypeGen: BigDecimalTypeGen,
       compressionTypeGen: CompressionTypeGen,
       useIdiomaticEndpoints: Boolean,
       streamingImplementation: StreamingImplementation,
@@ -48,11 +47,10 @@ object SrcGenApplication {
         compressionType,
         useIdiomaticEndpoints
       ),
-      AvroSrcGenerator(
-        marshallersImports,
-        bigDecimalTypeGen,
+      AvroSrcGeneratorSkeuomorph(
         compressionType,
-        useIdiomaticEndpoints
+        useIdiomaticEndpoints,
+        streamingImplementation
       ),
       OpenApiSrcGenerator(
         httpImpl,

@@ -17,7 +17,12 @@
 package higherkindness.mu.rpc.srcgen
 
 import java.io.File
+import java.nio.file.Path
 
+object Generator {
+  case class Output(path: Path, contents: List[String])
+  case class Result(inputFile: File, output: ErrorsOr[Output])
+}
 trait Generator {
 
   def idlType: Model.IdlType
@@ -25,11 +30,9 @@ trait Generator {
   def generateFrom(
       files: Set[File],
       serializationType: Model.SerializationType
-  ): List[(File, String, ErrorsOr[List[String]])] =
-    inputFiles(files).flatMap(inputFile =>
-      generateFrom(inputFile, serializationType).map { case (outputPath, output) =>
-        (inputFile, outputPath, output)
-      }
+  ): List[Generator.Result] =
+    inputFiles(files).map(inputFile =>
+      Generator.Result(inputFile, generateFrom(inputFile, serializationType))
     )
 
   protected def inputFiles(files: Set[File]): List[File]
@@ -37,5 +40,5 @@ trait Generator {
   protected def generateFrom(
       inputFile: File,
       serializationType: Model.SerializationType
-  ): Option[(String, ErrorsOr[List[String]])]
+  ): ErrorsOr[Generator.Output]
 }

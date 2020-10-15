@@ -18,6 +18,7 @@ package higherkindness.mu.rpc.srcgen
 
 import org.scalatest.OptionValues
 import java.io.File
+import java.nio.file.Paths
 
 import higherkindness.mu.rpc.srcgen.openapi.OpenApiSrcGenerator
 import higherkindness.mu.rpc.srcgen.openapi.OpenApiSrcGenerator.HttpImpl
@@ -32,16 +33,16 @@ class OpenApiSrcGenTests extends AnyFlatSpec with OptionValues {
   val openApiFile          = new File(resourcesFiles.getPath() ++ "/openapi/bookstore/book.yaml")
 
   it should "generate correct Scala" in {
-    val (_, path, code) = OpenApiSrcGenerator(HttpImpl.Http4sV20, resourcesFiles.toPath())
-      .generateFrom(Set(openApiFile), Model.SerializationType.Custom)
-      .headOption
-      .value
-    path should ===("bookstore/book.scala")
+    val Generator.Result(_, Valid(Generator.Output(path, code))) =
+      OpenApiSrcGenerator(HttpImpl.Http4sV20, resourcesFiles.toPath())
+        .generateFrom(Set(openApiFile), Model.SerializationType.Custom)
+        .headOption
+        .value
+    path should ===(Paths.get("bookstore/book.scala"))
     code should ===(
-      Valid(
-        List(
-          "package bookstore",
-          """|object models {
+      List(
+        "package bookstore",
+        """|object models {
            |import shapeless.{:+:, CNil}
            |import shapeless.Coproduct
            |final case class Book(isbn: Long, title: String)
@@ -61,7 +62,6 @@ class OpenApiSrcGenTests extends AnyFlatSpec with OptionValues {
            |
            |}
            |}""".stripMargin
-        )
       )
     )
   }

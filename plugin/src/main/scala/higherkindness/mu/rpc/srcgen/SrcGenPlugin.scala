@@ -207,8 +207,6 @@ object SrcGenPlugin extends AutoPlugin {
           Def.task {
             srcGenTask(
               SrcGenApplication(
-                muSrcGenMarshallerImports.value,
-                muSrcGenBigDecimal.value,
                 muSrcGenCompressionType.value,
                 muSrcGenIdiomaticEndpoints.value,
                 muSrcGenStreamingImplementation.value,

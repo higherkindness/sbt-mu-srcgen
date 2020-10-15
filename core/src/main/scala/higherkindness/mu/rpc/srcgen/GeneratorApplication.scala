@@ -45,15 +45,13 @@ class GeneratorApplication[T <: Generator](generators: T*) {
       val result: ValidatedNel[(File, NonEmptyList[Error]), List[(File, List[String])]] =
         generatorsByType(idlType)
           .generateFrom(inputFiles, serializationType)
-          .traverse { case (inputFile, outputFilePath, output) =>
-            output match {
-              case Invalid(readErrors) =>
-                (inputFile, readErrors).invalidNel
-              case Valid(content) =>
-                val outputFile = new File(outputDir, outputFilePath)
-                logger.info(s"$inputFile -> $outputFile")
-                (outputFile, content).validNel
-            }
+          .traverse {
+            case Generator.Result(inputFile, Invalid(readErrors)) =>
+              (inputFile, readErrors).invalidNel
+            case Generator.Result(inputFile, Valid(Generator.Output(path, content))) =>
+              val outputFile = new File(outputDir, path.toString)
+              logger.info(s"$inputFile -> $outputFile")
+              (outputFile, content).validNel
           }
       result match {
         case Invalid(listOfFilesAndReadErrors) =>

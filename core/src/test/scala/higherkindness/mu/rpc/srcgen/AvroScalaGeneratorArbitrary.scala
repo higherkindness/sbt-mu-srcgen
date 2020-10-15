@@ -28,22 +28,18 @@ trait AvroScalaGeneratorArbitrary {
       expectedOutput: List[String],
       expectedOutputFilePath: String,
       serializationType: SerializationType,
-      marshallersImports: List[MarshallersImport],
       compressionType: CompressionType,
+      streamingImplementation: StreamingImplementation,
       useIdiomaticEndpoints: Boolean = true
   )
 
   def generateOutput(
       serializationType: SerializationType,
-      marshallersImports: List[MarshallersImport],
       compressionType: CompressionType,
       useIdiomaticEndpoints: Boolean = true
   ): List[String] = {
 
-    val imports: String = ("import higherkindness.mu.rpc.protocol._" :: marshallersImports
-      .map(_.marshallersImport)
-      .map("import " + _)).sorted
-      .mkString("\n")
+    val imports: String = "import _root_.higherkindness.mu.rpc.protocol._"
 
     val serviceParams: String = Seq(
       serializationType.toString,
@@ -57,15 +53,16 @@ trait AvroScalaGeneratorArbitrary {
          |
          |$imports
          |
-         |final case class HelloRequest(arg1: String, arg2: Option[String], arg3: Seq[String])
+         |final case class HelloRequest(arg1: _root_.java.lang.String, arg2: _root_.scala.Option[_root_.java.lang.String], arg3: _root_.scala.List[_root_.java.lang.String])
          |
-         |final case class HelloResponse(arg1: String, arg2: Option[String], arg3: Seq[String])
+         |final case class HelloResponse(arg1: _root_.java.lang.String, arg2: _root_.scala.Option[_root_.java.lang.String], arg3: _root_.scala.List[_root_.java.lang.String])
          |
+
          |@service($serviceParams) trait MyGreeterService[F[_]] {
          |
-         |  def sayHelloAvro(arg: foo.bar.HelloRequest): F[foo.bar.HelloResponse]
+         |  def sayHelloAvro(req: _root_.foo.bar.HelloRequest): F[_root_.foo.bar.HelloResponse]
          |
-         |  def sayNothingAvro(arg: Empty.type): F[Empty.type]
+         |  def sayNothingAvro(req: _root_.higherkindness.mu.rpc.protocol.Empty.type): F[_root_.higherkindness.mu.rpc.protocol.Empty.type]
          |
          |}""".stripMargin.split("\n").filter(_.length > 0).toList
   }
@@ -80,44 +77,24 @@ trait AvroScalaGeneratorArbitrary {
         Gen.listOfN(_, importSliceGen).map(_.mkString(".") + "._").map(CustomMarshallersImport)
       )
 
-  def marshallersImportGen(serializationType: SerializationType): Gen[MarshallersImport] =
-    serializationType match {
-      case Avro | AvroWithSchema =>
-        Gen.oneOf(
-          Gen.const(BigDecimalAvroMarshallers),
-          Gen.const(JodaDateTimeAvroMarshallers),
-          customMarshallersImportsGen
-        )
-      case Protobuf =>
-        Gen.oneOf(
-          Gen.const(BigDecimalProtobufMarshallers),
-          Gen.const(JavaTimeDateAvroMarshallers),
-          Gen.const(JavaTimeDateProtobufMarshallers),
-          Gen.const(JodaDateTimeProtobufMarshallers),
-          customMarshallersImportsGen
-        )
-      case _ => customMarshallersImportsGen
-    }
-
   implicit val scenarioArb: Arbitrary[Scenario] = Arbitrary {
     for {
-      inputResourcePath     <- Gen.oneOf("/avro/GreeterService.avpr", "/avro/GreeterService.avdl")
-      serializationType     <- Gen.oneOf(Avro, AvroWithSchema, Protobuf, Custom)
-      marshallersImports    <- Gen.listOf(marshallersImportGen(serializationType))
-      compressionType       <- Gen.oneOf(CompressionType.Gzip, CompressionType.Identity)
-      useIdiomaticEndpoints <- Arbitrary.arbBool.arbitrary
+      inputResourcePath       <- Gen.oneOf("/avro/GreeterService.avpr", "/avro/GreeterService.avdl")
+      serializationType       <- Gen.const(Avro)
+      compressionType         <- Gen.oneOf(CompressionType.Gzip, CompressionType.Identity)
+      streamingImplementation <- Gen.oneOf(MonixObservable, Fs2Stream)
+      useIdiomaticEndpoints   <- Arbitrary.arbBool.arbitrary
     } yield Scenario(
       inputResourcePath,
       generateOutput(
         serializationType,
-        marshallersImports,
         compressionType,
         useIdiomaticEndpoints
       ),
       "foo/bar/MyGreeterService.scala",
       serializationType,
-      marshallersImports,
       compressionType,
+      streamingImplementation,
       useIdiomaticEndpoints
     )
   }
