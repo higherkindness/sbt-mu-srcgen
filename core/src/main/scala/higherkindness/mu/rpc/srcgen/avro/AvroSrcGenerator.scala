@@ -40,8 +40,8 @@ object AvroSrcGenerator {
       val nativeAvroProtocol: ErrorsOr[Protocol] =
         (new FileInputParser)
           .getSchemaOrProtocols(inputFile, Standard, classStore, classLoader)
-          //multiple protocols are returned when imports are present.
-          //We assume the first one is the one defined in our file
+          // multiple protocols are returned when imports are present.
+          // We assume the first one is the one defined in our file
           .collectFirst { case Right(protocol) =>
             protocol
           }
@@ -82,9 +82,11 @@ object AvroSrcGenerator {
     }
   }
   private def getPath(p: AvroProtocol[Mu[AvroF]]): Path = {
-    val fst :: rest =
-      p.namespace.map(_.split('.').toList).toList.flatten :+ s"${p.name}${ScalaFileExtension}"
-    Paths.get(fst, rest: _*)
+    val pathParts: NonEmptyList[String] = // Non empty list for a later safe `head` call
+      NonEmptyList.one(s"${p.name}${ScalaFileExtension}") // start with reverse path of file name, the only part we know is for sure a thing
+        .concat(p.namespace.map(_.split('.').toList).toList.flatten.reverse) // and maybe a path prefix for the rest
+        .reverse // reverse again to put things in correct order
+    Paths.get(pathParts.head, pathParts.tail: _*)
   }
 
 }
