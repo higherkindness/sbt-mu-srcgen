@@ -55,7 +55,10 @@ object OpenApiSrcGenerator {
         }
 
       protected def inputFiles(files: Set[File]): List[File] =
-        files.filter(handleFile(_)(_ => true, _ => true)).toList
+        files.collect {
+          case json if json.getName.endsWith(JsonExtension) => json
+          case yaml if yaml.getName.endsWith(YamlExtension) => yaml
+        }.toList
 
       protected def generateFrom(
           inputFile: File,
@@ -99,18 +102,20 @@ object OpenApiSrcGenerator {
         path.resolve(s"${file.getName.split('.').head}$ScalaFileExtension")
 
       private def parseFile[F[_]: Sync]: File => F[OpenApi[JsonSchemaF.Fixed]] =
-        x =>
-          handleFile(x)(
+        x => {
+          val y = handleFile(x)(
             Parser[F, JsonSource, OpenApi[JsonSchemaF.Fixed]].parse(_),
             Parser[F, YamlSource, OpenApi[JsonSchemaF.Fixed]].parse(_)
           )
+          y
+        }
 
       private def handleFile[T](
           file: File
       )(json: JsonSource => T, yaml: YamlSource => T): T =
         file match {
-          case x if (x.getName.endsWith(JsonExtension)) => json(JsonSource(file))
-          case x if (x.getName.endsWith(YamlExtension)) => yaml(YamlSource(file))
+          case x if (x.getName.endsWith(JsonExtension)) => json(JsonSource(x))
+          case x if (x.getName.endsWith(YamlExtension)) => yaml(YamlSource(x))
         }
     }
 }

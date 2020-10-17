@@ -82,9 +82,18 @@ object AvroSrcGenerator {
     }
   }
   private def getPath(p: AvroProtocol[Mu[AvroF]]): Path = {
-    val pathParts: NonEmptyList[String] = // Non empty list for a later safe `head` call
-      NonEmptyList.one(s"${p.name}${ScalaFileExtension}") // start with reverse path of file name, the only part we know is for sure a thing
-        .concat(p.namespace.map(_.split('.').toList).toList.flatten.reverse) // and maybe a path prefix for the rest
+    val pathParts: NonEmptyList[String] =
+      NonEmptyList // Non empty list for a later safe `head` call
+        .one(      // Start with reverse path of file name, the only part we know is for sure a thing
+          s"${p.name}${ScalaFileExtension}"
+        )
+        .concat(
+          p.namespace // and maybe a path prefix from the namespace for the rest
+            .map(_.split('.').toList)
+            .toList
+            .flatten
+            .reverse
+        )
         .reverse // reverse again to put things in correct order
     Paths.get(pathParts.head, pathParts.tail: _*)
   }
