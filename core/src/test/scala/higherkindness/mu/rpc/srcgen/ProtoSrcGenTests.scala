@@ -39,7 +39,9 @@ class ProtoSrcGenTests extends AnyWordSpec with Matchers with OneInstancePerTest
             files = Set(protoFile("book")),
             serializationType = SerializationType.Protobuf
           )
-          .map(t => (t._2, t._3.getOrElse(Seq("")).mkString("\n").clean))
+          .flatMap { r =>
+            r.output.toOption.map(o => (o.path.toString, o.contents.mkString("\n").clean))
+          }
           .headOption
 
       val expectedFileContent = bookExpectation(tpe => s"_root_.fs2.Stream[F, $tpe]").clean
@@ -53,7 +55,9 @@ class ProtoSrcGenTests extends AnyWordSpec with Matchers with OneInstancePerTest
             files = Set(protoFile("book")),
             serializationType = SerializationType.Protobuf
           )
-          .map(t => (t._2, t._3.getOrElse(Seq("")).mkString("\n").clean))
+          .flatMap { r =>
+            r.output.toOption.map(o => (o.path.toString, o.contents.mkString("\n").clean))
+          }
           .headOption
 
       val expectedFileContent =

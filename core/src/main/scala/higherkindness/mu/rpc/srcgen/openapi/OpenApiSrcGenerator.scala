@@ -28,7 +28,6 @@ import print._
 import client.print._
 import client.http4s.circe._
 import client.http4s.print._
-import cats.data.Nested
 import cats.data.Validated.Valid
 import cats.implicits._
 import higherkindness.skeuomorph.Parser
@@ -56,17 +55,24 @@ object OpenApiSrcGenerator {
         }
 
       protected def inputFiles(files: Set[File]): List[File] =
-        files.filter(handleFile(_)(_ => true, _ => true, false)).toList
+        files.collect {
+          case json if json.getName.endsWith(JsonExtension) => json
+          case yaml if yaml.getName.endsWith(YamlExtension) => yaml
+        }.toList
 
       protected def generateFrom(
           inputFile: File,
           serializationType: Model.SerializationType
-      ): Option[(String, ErrorsOr[List[String]])] =
-        getCode[IO](inputFile).value.unsafeRunSync()
+      ): ErrorsOr[Generator.Output] =
+        getCode[IO](inputFile)
+          .map { case (p, c) =>
+            c.map(Generator.Output(Paths.get(p), _))
+          }
+          .unsafeRunSync()
 
       private def getCode[F[_]: Sync](
           file: File
-      ): Nested[F, Option, (String, ErrorsOr[List[String]])] =
+      ): F[(String, ErrorsOr[List[String]])] =
         parseFile[F]
           .apply(file)
           .map(OpenApi.extractNestedTypes[JsonSchemaF.Fixed])
@@ -95,23 +101,21 @@ object OpenApiSrcGenerator {
       private def pathFrom(path: Path, file: File): Path =
         path.resolve(s"${file.getName.split('.').head}$ScalaFileExtension")
 
-      private def parseFile[F[_]: Sync]: File => Nested[F, Option, OpenApi[JsonSchemaF.Fixed]] =
-        x =>
-          Nested(
-            handleFile(x)(
-              Parser[F, JsonSource, OpenApi[JsonSchemaF.Fixed]].parse(_).map(_.some),
-              Parser[F, YamlSource, OpenApi[JsonSchemaF.Fixed]].parse(_).map(_.some),
-              Sync[F].delay(none)
-            )
+      private def parseFile[F[_]: Sync]: File => F[OpenApi[JsonSchemaF.Fixed]] =
+        x => {
+          val y = handleFile(x)(
+            Parser[F, JsonSource, OpenApi[JsonSchemaF.Fixed]].parse(_),
+            Parser[F, YamlSource, OpenApi[JsonSchemaF.Fixed]].parse(_)
           )
+          y
+        }
 
       private def handleFile[T](
           file: File
-      )(json: JsonSource => T, yaml: YamlSource => T, none: T): T =
+      )(json: JsonSource => T, yaml: YamlSource => T): T =
         file match {
-          case x if (x.getName.endsWith(JsonExtension)) => json(JsonSource(file))
-          case x if (x.getName.endsWith(YamlExtension)) => yaml(YamlSource(file))
-          case _                                        => none
+          case x if (x.getName.endsWith(JsonExtension)) => json(JsonSource(x))
+          case x if (x.getName.endsWith(YamlExtension)) => yaml(YamlSource(x))
         }
     }
 }
