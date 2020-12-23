@@ -1,4 +1,4 @@
-ThisBuild / scalaVersion := "2.12.11"
+ThisBuild / scalaVersion := "2.12.12"
 ThisBuild / organization := "io.higherkindness"
 ThisBuild / githubOrganization := "47deg"
 
@@ -8,15 +8,16 @@ addCommandAlias("ci-test", "scalafmtCheckAll; scalafmtSbtCheck; test; publishLoc
 addCommandAlias("ci-docs", "github; mdoc; headerCreateAll")
 addCommandAlias("ci-publish", "github; ci-release")
 
-lazy val muV = "0.23.0"
+lazy val muV = "0.24.0"
 
 lazy val core = project
   .settings(moduleName := "mu-srcgen-core")
   .settings(
     libraryDependencies ++= Seq(
       "io.higherkindness"          %% "mu-rpc-service"      % muV,
+      "io.higherkindness"          %% "skeuomorph"          % "0.0.28",
       "com.github.julien-truffaut" %% "monocle-core"        % "2.1.0",
-      "io.higherkindness"          %% "skeuomorph"          % "0.0.27",
+      "io.higherkindness"          %% "skeuomorph"          % "0.0.28",
       "com.julianpeeters"          %% "avrohugger-core"     % "1.0.0-RC22",
       "io.circe"                   %% "circe-generic"       % "0.13.0",
       "org.http4s"                 %% "http4s-blaze-client" % "0.21.14",
