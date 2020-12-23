@@ -1,5 +1,9 @@
+[comment]: <> (Don't edit this file!)
+[comment]: <> (It is automatically updated after every release of https://github.com/47degrees/.github)
+[comment]: <> (If you want to suggest a change, please open a PR or issue in that repository)
 
-[![License](https://img.shields.io/badge/license-Apache%202-blue.svg)](https://raw.githubusercontent.com/higherkindness/mu-scala/master/LICENSE) [![Join the chat at https://gitter.im/47deg/mu](https://badges.gitter.im/47deg/mu.svg)](https://gitter.im/47deg/mu?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![License](https://img.shields.io/badge/license-Apache%202-blue.svg)](https://raw.githubusercontent.com/higherkindness/mu-scala/master/LICENSE) 
+[![Join the chat at https://gitter.im/47deg/mu](https://badges.gitter.im/47deg/mu.svg)](https://gitter.im/47deg/mu?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 # sbt-mu-srcgen
 
@@ -11,23 +15,22 @@
 
 For installing this plugin, add the following line to your `plugins.sbt` file:
 
-```scala
-addSbtPlugin("io.higherkindness" % "sbt-mu-srcgen" % "0.23.0")
+```sbt mdoc:silent
+addSbtPlugin("io.higherkindness" % "sbt-mu-srcgen" % "0.24.0")
 ```
+
 ### NOTE
 
 For any users using version `0.22.x` and below, the `SrcGenPlugin` is enabled on every module by default.  However, for everyone using 
-version `0.23.x` and beyond (the latest version), you'll need to manually enable the plugin for any module for which you want to 
+version `0.23.x` and beyond, you'll need to manually enable the plugin for any module for which you want to 
 auto-generate [mu-scala] code, like such:
 
-```scala
+```sbt mdoc:silent
 .enablePlugins(SrcGenPlugin)
 ```
 
-**this is a breaking change between the versions**, so be sure to make sure that you're choosing your modules to enable source generation
+**This is a breaking change between the versions**, so be sure to make sure that you're choosing your modules to enable source generation
 intentionally if you want to upgrade this library.
-
-
 
 The full documentation is available at the [mu](https://higherkindness.io/mu-scala/guides/generate-sources-from-idl) site.
 
