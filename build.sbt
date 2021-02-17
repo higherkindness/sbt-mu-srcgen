@@ -23,7 +23,7 @@ lazy val core = project
       "org.http4s"                 %% "http4s-blaze-client" % "0.21.19",
       "org.http4s"                 %% "http4s-circe"        % "0.21.19",
       "org.scalatest"              %% "scalatest"           % "3.2.3"   % Test,
-      "org.scalacheck"             %% "scalacheck"          % "1.15.2"  % Test,
+      "org.scalacheck"             %% "scalacheck"          % "1.15.3"  % Test,
       "org.scalatestplus"          %% "scalacheck-1-14"     % "3.2.2.0" % Test,
       "org.slf4j"                   % "slf4j-nop"           % "1.7.30"  % Test
     )
