@@ -15,9 +15,9 @@ lazy val core = project
   .settings(
     libraryDependencies ++= Seq(
       "io.higherkindness"          %% "mu-rpc-service"      % muV,
-      "io.higherkindness"          %% "skeuomorph"          % "0.0.28",
+      "io.higherkindness"          %% "skeuomorph"          % "0.0.29",
       "com.github.julien-truffaut" %% "monocle-core"        % "2.1.0",
-      "io.higherkindness"          %% "skeuomorph"          % "0.0.28",
+      "io.higherkindness"          %% "skeuomorph"          % "0.0.29",
       "com.julianpeeters"          %% "avrohugger-core"     % "1.0.0-RC24",
       "io.circe"                   %% "circe-generic"       % "0.13.0",
       "org.http4s"                 %% "http4s-blaze-client" % "0.21.20",
