@@ -51,7 +51,12 @@ object SrcGenApplication {
       ),
       avroGeneratorTypeGen match {
         case Model.AvrohuggerGen =>
-          LegacyAvroSrcGenerator(marshallersImports, bigDecimalTypeGen, compressionType, useIdiomaticEndpoints)
+          LegacyAvroSrcGenerator(
+            marshallersImports,
+            bigDecimalTypeGen,
+            compressionType,
+            useIdiomaticEndpoints
+          )
         case Model.SkeumorphGen =>
           AvroSrcGenerator(compressionType, streamingImplementation, useIdiomaticEndpoints)
       },

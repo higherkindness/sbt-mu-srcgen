@@ -33,19 +33,23 @@ import org.scalatestplus.scalacheck.Checkers
 
 import java.io.File
 
-class LegacyAvroSrcGenTests extends AnyWordSpec with Matchers with OneInstancePerTest with Checkers {
+class LegacyAvroSrcGenTests
+    extends AnyWordSpec
+    with Matchers
+    with OneInstancePerTest
+    with Checkers {
 
   def generateOutput(
-    serializationType: SerializationType,
-    marshallersImports: List[MarshallersImport],
-    compressionType: CompressionType,
-    useIdiomaticEndpoints: Boolean = true
+      serializationType: SerializationType,
+      marshallersImports: List[MarshallersImport],
+      compressionType: CompressionType,
+      useIdiomaticEndpoints: Boolean = true
   ): List[String] = {
 
     val imports: String = ("import higherkindness.mu.rpc.protocol._" :: marshallersImports
-        .map(_.marshallersImport)
-        .map("import " + _)).sorted
-        .mkString("\n")
+      .map(_.marshallersImport)
+      .map("import " + _)).sorted
+      .mkString("\n")
 
     val serviceParams: String = Seq(
       serializationType.toString,

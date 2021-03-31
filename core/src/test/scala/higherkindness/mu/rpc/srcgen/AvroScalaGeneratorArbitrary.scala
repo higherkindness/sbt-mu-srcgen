@@ -63,7 +63,8 @@ trait AvroScalaGeneratorArbitrary {
         Gen.listOfN(_, importSliceGen).map(_.mkString(".") + "._").map(CustomMarshallersImport)
       )
 
-  type GenerateOutput = (SerializationType, List[MarshallersImport], CompressionType, Boolean) => List[String]
+  type GenerateOutput =
+    (SerializationType, List[MarshallersImport], CompressionType, Boolean) => List[String]
 
   def scenarioArbirary(generateOutput: GenerateOutput): Arbitrary[Scenario] = Arbitrary {
     for {

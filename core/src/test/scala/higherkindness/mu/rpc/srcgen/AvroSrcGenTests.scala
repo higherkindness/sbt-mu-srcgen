@@ -35,10 +35,10 @@ import org.scalatestplus.scalacheck.Checkers
 class AvroSrcGenTests extends AnyWordSpec with Matchers with OneInstancePerTest with Checkers {
 
   def generateOutput(
-     serializationType: SerializationType,
-     marshallersImports: List[MarshallersImport],
-     compressionType: CompressionType,
-     useIdiomaticEndpoints: Boolean = true
+      serializationType: SerializationType,
+      marshallersImports: List[MarshallersImport],
+      compressionType: CompressionType,
+      useIdiomaticEndpoints: Boolean = true
   ): List[String] = {
 
     val _ = marshallersImports

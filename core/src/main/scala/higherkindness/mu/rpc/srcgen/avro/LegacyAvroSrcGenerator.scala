@@ -46,8 +46,9 @@ final case class LegacyAvroSrcGenerator(
   private val mainGenerator =
     avrohugger.Generator(Standard, avroScalaCustomTypes = Some(avroScalaCustomTypes))
 
-  private val adtGenerator = mainGenerator.copy(avroScalaCustomTypes = Some(
-    mainGenerator.avroScalaTypes.copy(protocol = ScalaADT))) // ScalaADT: sealed trait hierarchies
+  private val adtGenerator = mainGenerator.copy(avroScalaCustomTypes =
+    Some(mainGenerator.avroScalaTypes.copy(protocol = ScalaADT))
+  ) // ScalaADT: sealed trait hierarchies
 
   val idlType: IdlType = IdlType.Avro
 
@@ -119,7 +120,7 @@ final case class LegacyAvroSrcGenerator(
       .mkString
       .split('\n')
       .toSeq
-      .tail // remove top comment and get package declaration on first line
+      .tail                 // remove top comment and get package declaration on first line
       .filterNot(_ == "()") // https://github.com/julianpeeters/sbt-avrohugger/issues/33
 
     val packageLines = List(schemaLines.head, "")
@@ -138,12 +139,11 @@ final case class LegacyAvroSrcGenerator(
       else "namespace = None"
     ).mkString(", ")
 
-    val requestLines = protocol.getMessages.asScala.toList.flatTraverse {
-      case (name, message) =>
-        val comment = Option(message.getDoc).map(doc => s"  /** $doc */").toList
-        buildMethodSignature(name, message.getRequest, message.getResponse).map { content =>
-          comment ++ List(content, "")
-        }
+    val requestLines = protocol.getMessages.asScala.toList.flatTraverse { case (name, message) =>
+      val comment = Option(message.getDoc).map(doc => s"  /** $doc */").toList
+      buildMethodSignature(name, message.getRequest, message.getResponse).map { content =>
+        comment ++ List(content, "")
+      }
     }
 
     val outputCode = requestLines.map { requests =>
