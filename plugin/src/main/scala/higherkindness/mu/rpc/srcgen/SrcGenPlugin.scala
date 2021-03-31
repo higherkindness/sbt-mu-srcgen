@@ -121,6 +121,11 @@ object SrcGenPlugin extends AutoPlugin {
     lazy val muSrcGenCompendiumServerUrl: SettingKey[String] =
       settingKey[String]("Url of the compendium server. By default, `http://localhost:8080`.")
 
+    lazy val muSrcGenAvroGeneratorType: SettingKey[AvroGeneratorTypeGen] =
+      settingKey[AvroGeneratorTypeGen](
+        "Specifies the Avro generation type. `SkeumorphGen` by default."
+      )
+
   }
 
   import autoImport._
@@ -160,7 +165,8 @@ object SrcGenPlugin extends AutoPlugin {
     muSrcGenStreamingImplementation := Fs2Stream,
     muSrcGenExecutionMode := Local,
     muSrcGenCompendiumProtocolIdentifiers := Nil,
-    muSrcGenCompendiumServerUrl := "http://localhost:8080"
+    muSrcGenCompendiumServerUrl := "http://localhost:8080",
+    muSrcGenAvroGeneratorType := SkeumorphGen
   )
 
   lazy val taskSettings: Seq[Def.Setting[_]] = {
@@ -207,6 +213,9 @@ object SrcGenPlugin extends AutoPlugin {
           Def.task {
             srcGenTask(
               SrcGenApplication(
+                muSrcGenAvroGeneratorType.value,
+                muSrcGenMarshallerImports.value,
+                muSrcGenBigDecimal.value,
                 muSrcGenCompressionType.value,
                 muSrcGenIdiomaticEndpoints.value,
                 muSrcGenStreamingImplementation.value,
