@@ -123,7 +123,7 @@ object SrcGenPlugin extends AutoPlugin {
 
     lazy val muSrcGenAvroGeneratorType: SettingKey[AvroGeneratorTypeGen] =
       settingKey[AvroGeneratorTypeGen](
-        "Specifies the Avro generation type. `SkeumorphGen` by default."
+        "Specifies the Avro generation type: `SkeumorphGen` or `AvrohuggerGen`. `SkeumorphGen` by default."
       )
 
   }
