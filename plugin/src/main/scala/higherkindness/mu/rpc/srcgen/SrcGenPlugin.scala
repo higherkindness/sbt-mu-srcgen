@@ -235,7 +235,7 @@ object SrcGenPlugin extends AutoPlugin {
   }
 
   lazy val packagingSettings: Seq[Def.Setting[_]] = Seq(
-    mappings in (Compile, packageSrc) ++= {
+    Compile / packageSrc / mappings ++= {
       val allIDLDefinitions = ((Compile / muSrcGenIdlTargetDir).value ** "*") filter { _.isFile }
       val idlMappings = allIDLDefinitions.get pair Path
         .rebase((Compile / muSrcGenIdlTargetDir).value, (Compile / classDirectory).value)
@@ -249,7 +249,7 @@ object SrcGenPlugin extends AutoPlugin {
     // Register the muSrcGen task as a source generator.
     // If we don't do this, the compile task will not see the
     // generated files even if the user manually runs the muSrcGen task.
-    sourceGenerators in Compile += (muSrcGen in Compile).taskValue
+    Compile / sourceGenerators += (Compile / muSrcGen).taskValue
   )
 
   private def srcGenTask(
