@@ -38,7 +38,8 @@ class AvroSrcGenTests extends AnyWordSpec with Matchers with OneInstancePerTest 
       serializationType: SerializationType,
       marshallersImports: List[MarshallersImport],
       compressionType: CompressionType,
-      useIdiomaticEndpoints: Boolean = true
+      useIdiomaticEndpoints: Boolean = true,
+      messagesAsImportFile: Boolean = true
   ): List[String] = {
 
     val _ = marshallersImports
@@ -52,26 +53,40 @@ class AvroSrcGenTests extends AnyWordSpec with Matchers with OneInstancePerTest 
       else "namespace = None"
     ).mkString(", ")
 
-    s"""
-       |package foo.bar
-       |
-       |$imports
-       |
-       |final case class HelloRequest(arg1: _root_.java.lang.String, arg2: _root_.scala.Option[_root_.java.lang.String], arg3: _root_.scala.List[_root_.java.lang.String])
-       |
-       |final case class HelloResponse(arg1: _root_.java.lang.String, arg2: _root_.scala.Option[_root_.java.lang.String], arg3: _root_.scala.List[_root_.java.lang.String])
-       |
+    val packageAndImports =
+      s"""
+         |package foo.bar
+         |
+         |$imports
+         |
+         |""".stripMargin
 
-       |@service($serviceParams) trait MyGreeterService[F[_]] {
-       |
-       |  def sayHelloAvro(req: _root_.foo.bar.HelloRequest): F[_root_.foo.bar.HelloResponse]
-       |
-       |  def sayNothingAvro(req: _root_.higherkindness.mu.rpc.protocol.Empty.type): F[_root_.higherkindness.mu.rpc.protocol.Empty.type]
-       |
-       |}""".stripMargin.split("\n").filter(_.nonEmpty).toList
+    val messages =
+      """
+        |final case class HelloRequest(arg1: _root_.java.lang.String, arg2: _root_.scala.Option[_root_.java.lang.String], arg3: _root_.scala.List[_root_.java.lang.String])
+        |
+        |final case class HelloResponse(arg1: _root_.java.lang.String, arg2: _root_.scala.Option[_root_.java.lang.String], arg3: _root_.scala.List[_root_.java.lang.String])
+        |
+        |""".stripMargin
+
+    val service =
+      s"""
+        |@service($serviceParams) trait MyGreeterService[F[_]] {
+        |
+        |  def sayHelloAvro(req: _root_.foo.bar.HelloRequest): F[_root_.foo.bar.HelloResponse]
+        |
+        |  def sayNothingAvro(req: _root_.higherkindness.mu.rpc.protocol.Empty.type): F[_root_.higherkindness.mu.rpc.protocol.Empty.type]
+        |}
+        |
+        |""".stripMargin
+
+    if (messagesAsImportFile)
+      (packageAndImports ++ service).split("\n").filter(_.nonEmpty).toList
+    else
+      (packageAndImports ++ messages ++ service).split("\n").filter(_.nonEmpty).toList
   }
 
-  implicit val scenarioArb: Arbitrary[Scenario] = scenarioArbirary(generateOutput)
+  implicit val scenarioArb: Arbitrary[Scenario] = scenarioArbitrary(generateOutput)
 
   "Avro Scala Generator" should {
 
@@ -108,7 +123,7 @@ class AvroSrcGenTests extends AnyWordSpec with Matchers with OneInstancePerTest 
         scenario.streamingImplementation,
         scenario.useIdiomaticEndpoints
       ).generateFrom(
-        Set(new File(getClass.getResource(scenario.inputResourcePath).toURI)),
+        scenario.inputResourcesPath.map(path => new File(getClass.getResource(path).toURI)),
         scenario.serializationType
       )
     output should not be empty

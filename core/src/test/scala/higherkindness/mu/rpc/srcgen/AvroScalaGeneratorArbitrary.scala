@@ -24,7 +24,7 @@ import org.scalacheck._
 trait AvroScalaGeneratorArbitrary {
 
   case class Scenario(
-      inputResourcePath: String,
+      inputResourcesPath: Set[String],
       expectedOutput: List[String],
       expectedOutputFilePath: String,
       serializationType: SerializationType,
@@ -64,9 +64,9 @@ trait AvroScalaGeneratorArbitrary {
       )
 
   type GenerateOutput =
-    (SerializationType, List[MarshallersImport], CompressionType, Boolean) => List[String]
+    (SerializationType, List[MarshallersImport], CompressionType, Boolean, Boolean) => List[String]
 
-  def scenarioArbirary(generateOutput: GenerateOutput): Arbitrary[Scenario] = Arbitrary {
+  def scenarioArbitrary(generateOutput: GenerateOutput): Arbitrary[Scenario] = Arbitrary {
     for {
       inputResourcePath       <- Gen.oneOf("/avro/GreeterService.avpr", "/avro/GreeterService.avdl")
       serializationType       <- Gen.const(Avro)
@@ -75,12 +75,13 @@ trait AvroScalaGeneratorArbitrary {
       streamingImplementation <- Gen.oneOf(MonixObservable, Fs2Stream)
       useIdiomaticEndpoints   <- Arbitrary.arbBool.arbitrary
     } yield Scenario(
-      inputResourcePath,
+      Set(inputResourcePath),
       generateOutput(
         serializationType,
         marshallersImports,
         compressionType,
-        useIdiomaticEndpoints
+        useIdiomaticEndpoints,
+        inputResourcePath.endsWith("avdl")
       ),
       "foo/bar/MyGreeterService.scala",
       serializationType,

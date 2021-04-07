@@ -57,11 +57,13 @@ object AvroSrcGenerator {
         (new FileInputParser)
           .getSchemaOrProtocols(inputFile, Standard, classStore, classLoader)
           // multiple protocols are returned when imports are present.
-          // We assume the first one is the one defined in our file
-          .collectFirst { case Right(protocol) =>
+          // AvroHugger put the one defined in our file in the last position
+          // to generate dependent classes first
+          .lastOption
+          .collect { case Right(protocol) =>
             protocol
           }
-          .toValidNel(s"No protocol definition found in ${inputFile}")
+          .toValidNel(s"No protocol definition found in $inputFile")
 
       val skeuomorphAvroProtocol: ErrorsOr[AvroProtocol[Mu[AvroF]]] =
         nativeAvroProtocol.andThen(p =>
