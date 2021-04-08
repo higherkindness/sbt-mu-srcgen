@@ -16,6 +16,7 @@ The maintainers of the project are:
 - [![dzanot](https://avatars.githubusercontent.com/u/5342283?v=4&s=20) **Davis Zanot (dzanot)**](https://github.com/dzanot)
 - [![dmarticus](https://avatars.githubusercontent.com/u/4853149?v=4&s=20) **Dylan Martin (dmarticus)**](https://github.com/dmarticus)
 - [![fedefernandez](https://avatars.githubusercontent.com/u/720923?v=4&s=20) **Fede Fernández (fedefernandez)**](https://github.com/fedefernandez)
+- [![franciscodr](https://avatars.githubusercontent.com/u/1200151?v=4&s=20) **Francisco Diaz (franciscodr)**](https://github.com/franciscodr)
 - [![juanpedromoreno](https://avatars.githubusercontent.com/u/4879373?v=4&s=20) **Juan Pedro Moreno (juanpedromoreno)**](https://github.com/juanpedromoreno)
 - [![L-Lavigne](https://avatars.githubusercontent.com/u/36058023?v=4&s=20) **Lawrence Lavigne (L-Lavigne)**](https://github.com/L-Lavigne)
 
@@ -34,3 +35,4 @@ These are the people that have contributed to the _sbt-mu-srcgen_ project:
 - [![dmarticus](https://avatars.githubusercontent.com/u/4853149?v=4&s=20) **dmarticus**](https://github.com/dmarticus)
 - [![sloshy](https://avatars.githubusercontent.com/u/427237?v=4&s=20) **sloshy**](https://github.com/sloshy)
 - [![fedefernandez](https://avatars.githubusercontent.com/u/720923?v=4&s=20) **fedefernandez**](https://github.com/fedefernandez)
+- [![franciscodr](https://avatars.githubusercontent.com/u/1200151?v=4&s=20) **franciscodr**](https://github.com/franciscodr)
