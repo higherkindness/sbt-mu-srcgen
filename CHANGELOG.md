@@ -1,5 +1,46 @@
 # Changelog
 
+## [v0.25.0](https://github.com/higherkindness/sbt-mu-srcgen/tree/v0.25.0) (2021-04-07)
+
+[Full Changelog](https://github.com/higherkindness/sbt-mu-srcgen/compare/v0.24.0...v0.25.0)
+
+📈 **Dependency updates**
+
+- Update http4s-blaze-client, http4s-circe to 0.21.22 [\#162](https://github.com/higherkindness/sbt-mu-srcgen/pull/162) ([47erbot](https://github.com/47erbot))
+- Update sbt to 1.5.0 [\#161](https://github.com/higherkindness/sbt-mu-srcgen/pull/161) ([47erbot](https://github.com/47erbot))
+- Update scalatest to 3.2.7 [\#160](https://github.com/higherkindness/sbt-mu-srcgen/pull/160) ([47erbot](https://github.com/47erbot))
+- Update sbt-mdoc to 2.2.19 [\#158](https://github.com/higherkindness/sbt-mu-srcgen/pull/158) ([47erbot](https://github.com/47erbot))
+- Update http4s-blaze-client, http4s-circe to 0.21.21 [\#157](https://github.com/higherkindness/sbt-mu-srcgen/pull/157) ([47erbot](https://github.com/47erbot))
+- Update sbt-ci-release to 1.5.7 [\#156](https://github.com/higherkindness/sbt-mu-srcgen/pull/156) ([47erbot](https://github.com/47erbot))
+- Update skeuomorph to 0.0.29 [\#155](https://github.com/higherkindness/sbt-mu-srcgen/pull/155) ([47erbot](https://github.com/47erbot))
+- Update sbt-tpolecat to 0.1.17 [\#154](https://github.com/higherkindness/sbt-mu-srcgen/pull/154) ([47erbot](https://github.com/47erbot))
+- Update sbt-github, sbt-github-header, ... to 0.9.2 [\#153](https://github.com/higherkindness/sbt-mu-srcgen/pull/153) ([47erbot](https://github.com/47erbot))
+- Update sbt-ci-release to 1.5.6 [\#152](https://github.com/higherkindness/sbt-mu-srcgen/pull/152) ([47erbot](https://github.com/47erbot))
+- Update sbt to 1.4.9 [\#151](https://github.com/higherkindness/sbt-mu-srcgen/pull/151) ([47erbot](https://github.com/47erbot))
+- Update scalatest to 3.2.6 [\#150](https://github.com/higherkindness/sbt-mu-srcgen/pull/150) ([47erbot](https://github.com/47erbot))
+- Update sbt to 1.4.8 [\#149](https://github.com/higherkindness/sbt-mu-srcgen/pull/149) ([47erbot](https://github.com/47erbot))
+- Update sbt-github, sbt-github-header, ... to 0.9.1 [\#148](https://github.com/higherkindness/sbt-mu-srcgen/pull/148) ([47erbot](https://github.com/47erbot))
+- Update http4s-blaze-client, http4s-circe to 0.21.20 [\#147](https://github.com/higherkindness/sbt-mu-srcgen/pull/147) ([47erbot](https://github.com/47erbot))
+- Update scalatest to 3.2.5 [\#146](https://github.com/higherkindness/sbt-mu-srcgen/pull/146) ([47erbot](https://github.com/47erbot))
+- Update scalatest to 3.2.4 [\#145](https://github.com/higherkindness/sbt-mu-srcgen/pull/145) ([47erbot](https://github.com/47erbot))
+- Update mdoc\_2.12.12, sbt-mdoc to 2.2.18 [\#144](https://github.com/higherkindness/sbt-mu-srcgen/pull/144) ([47erbot](https://github.com/47erbot))
+- Update scalacheck to 1.15.3 [\#143](https://github.com/higherkindness/sbt-mu-srcgen/pull/143) ([47erbot](https://github.com/47erbot))
+- Update avrohugger-core to 1.0.0-RC24 [\#142](https://github.com/higherkindness/sbt-mu-srcgen/pull/142) ([47erbot](https://github.com/47erbot))
+- Update http4s-blaze-client, http4s-circe to 0.21.19 [\#141](https://github.com/higherkindness/sbt-mu-srcgen/pull/141) ([47erbot](https://github.com/47erbot))
+- Update avrohugger-core to 1.0.0-RC23 [\#140](https://github.com/higherkindness/sbt-mu-srcgen/pull/140) ([47erbot](https://github.com/47erbot))
+- Update mdoc\_2.12.12, sbt-mdoc to 2.2.17 [\#139](https://github.com/higherkindness/sbt-mu-srcgen/pull/139) ([47erbot](https://github.com/47erbot))
+- Update http4s-blaze-client, http4s-circe to 0.21.18 [\#138](https://github.com/higherkindness/sbt-mu-srcgen/pull/138) ([47erbot](https://github.com/47erbot))
+- Update http4s-blaze-client, http4s-circe to 0.21.17 [\#137](https://github.com/higherkindness/sbt-mu-srcgen/pull/137) ([47erbot](https://github.com/47erbot))
+- Update sbt to 1.4.7 [\#136](https://github.com/higherkindness/sbt-mu-srcgen/pull/136) ([47erbot](https://github.com/47erbot))
+- Update http4s-blaze-client, http4s-circe to 0.21.16 [\#135](https://github.com/higherkindness/sbt-mu-srcgen/pull/135) ([47erbot](https://github.com/47erbot))
+- Update mdoc, sbt-mdoc to 2.2.16 [\#134](https://github.com/higherkindness/sbt-mu-srcgen/pull/134) ([47erbot](https://github.com/47erbot))
+- Update http4s-blaze-client, http4s-circe to 0.21.15 [\#133](https://github.com/higherkindness/sbt-mu-srcgen/pull/133) ([47erbot](https://github.com/47erbot))
+- Update sbt to 1.4.6 [\#132](https://github.com/higherkindness/sbt-mu-srcgen/pull/132) ([47erbot](https://github.com/47erbot))
+
+**Merged pull requests:**
+
+- Restores avrohugger gen [\#159](https://github.com/higherkindness/sbt-mu-srcgen/pull/159) ([fedefernandez](https://github.com/fedefernandez))
+
 ## [v0.24.0](https://github.com/higherkindness/sbt-mu-srcgen/tree/v0.24.0) (2020-12-23)
 
 [Full Changelog](https://github.com/higherkindness/sbt-mu-srcgen/compare/v0.23.0...v0.24.0)
@@ -125,6 +166,10 @@
 
 - Prepare repository for next `.github` release and SBT build improvements [\#50](https://github.com/higherkindness/sbt-mu-srcgen/pull/50) ([juanpedromoreno](https://github.com/juanpedromoreno))
 
+📈 **Dependency updates**
+
+- Update sbt-tpolecat to 0.1.12 [\#47](https://github.com/higherkindness/sbt-mu-srcgen/pull/47) ([scala-steward](https://github.com/scala-steward))
+
 **Merged pull requests:**
 
 - Change default port [\#48](https://github.com/higherkindness/sbt-mu-srcgen/pull/48) ([mrtmmr](https://github.com/mrtmmr))
@@ -142,10 +187,6 @@
 ## [v0.22.0](https://github.com/higherkindness/sbt-mu-srcgen/tree/v0.22.0) (2020-05-06)
 
 [Full Changelog](https://github.com/higherkindness/sbt-mu-srcgen/compare/v0.21.4...v0.22.0)
-
-📈 **Dependency updates**
-
-- Update sbt-tpolecat to 0.1.12 [\#47](https://github.com/higherkindness/sbt-mu-srcgen/pull/47) ([scala-steward](https://github.com/scala-steward))
 
 **Merged pull requests:**
 
