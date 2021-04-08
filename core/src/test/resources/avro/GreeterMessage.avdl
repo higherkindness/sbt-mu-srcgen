@@ -1,0 +1,14 @@
+@namespace("foo.bar")
+protocol MyGreeterMessage {
+  record HelloRequest {
+    string arg1;
+    union { null, string } arg2;
+    array<string> arg3;
+  }
+
+  record HelloResponse {
+    string arg1;
+    union { null, string } arg2;
+    array<string>  arg3;
+  }
+}

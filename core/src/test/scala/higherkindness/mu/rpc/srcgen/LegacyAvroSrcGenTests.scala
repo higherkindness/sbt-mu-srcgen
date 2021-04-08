@@ -43,7 +43,8 @@ class LegacyAvroSrcGenTests
       serializationType: SerializationType,
       marshallersImports: List[MarshallersImport],
       compressionType: CompressionType,
-      useIdiomaticEndpoints: Boolean = true
+      useIdiomaticEndpoints: Boolean = true,
+      messagesAsImportFile: Boolean = true
   ): List[String] = {
 
     val imports: String = ("import higherkindness.mu.rpc.protocol._" :: marshallersImports
@@ -58,26 +59,40 @@ class LegacyAvroSrcGenTests
       else "namespace = None"
     ).mkString(", ")
 
-    s"""
-       |package foo.bar
-       |
-       |$imports
-       |
-       |final case class HelloRequest(arg1: String, arg2: Option[String], arg3: Seq[String])
-       |
-       |final case class HelloResponse(arg1: String, arg2: Option[String], arg3: Seq[String])
-       |
+    val packageAndImports =
+      s"""
+         |package foo.bar
+         |
+         |$imports
+         |
+         |""".stripMargin
 
-       |@service($serviceParams) trait MyGreeterService[F[_]] {
-       |
-       |  def sayHelloAvro(arg: foo.bar.HelloRequest): F[foo.bar.HelloResponse]
-       |
-       |  def sayNothingAvro(arg: Empty.type): F[Empty.type]
-       |
-       |}""".stripMargin.split("\n").filter(_.nonEmpty).toList
+    val messages =
+      """
+        |final case class HelloRequest(arg1: String, arg2: Option[String], arg3: Seq[String])
+        |
+        |final case class HelloResponse(arg1: String, arg2: Option[String], arg3: Seq[String])
+        |
+        |""".stripMargin
+
+    val service =
+      s"""
+         |@service($serviceParams) trait MyGreeterService[F[_]] {
+         |
+         |  def sayHelloAvro(arg: foo.bar.HelloRequest): F[foo.bar.HelloResponse]
+         |
+         |  def sayNothingAvro(arg: Empty.type): F[Empty.type]
+         |}
+         |
+         |""".stripMargin
+
+    if (messagesAsImportFile)
+      (packageAndImports ++ service).split("\n").filter(_.nonEmpty).toList
+    else
+      (packageAndImports ++ messages ++ service).split("\n").filter(_.nonEmpty).toList
   }
 
-  implicit val scenarioArb: Arbitrary[Scenario] = scenarioArbirary(generateOutput)
+  implicit val scenarioArb: Arbitrary[Scenario] = scenarioArbitrary(generateOutput)
 
   "Legacy Avro Scala Generator" should {
 
@@ -117,7 +132,7 @@ class LegacyAvroSrcGenTests
         scenario.compressionType,
         scenario.useIdiomaticEndpoints
       ).generateFrom(
-        Set(new File(getClass.getResource(scenario.inputResourcePath).toURI)),
+        scenario.inputResourcesPath.map(path => new File(getClass.getResource(path).toURI)),
         scenario.serializationType
       )
     output should not be empty
