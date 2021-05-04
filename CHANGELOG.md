@@ -1,5 +1,16 @@
 # Changelog
 
+## [v0.26.0](https://github.com/higherkindness/sbt-mu-srcgen/tree/v0.26.0) (2021-05-04)
+
+[Full Changelog](https://github.com/higherkindness/sbt-mu-srcgen/compare/v0.25.1...v0.26.0)
+
+📈 **Dependency updates**
+
+- Update mu-rpc-service to 0.26.0 [\#167](https://github.com/higherkindness/sbt-mu-srcgen/pull/167) ([alejandrohdezma](https://github.com/alejandrohdezma))
+- Update sbt to 1.5.1 [\#166](https://github.com/higherkindness/sbt-mu-srcgen/pull/166) ([47erbot](https://github.com/47erbot))
+- Update scalatest to 3.2.8 [\#165](https://github.com/higherkindness/sbt-mu-srcgen/pull/165) ([47erbot](https://github.com/47erbot))
+- Update mdoc, sbt-mdoc to 2.2.20 [\#164](https://github.com/higherkindness/sbt-mu-srcgen/pull/164) ([47erbot](https://github.com/47erbot))
+
 ## [v0.25.1](https://github.com/higherkindness/sbt-mu-srcgen/tree/v0.25.1) (2021-04-08)
 
 [Full Changelog](https://github.com/higherkindness/sbt-mu-srcgen/compare/v0.25.0...v0.25.1)
@@ -97,6 +108,7 @@
 - Update sbt-mdoc to 2.2.8 [\#94](https://github.com/higherkindness/sbt-mu-srcgen/pull/94) ([47erbot](https://github.com/47erbot))
 - Update sbt-mdoc to 2.2.7 [\#92](https://github.com/higherkindness/sbt-mu-srcgen/pull/92) ([47erbot](https://github.com/47erbot))
 - Update scalafmt-core to 2.7.0 [\#91](https://github.com/higherkindness/sbt-mu-srcgen/pull/91) ([47erbot](https://github.com/47erbot))
+- Update sbt-mdoc to 2.2.6 [\#90](https://github.com/higherkindness/sbt-mu-srcgen/pull/90) ([47erbot](https://github.com/47erbot))
 
 ## [v0.23.0](https://github.com/higherkindness/sbt-mu-srcgen/tree/v0.23.0) (2020-09-01)
 
@@ -121,7 +133,6 @@
 
 📈 **Dependency updates**
 
-- Update sbt-mdoc to 2.2.6 [\#90](https://github.com/higherkindness/sbt-mu-srcgen/pull/90) ([47erbot](https://github.com/47erbot))
 - Update scalacheck-1-14 to 3.2.2.0 [\#87](https://github.com/higherkindness/sbt-mu-srcgen/pull/87) ([47erbot](https://github.com/47erbot))
 - Update scalatest to 3.2.2 [\#86](https://github.com/higherkindness/sbt-mu-srcgen/pull/86) ([47erbot](https://github.com/47erbot))
 - Update sbt-mdoc to 2.2.5 [\#85](https://github.com/higherkindness/sbt-mu-srcgen/pull/85) ([47erbot](https://github.com/47erbot))
