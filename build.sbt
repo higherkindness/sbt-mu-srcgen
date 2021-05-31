@@ -18,7 +18,7 @@ lazy val core = project
       "io.higherkindness"          %% "skeuomorph"          % "0.0.29",
       "com.github.julien-truffaut" %% "monocle-core"        % "2.1.0",
       "com.julianpeeters"          %% "avrohugger-core"     % "1.0.0-RC24",
-      "io.circe"                   %% "circe-generic"       % "0.13.0",
+      "io.circe"                   %% "circe-generic"       % "0.14.1",
       "org.http4s"                 %% "http4s-blaze-client" % "0.21.24",
       "org.http4s"                 %% "http4s-circe"        % "0.21.24",
       "org.scalatest"              %% "scalatest"           % "3.2.9"   % Test,
