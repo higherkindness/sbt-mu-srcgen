@@ -164,7 +164,7 @@ final case class LegacyAvroSrcGenerator(
   private def getPath(p: Protocol): Path = {
     val pathParts: NonEmptyList[String] =
       NonEmptyList // Non empty list for a later safe `head` call
-        .one(      // Start with reverse path of file name, the only part we know is for sure a thing
+        .one( // Start with reverse path of file name, the only part we know is for sure a thing
           s"${p.getName}$ScalaFileExtension"
         )
         .concat(

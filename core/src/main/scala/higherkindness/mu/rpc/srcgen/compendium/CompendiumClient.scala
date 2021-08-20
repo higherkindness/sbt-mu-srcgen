@@ -27,9 +27,12 @@ trait CompendiumClient[F[_]] {
   /**
    * Retrieve a Protocol by its id
    *
-   * @param identifier the protocol identifier
-   * @param version    optional protocol version number
-   * @return a protocol
+   * @param identifier
+   *   the protocol identifier
+   * @param version
+   *   optional protocol version number
+   * @return
+   *   a protocol
    */
   def retrieveProtocol(identifier: String, version: Option[Int]): F[Option[RawProtocol]]
 

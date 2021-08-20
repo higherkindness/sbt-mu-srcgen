@@ -157,9 +157,8 @@ trait AstOptics {
   }
 
   /**
-   * There are so many quirks for getting parameters for other
-   * constructs such as normal classes.  I think we only need case
-   * classes and defs... we'll see :)
+   * There are so many quirks for getting parameters for other constructs such as normal classes. I
+   * think we only need case classes and defs... we'll see :)
    */
   val params: Optional[Tree, List[ValDef]] = Optional[Tree, List[ValDef]] {
     case ast._CaseClassDef(m) =>

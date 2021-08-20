@@ -22,11 +22,10 @@ import scala.annotation.tailrec
 import scala.io.Source
 
 /**
- * Adapted from `avrohugger.filesorter.AvdlFileSorter`.
- * Changes:
- * - Handles imported files not present in the input set
- * - Doesn't require input files to be in canonical form (but returns them as such)
- * - Errors out on unresolved imports instead of going into an infinite loop
+ * Adapted from `avrohugger.filesorter.AvdlFileSorter`. Changes:
+ *   - Handles imported files not present in the input set
+ *   - Doesn't require input files to be in canonical form (but returns them as such)
+ *   - Errors out on unresolved imports instead of going into an infinite loop
  */
 object AvdlFileSorter {
 
