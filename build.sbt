@@ -1,5 +1,5 @@
-ThisBuild / scalaVersion := "2.12.12"
-ThisBuild / organization := "io.higherkindness"
+ThisBuild / scalaVersion       := "2.12.12"
+ThisBuild / organization       := "io.higherkindness"
 ThisBuild / githubOrganization := "47deg"
 
 publish / skip := true

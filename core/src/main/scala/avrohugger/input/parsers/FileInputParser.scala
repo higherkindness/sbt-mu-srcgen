@@ -55,7 +55,7 @@ class FileInputParser {
         case UNION  => schema.getTypes.asScala.toList
         case RECORD => List(schema)
         case ENUM   => List(schema)
-        case _      => sys.error("""Neither a record, enum nor a union of either.
+        case _ => sys.error("""Neither a record, enum nor a union of either.
                               |Nothing to map to a definition.""".trim.stripMargin)
       }
     }

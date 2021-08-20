@@ -21,7 +21,7 @@ import java.io.File
 import cats.effect.{ContextShift, IO => IOCats}
 import higherkindness.mu.rpc.srcgen.Model.ExecutionMode._
 import sbt.Keys._
-import sbt.{Def, settingKey, _}
+import sbt.{settingKey, Def, _}
 import sbt.io.{Path, PathFinder}
 import higherkindness.mu.rpc.srcgen.Model._
 import higherkindness.mu.rpc.srcgen.compendium.{CompendiumMode, HttpConfig, ProtocolAndVersion}
@@ -140,10 +140,10 @@ object SrcGenPlugin extends AutoPlugin {
       }
     },
     muSrcGenSerializationType := SerializationType.Avro,
-    muSrcGenJarNames := Seq.empty,
-    muSrcGenSourceDirs := Seq((Compile / resourceDirectory).value),
+    muSrcGenJarNames          := Seq.empty,
+    muSrcGenSourceDirs        := Seq((Compile / resourceDirectory).value),
     muSrcGenIdlTargetDir := (Compile / resourceManaged).value / muSrcGenIdlType.value.toString.toLowerCase,
-    muSrcGenTargetDir := (Compile / sourceManaged).value,
+    muSrcGenTargetDir  := (Compile / sourceManaged).value,
     muSrcGenBigDecimal := ScalaBigDecimalTaggedGen,
     muSrcGenMarshallerImports := {
       muSrcGenSerializationType.value match {
@@ -159,14 +159,14 @@ object SrcGenPlugin extends AutoPlugin {
           Nil
       }
     },
-    muSrcGenCompressionType := NoCompressionGen,
-    muSrcGenIdiomaticEndpoints := true,
-    muSrcGenOpenApiHttpImpl := HttpImpl.Http4sV20,
-    muSrcGenStreamingImplementation := Fs2Stream,
-    muSrcGenExecutionMode := Local,
+    muSrcGenCompressionType               := NoCompressionGen,
+    muSrcGenIdiomaticEndpoints            := true,
+    muSrcGenOpenApiHttpImpl               := HttpImpl.Http4sV20,
+    muSrcGenStreamingImplementation       := Fs2Stream,
+    muSrcGenExecutionMode                 := Local,
     muSrcGenCompendiumProtocolIdentifiers := Nil,
-    muSrcGenCompendiumServerUrl := "http://localhost:8080",
-    muSrcGenAvroGeneratorType := SkeumorphGen
+    muSrcGenCompendiumServerUrl           := "http://localhost:8080",
+    muSrcGenAvroGeneratorType             := SkeumorphGen
   )
 
   lazy val taskSettings: Seq[Def.Setting[_]] = {

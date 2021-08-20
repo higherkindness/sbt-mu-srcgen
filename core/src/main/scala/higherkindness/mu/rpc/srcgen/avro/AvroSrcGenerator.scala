@@ -29,7 +29,7 @@ import org.apache.avro.Protocol
 import cats.implicits._
 import higherkindness.droste.data.Mu
 import higherkindness.skeuomorph.avro.{AvroF, Protocol => AvroProtocol}
-import higherkindness.skeuomorph.mu.{CompressionType, MuF, codegen, Protocol => MuProtocol}
+import higherkindness.skeuomorph.mu.{codegen, CompressionType, MuF, Protocol => MuProtocol}
 
 import scala.meta._
 import scala.util.Try
@@ -102,8 +102,8 @@ object AvroSrcGenerator {
   private def getPath(p: AvroProtocol[Mu[AvroF]]): Path = {
     val pathParts: NonEmptyList[String] =
       NonEmptyList // Non empty list for a later safe `head` call
-        .one(      // Start with reverse path of file name, the only part we know is for sure a thing
-          s"${p.name}${ScalaFileExtension}"
+        .one( // Start with reverse path of file name, the only part we know is for sure a thing
+          s"${p.name}$ScalaFileExtension"
         )
         .concat(
           p.namespace // and maybe a path prefix from the namespace for the rest
