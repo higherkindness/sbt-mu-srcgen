@@ -15,26 +15,28 @@ lazy val root = project
   .settings(name := "root")
   .settings(version := "1.0.0")
   .enablePlugins(SrcGenPlugin)
-  .settings(Seq(
-    muSrcGenIdlType := IdlType.OpenAPI,
-    muSrcGenSourceDirs := Seq((Compile / resourceDirectory).value),
-    muSrcGenTargetDir := (Compile / sourceManaged).value / "compiled_openapi",
-    muSrcGenOpenApiHttpImpl := higherkindness.mu.rpc.srcgen.openapi.OpenApiSrcGenerator.HttpImpl.Http4sV20,
-    addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.1" cross CrossVersion.patch),
-    libraryDependencies ++= Seq(
-      "org.http4s" %% "http4s-blaze-client" % V.http4s,
-      "org.http4s" %% "http4s-dsl"    % V.http4s,
-      "org.http4s" %% "http4s-circe"  % V.http4s,
-      "io.circe"   %% "circe-core"    % V.circe,
-      "io.circe"   %% "circe-generic" % V.circe)
+  .settings(
+    Seq(
+      muSrcGenIdlType    := IdlType.OpenAPI,
+      muSrcGenSourceDirs := Seq((Compile / resourceDirectory).value),
+      muSrcGenTargetDir  := (Compile / sourceManaged).value / "compiled_openapi",
+      muSrcGenOpenApiHttpImpl := higherkindness.mu.rpc.srcgen.openapi.OpenApiSrcGenerator.HttpImpl.Http4sV20,
+      addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.1" cross CrossVersion.patch),
+      libraryDependencies ++= Seq(
+        "org.http4s" %% "http4s-blaze-client" % V.http4s,
+        "org.http4s" %% "http4s-dsl"          % V.http4s,
+        "org.http4s" %% "http4s-circe"        % V.http4s,
+        "io.circe"   %% "circe-core"          % V.circe,
+        "io.circe"   %% "circe-generic"       % V.circe
+      )
     )
   )
   .settings(
     dependencyOverrides ++= overrideDependecies
   )
 
-  lazy val overrideDependecies = Seq(
-    "org.typelevel" %% "cats-core"   % V.cats,
-    "org.typelevel" %% "cats-effect" % V.catsEffect,
-    "co.fs2"        %% "fs2-core"    % V.fs2
-  )
+lazy val overrideDependecies = Seq(
+  "org.typelevel" %% "cats-core"   % V.cats,
+  "org.typelevel" %% "cats-effect" % V.catsEffect,
+  "co.fs2"        %% "fs2-core"    % V.fs2
+)
