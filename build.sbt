@@ -14,17 +14,14 @@ lazy val core = project
   .settings(moduleName := "mu-srcgen-core")
   .settings(
     libraryDependencies ++= Seq(
-      "io.higherkindness"          %% "mu-rpc-service"      % muV,
-      "io.higherkindness"          %% "skeuomorph"          % "0.0.29",
-      "com.github.julien-truffaut" %% "monocle-core"        % "2.1.0",
-      "com.julianpeeters"          %% "avrohugger-core"     % "1.0.0-RC24",
-      "io.circe"                   %% "circe-generic"       % "0.14.1",
-      "org.http4s"                 %% "http4s-blaze-client" % "0.21.29",
-      "org.http4s"                 %% "http4s-circe"        % "0.21.29",
-      "org.scalatest"              %% "scalatest"           % "3.2.10"  % Test,
-      "org.scalacheck"             %% "scalacheck"          % "1.15.4"  % Test,
-      "org.scalatestplus"          %% "scalacheck-1-14"     % "3.2.2.0" % Test,
-      "org.slf4j"                   % "slf4j-nop"           % "1.7.32"  % Test
+      "io.higherkindness"          %% "mu-rpc-service"  % muV,
+      "io.higherkindness"          %% "skeuomorph"      % "0.0.29",
+      "com.github.julien-truffaut" %% "monocle-core"    % "2.1.0",
+      "com.julianpeeters"          %% "avrohugger-core" % "1.0.0-RC24",
+      "org.scalatest"              %% "scalatest"       % "3.2.10"  % Test,
+      "org.scalacheck"             %% "scalacheck"      % "1.15.4"  % Test,
+      "org.scalatestplus"          %% "scalacheck-1-14" % "3.2.2.0" % Test,
+      "org.slf4j"                   % "slf4j-nop"       % "1.7.32"  % Test
     )
   )
 
