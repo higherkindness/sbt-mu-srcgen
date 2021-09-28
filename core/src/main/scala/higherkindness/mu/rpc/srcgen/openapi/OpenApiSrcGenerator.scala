@@ -32,6 +32,7 @@ import cats.data.Validated.Valid
 import cats.implicits._
 import higherkindness.skeuomorph.Parser
 import cats.effect._
+import cats.effect.unsafe.implicits.global
 import higherkindness.skeuomorph.openapi.JsonSchemaF
 
 import scala.collection.JavaConverters._

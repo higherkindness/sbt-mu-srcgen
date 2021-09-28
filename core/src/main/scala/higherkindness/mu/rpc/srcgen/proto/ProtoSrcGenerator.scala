@@ -22,6 +22,7 @@ import java.nio.file.Paths
 import scala.meta._
 import scala.util.control.NoStackTrace
 import cats.effect.{IO, Sync}
+import cats.effect.unsafe.implicits.global
 import cats.syntax.flatMap._
 import cats.data.Validated._
 import higherkindness.droste.data.Mu
