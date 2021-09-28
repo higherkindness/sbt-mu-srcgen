@@ -15,7 +15,7 @@ lazy val core = project
   .settings(
     libraryDependencies ++= Seq(
       "io.higherkindness"          %% "mu-rpc-service"      % muV,
-      "io.higherkindness"          %% "skeuomorph"          % "0.1.0",
+      "io.higherkindness"          %% "skeuomorph"          % "0.1.1",
       "com.github.julien-truffaut" %% "monocle-core"        % "2.1.0",
       "com.julianpeeters"          %% "avrohugger-core"     % "1.0.0-RC24",
       "io.circe"                   %% "circe-generic"       % "0.14.1",
