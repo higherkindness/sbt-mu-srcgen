@@ -1,5 +1,16 @@
 # Changelog
 
+## [v0.27.2](https://github.com/higherkindness/sbt-mu-srcgen/tree/v0.27.2) (2021-11-05)
+
+[Full Changelog](https://github.com/higherkindness/sbt-mu-srcgen/compare/v0.27.1...v0.27.2)
+
+**Merged pull requests:**
+
+- Upgrade mu [\#221](https://github.com/higherkindness/sbt-mu-srcgen/pull/221) ([fedefernandez](https://github.com/fedefernandez))
+- Update scalafmt-core to 3.0.8 [\#220](https://github.com/higherkindness/sbt-mu-srcgen/pull/220) ([47erbot](https://github.com/47erbot))
+- Update sbt-github, sbt-github-header, ... to 0.11.1 [\#218](https://github.com/higherkindness/sbt-mu-srcgen/pull/218) ([47erbot](https://github.com/47erbot))
+- Update sbt-github, sbt-github-header, ... to 0.11.0 [\#217](https://github.com/higherkindness/sbt-mu-srcgen/pull/217) ([47erbot](https://github.com/47erbot))
+
 ## [v0.27.1](https://github.com/higherkindness/sbt-mu-srcgen/tree/v0.27.1) (2021-10-28)
 
 [Full Changelog](https://github.com/higherkindness/sbt-mu-srcgen/compare/v0.27.0...v0.27.1)
@@ -238,6 +249,7 @@
 - Update scalatest to 3.2.0 [\#60](https://github.com/higherkindness/sbt-mu-srcgen/pull/60) ([scala-steward](https://github.com/scala-steward))
 - Update monocle-core to 2.0.5 [\#56](https://github.com/higherkindness/sbt-mu-srcgen/pull/56) ([scala-steward](https://github.com/scala-steward))
 - Update scalafmt-core to 2.5.3 [\#55](https://github.com/higherkindness/sbt-mu-srcgen/pull/55) ([scala-steward](https://github.com/scala-steward))
+- Update sbt-mdoc to 2.2.2 [\#54](https://github.com/higherkindness/sbt-mu-srcgen/pull/54) ([scala-steward](https://github.com/scala-steward))
 
 **Merged pull requests:**
 
@@ -267,7 +279,6 @@
 
 📈 **Dependency updates**
 
-- Update sbt-mdoc to 2.2.2 [\#54](https://github.com/higherkindness/sbt-mu-srcgen/pull/54) ([scala-steward](https://github.com/scala-steward))
 - Updates to mu-scala 0.22.1 [\#41](https://github.com/higherkindness/sbt-mu-srcgen/pull/41) ([juanpedromoreno](https://github.com/juanpedromoreno))
 - Update scalatest to 3.1.2 [\#39](https://github.com/higherkindness/sbt-mu-srcgen/pull/39) ([scala-steward](https://github.com/scala-steward))
 
