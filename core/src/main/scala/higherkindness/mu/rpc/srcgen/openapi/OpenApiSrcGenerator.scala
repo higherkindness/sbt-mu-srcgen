@@ -82,7 +82,7 @@ object OpenApiSrcGenerator {
               file.getParentFile.toPath.asScala
                 .splitAt(
                   resourcesBasePath.iterator().asScala.size + 1
-                ) //we need to add one because it is changing the resource path, adding open api
+                ) // we need to add one because it is changing the resource path, adding open api
             val path: Path = Paths.get(paths.map(_.toString()).mkString("/"))
             val pkg        = packageName(path)
             pathFrom(path, file).toString ->
