@@ -8,14 +8,14 @@ addCommandAlias("ci-test", "scalafmtCheckAll; scalafmtSbtCheck; test; publishLoc
 addCommandAlias("ci-docs", "github; mdoc; headerCreateAll")
 addCommandAlias("ci-publish", "github; ci-release")
 
-lazy val muV = "0.27.2"
+lazy val muV = "0.27.3"
 
 lazy val core = project
   .settings(moduleName := "mu-srcgen-core")
   .settings(
     libraryDependencies ++= Seq(
       "io.higherkindness"          %% "mu-rpc-service"  % muV,
-      "io.higherkindness"          %% "skeuomorph"      % "0.1.2",
+      "io.higherkindness"          %% "skeuomorph"      % "0.1.3",
       "com.github.julien-truffaut" %% "monocle-core"    % "2.1.0",
       "com.julianpeeters"          %% "avrohugger-core" % "1.0.0-RC24",
       "org.scalatest"              %% "scalatest"       % "3.2.10"  % Test,
