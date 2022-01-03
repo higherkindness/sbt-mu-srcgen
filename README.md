@@ -16,7 +16,7 @@
 For installing this plugin, add the following line to your `plugins.sbt` file:
 
 ```sbt mdoc:silent
-addSbtPlugin("io.higherkindness" % "sbt-mu-srcgen" % "0.27.2")
+addSbtPlugin("io.higherkindness" % "sbt-mu-srcgen" % "0.27.3")
 ```
 
 ### NOTE
@@ -43,4 +43,4 @@ The full documentation is available at the [mu](https://higherkindness.io/mu-sca
 
 sbt-mu-srcgen is designed and developed by 47 Degrees
 
-Copyright (C)  2020-2021 47 Degrees <https://www.47deg.com>
+Copyright (C)  2020-2022 47 Degrees <https://www.47deg.com>
