@@ -109,6 +109,11 @@ object SrcGenPlugin extends AutoPlugin {
         "Specifies the Avro generation type: `SkeumorphGen` or `AvrohuggerGen`. `SkeumorphGen` by default."
       )
 
+    lazy val muSrcGenProtocVersion: SettingKey[Option[String]] =
+      settingKey[Option[String]](
+        "Specifies the protoc version. None will use the bundled protoc compiler."
+      )
+
   }
 
   import autoImport._
@@ -146,7 +151,8 @@ object SrcGenPlugin extends AutoPlugin {
     muSrcGenIdiomaticEndpoints      := true,
     muSrcGenOpenApiHttpImpl         := HttpImpl.Http4sV20,
     muSrcGenStreamingImplementation := Fs2Stream,
-    muSrcGenAvroGeneratorType       := SkeumorphGen
+    muSrcGenAvroGeneratorType       := SkeumorphGen,
+    muSrcGenProtocVersion           := None
   )
 
   lazy val taskSettings: Seq[Def.Setting[_]] = {
@@ -188,7 +194,8 @@ object SrcGenPlugin extends AutoPlugin {
                 muSrcGenStreamingImplementation.value,
                 muSrcGenIdlTargetDir.value,
                 (Compile / resourceManaged).value.toPath,
-                muSrcGenOpenApiHttpImpl.value
+                muSrcGenOpenApiHttpImpl.value,
+                muSrcGenProtocVersion.value
               ),
               muSrcGenIdlType.value,
               muSrcGenSerializationType.value,

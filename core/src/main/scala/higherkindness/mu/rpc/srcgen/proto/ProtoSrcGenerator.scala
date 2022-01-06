@@ -44,7 +44,8 @@ object ProtoSrcGenerator {
       streamingImplementation: StreamingImplementation,
       idlTargetDir: File = new File("."),
       compressionType: CompressionType = CompressionType.Identity,
-      useIdiomaticEndpoints: Boolean = true
+      useIdiomaticEndpoints: Boolean = true,
+      protocVersion: Option[String] = None
   ): SrcGenerator =
     new SrcGenerator {
 
@@ -80,7 +81,7 @@ object ProtoSrcGenerator {
           file: File
       )(implicit F: Sync[F]): F[(String, ErrorsOr[List[String]])] =
         parseProto[F, Mu[ProtobufF]]
-          .parse(ProtoSource(file.getName, file.getParent, Some(idlTargetDir.getCanonicalPath)))
+          .parse(ProtoSource(file.getName, file.getParent, Some(idlTargetDir.getCanonicalPath), protocVersion))
           .flatMap { protocol =>
             val path = getPath(protocol)
             (transformToMuProtocol andThen generateScalaSource)(protocol) match {

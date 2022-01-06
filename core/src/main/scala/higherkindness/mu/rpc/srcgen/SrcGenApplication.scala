@@ -36,7 +36,8 @@ object SrcGenApplication {
       streamingImplementation: StreamingImplementation,
       idlTargetDir: File,
       resourcesBasePath: Path,
-      httpImpl: HttpImpl
+      httpImpl: HttpImpl,
+      protocVersion: Option[String]
   ): GeneratorApplication[SrcGenerator] = {
     val compressionType: CompressionType = compressionTypeGen match {
       case GzipGen          => CompressionType.Gzip
@@ -47,7 +48,8 @@ object SrcGenApplication {
         streamingImplementation,
         idlTargetDir,
         compressionType,
-        useIdiomaticEndpoints
+        useIdiomaticEndpoints,
+        protocVersion
       ),
       avroGeneratorTypeGen match {
         case Model.AvrohuggerGen =>
