@@ -26,7 +26,7 @@ import org.scalatest.wordspec.AnyWordSpec
 
 class ProtoSrcGenTests extends AnyWordSpec with Matchers with OneInstancePerTest with OptionValues {
 
-  val protocVersion = Some("3.19.1")
+  val protocVersion  = Some("3.19.1")
   val module: String = new java.io.File(".").getCanonicalPath
   def protoFile(filename: String): File =
     new File(s"$module/core/src/test/resources/proto/$filename.proto")
