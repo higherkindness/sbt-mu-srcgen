@@ -26,6 +26,7 @@ import org.scalatest.wordspec.AnyWordSpec
 
 class ProtoSrcGenTests extends AnyWordSpec with Matchers with OneInstancePerTest with OptionValues {
 
+  val protocVersion  = Some("3.19.1")
   val module: String = new java.io.File(".").getCanonicalPath
   def protoFile(filename: String): File =
     new File(s"$module/core/src/test/resources/proto/$filename.proto")
@@ -34,7 +35,7 @@ class ProtoSrcGenTests extends AnyWordSpec with Matchers with OneInstancePerTest
 
     "generate the expected Scala code (FS2 stream)" in {
       val result: Option[(String, String)] =
-        ProtoSrcGenerator(Fs2Stream)
+        ProtoSrcGenerator(Fs2Stream, protocVersion = protocVersion)
           .generateFrom(
             files = Set(protoFile("book")),
             serializationType = SerializationType.Protobuf
@@ -50,7 +51,7 @@ class ProtoSrcGenTests extends AnyWordSpec with Matchers with OneInstancePerTest
 
     "generate the expected Scala code (Monix Observable)" in {
       val result: Option[(String, String)] =
-        ProtoSrcGenerator(MonixObservable)
+        ProtoSrcGenerator(MonixObservable, protocVersion = protocVersion)
           .generateFrom(
             files = Set(protoFile("book")),
             serializationType = SerializationType.Protobuf
@@ -68,7 +69,7 @@ class ProtoSrcGenTests extends AnyWordSpec with Matchers with OneInstancePerTest
 
     "throw an exception on an invalid Protobuf schema" in {
       assertThrows[ProtobufCompilationException] {
-        ProtoSrcGenerator(MonixObservable)
+        ProtoSrcGenerator(MonixObservable, protocVersion = protocVersion)
           .generateFrom(
             files = Set(protoFile("broken")),
             serializationType = SerializationType.Protobuf

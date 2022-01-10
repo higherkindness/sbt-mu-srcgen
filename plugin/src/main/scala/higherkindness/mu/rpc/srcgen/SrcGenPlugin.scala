@@ -30,6 +30,8 @@ object SrcGenPlugin extends AutoPlugin {
 
   object autoImport {
 
+    val protocDefaultVersion: String = "3.19.1"
+
     lazy val muSrcGen: TaskKey[Seq[File]] =
       taskKey[Seq[File]]("Generates mu Scala files from IDL definitions")
 
@@ -109,6 +111,11 @@ object SrcGenPlugin extends AutoPlugin {
         "Specifies the Avro generation type: `SkeumorphGen` or `AvrohuggerGen`. `SkeumorphGen` by default."
       )
 
+    lazy val muSrcGenProtocVersion: SettingKey[String] =
+      settingKey[String](
+        s"Specifies the protoc version. `$protocDefaultVersion` by default."
+      )
+
   }
 
   import autoImport._
@@ -146,7 +153,8 @@ object SrcGenPlugin extends AutoPlugin {
     muSrcGenIdiomaticEndpoints      := true,
     muSrcGenOpenApiHttpImpl         := HttpImpl.Http4sV20,
     muSrcGenStreamingImplementation := Fs2Stream,
-    muSrcGenAvroGeneratorType       := SkeumorphGen
+    muSrcGenAvroGeneratorType       := SkeumorphGen,
+    muSrcGenProtocVersion           := protocDefaultVersion
   )
 
   lazy val taskSettings: Seq[Def.Setting[_]] = {
@@ -188,7 +196,8 @@ object SrcGenPlugin extends AutoPlugin {
                 muSrcGenStreamingImplementation.value,
                 muSrcGenIdlTargetDir.value,
                 (Compile / resourceManaged).value.toPath,
-                muSrcGenOpenApiHttpImpl.value
+                muSrcGenOpenApiHttpImpl.value,
+                muSrcGenProtocVersion.value
               ),
               muSrcGenIdlType.value,
               muSrcGenSerializationType.value,
