@@ -29,3 +29,4 @@ These are the people that have contributed to the _sbt-mu-srcgen_ project:
 - [![dmarticus](https://avatars.githubusercontent.com/u/4853149?v=4&s=20) **dmarticus**](https://github.com/dmarticus)
 - [![sloshy](https://avatars.githubusercontent.com/u/427237?v=4&s=20) **sloshy**](https://github.com/sloshy)
 - [![franciscodr](https://avatars.githubusercontent.com/u/1200151?v=4&s=20) **franciscodr**](https://github.com/franciscodr)
+- [![ThatScalaGuy](https://avatars.githubusercontent.com/u/7647945?v=4&s=20) **ThatScalaGuy**](https://github.com/ThatScalaGuy)
