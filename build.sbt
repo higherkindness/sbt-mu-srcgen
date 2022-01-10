@@ -8,7 +8,7 @@ addCommandAlias("ci-test", "scalafmtCheckAll; scalafmtSbtCheck; test; publishLoc
 addCommandAlias("ci-docs", "github; mdoc; headerCreateAll")
 addCommandAlias("ci-publish", "github; ci-release")
 
-lazy val muV = "0.27.3"
+lazy val muV = "0.27.4"
 
 lazy val core = project
   .settings(moduleName := "mu-srcgen-core")
