@@ -41,7 +41,6 @@ object ProtoSrcGenerator {
   }
 
   def apply(
-      streamingImplementation: StreamingImplementation,
       idlTargetDir: File = new File("."),
       compressionType: CompressionType = CompressionType.Identity,
       useIdiomaticEndpoints: Boolean = true,
@@ -64,16 +63,11 @@ object ProtoSrcGenerator {
           }
           .unsafeRunSync()
 
-      val streamCtor: (Type, Type) => Type.Apply = streamingImplementation match {
-        case Fs2Stream       => { case (f, a) => t"_root_.fs2.Stream[$f, $a]" }
-        case MonixObservable => { case (_, a) => t"_root_.monix.reactive.Observable[$a]" }
-      }
-
       val transformToMuProtocol: Protocol[Mu[ProtobufF]] => skeuomorph.Protocol[Mu[MuF]] =
         skeuomorph.Protocol.fromProtobufProto(compressionType, useIdiomaticEndpoints)
 
       val generateScalaSource: skeuomorph.Protocol[Mu[MuF]] => Either[String, String] =
-        skeuomorph.codegen.protocol(_, streamCtor).map(_.syntax)
+        skeuomorph.codegen.protocol(_, (f, a) => t"_root_.fs2.Stream[$f, $a]").map(_.syntax)
 
       val splitLines: String => List[String] = _.split("\n").toList
 

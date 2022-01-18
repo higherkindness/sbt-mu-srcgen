@@ -69,10 +69,6 @@ object Model {
   case object GzipGen                      extends CompressionTypeGen
   case object NoCompressionGen             extends CompressionTypeGen
 
-  sealed trait StreamingImplementation
-  case object Fs2Stream       extends StreamingImplementation
-  case object MonixObservable extends StreamingImplementation
-
   sealed abstract class AvroGeneratorTypeGen extends Product with Serializable
   case object AvrohuggerGen                  extends AvroGeneratorTypeGen
   case object SkeumorphGen                   extends AvroGeneratorTypeGen

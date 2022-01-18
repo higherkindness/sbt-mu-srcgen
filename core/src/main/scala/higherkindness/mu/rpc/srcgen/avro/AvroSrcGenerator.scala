@@ -23,13 +23,12 @@ import avrohugger.format.Standard
 import avrohugger.input.parsers.FileInputParser
 import avrohugger.stores.ClassStore
 import cats.data.NonEmptyList
-import higherkindness.mu.rpc.srcgen.Model._
-import higherkindness.mu.rpc.srcgen.{ErrorsOr, Generator, Model, ScalaFileExtension, SrcGenerator}
-import org.apache.avro.Protocol
 import cats.implicits._
+import higherkindness.mu.rpc.srcgen.{ErrorsOr, Generator, Model, ScalaFileExtension, SrcGenerator}
 import higherkindness.droste.data.Mu
 import higherkindness.skeuomorph.avro.{AvroF, Protocol => AvroProtocol}
 import higherkindness.skeuomorph.mu.{codegen, CompressionType, MuF, Protocol => MuProtocol}
+import org.apache.avro.Protocol
 
 import scala.meta._
 import scala.util.Try
@@ -37,7 +36,6 @@ import scala.util.Try
 object AvroSrcGenerator {
   def apply(
       compressionType: CompressionType,
-      streamingImplementation: StreamingImplementation,
       useIdiomaticEndpoints: Boolean = true
   ): SrcGenerator = new SrcGenerator {
     private val classStore              = new ClassStore
@@ -79,18 +77,9 @@ object AvroSrcGenerator {
 
         val outputFilePath = getPath(sap)
 
-        val streamCtor: (Type, Type) => Type.Apply = streamingImplementation match {
-          case Fs2Stream => { case (f, a) =>
-            t"_root_.fs2.Stream[$f, $a]"
-          }
-          case MonixObservable => { case (_, a) =>
-            t"_root_.monix.reactive.Observable[$a]"
-          }
-        }
-
         val stringified: ErrorsOr[List[String]] =
           codegen
-            .protocol(muProtocol, streamCtor)
+            .protocol(muProtocol, (f, a) => t"_root_.fs2.Stream[$f, $a]")
             .toValidatedNel
             .map(_.syntax.split("\n").toList)
 

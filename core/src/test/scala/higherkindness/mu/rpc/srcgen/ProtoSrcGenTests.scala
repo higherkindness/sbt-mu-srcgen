@@ -33,9 +33,9 @@ class ProtoSrcGenTests extends AnyWordSpec with Matchers with OneInstancePerTest
 
   "Proto Scala Generator" should {
 
-    "generate the expected Scala code (FS2 stream)" in {
+    "generate the expected Scala code" in {
       val result: Option[(String, String)] =
-        ProtoSrcGenerator(Fs2Stream, protocVersion = protocVersion)
+        ProtoSrcGenerator(protocVersion = protocVersion)
           .generateFrom(
             files = Set(protoFile("book")),
             serializationType = SerializationType.Protobuf
@@ -49,27 +49,9 @@ class ProtoSrcGenTests extends AnyWordSpec with Matchers with OneInstancePerTest
       result shouldBe Some(("com/proto/book.scala", expectedFileContent.clean))
     }
 
-    "generate the expected Scala code (Monix Observable)" in {
-      val result: Option[(String, String)] =
-        ProtoSrcGenerator(MonixObservable, protocVersion = protocVersion)
-          .generateFrom(
-            files = Set(protoFile("book")),
-            serializationType = SerializationType.Protobuf
-          )
-          .flatMap { r =>
-            r.output.toOption.map(o => (o.path.toString, o.contents.mkString("\n").clean))
-          }
-          .headOption
-
-      val expectedFileContent =
-        bookExpectation(tpe => s"_root_.monix.reactive.Observable[$tpe]").clean
-
-      result shouldBe Some(("com/proto/book.scala", expectedFileContent))
-    }
-
     "throw an exception on an invalid Protobuf schema" in {
       assertThrows[ProtobufCompilationException] {
-        ProtoSrcGenerator(MonixObservable, protocVersion = protocVersion)
+        ProtoSrcGenerator(protocVersion = protocVersion)
           .generateFrom(
             files = Set(protoFile("broken")),
             serializationType = SerializationType.Protobuf
