@@ -99,13 +99,6 @@ object SrcGenPlugin extends AutoPlugin {
           "`Http4sV20` by default."
       )
 
-    lazy val muSrcGenStreamingImplementation: SettingKey[StreamingImplementation] =
-      settingKey[StreamingImplementation](
-        "The streaming implementation to use when generating Scala sources from IDL definitions that involve streaming. " +
-          "FS2 Stream and Monix Observable are the current supported implementations. " +
-          "By default, the streaming implementation is FS2 Stream."
-      )
-
     lazy val muSrcGenAvroGeneratorType: SettingKey[AvroGeneratorTypeGen] =
       settingKey[AvroGeneratorTypeGen](
         "Specifies the Avro generation type: `SkeumorphGen` or `AvrohuggerGen`. `SkeumorphGen` by default."
@@ -149,12 +142,11 @@ object SrcGenPlugin extends AutoPlugin {
           Nil
       }
     },
-    muSrcGenCompressionType         := NoCompressionGen,
-    muSrcGenIdiomaticEndpoints      := true,
-    muSrcGenOpenApiHttpImpl         := HttpImpl.Http4sV20,
-    muSrcGenStreamingImplementation := Fs2Stream,
-    muSrcGenAvroGeneratorType       := SkeumorphGen,
-    muSrcGenProtocVersion           := protocDefaultVersion
+    muSrcGenCompressionType    := NoCompressionGen,
+    muSrcGenIdiomaticEndpoints := true,
+    muSrcGenOpenApiHttpImpl    := HttpImpl.Http4sV20,
+    muSrcGenAvroGeneratorType  := SkeumorphGen,
+    muSrcGenProtocVersion      := protocDefaultVersion
   )
 
   lazy val taskSettings: Seq[Def.Setting[_]] = {
@@ -193,7 +185,6 @@ object SrcGenPlugin extends AutoPlugin {
                 muSrcGenBigDecimal.value,
                 muSrcGenCompressionType.value,
                 muSrcGenIdiomaticEndpoints.value,
-                muSrcGenStreamingImplementation.value,
                 muSrcGenIdlTargetDir.value,
                 (Compile / resourceManaged).value.toPath,
                 muSrcGenOpenApiHttpImpl.value,

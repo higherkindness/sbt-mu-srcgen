@@ -33,7 +33,6 @@ object SrcGenApplication {
       bigDecimalTypeGen: BigDecimalTypeGen,
       compressionTypeGen: CompressionTypeGen,
       useIdiomaticEndpoints: Boolean,
-      streamingImplementation: StreamingImplementation,
       idlTargetDir: File,
       resourcesBasePath: Path,
       httpImpl: HttpImpl,
@@ -45,7 +44,6 @@ object SrcGenApplication {
     }
     new GeneratorApplication(
       ProtoSrcGenerator(
-        streamingImplementation,
         idlTargetDir,
         compressionType,
         useIdiomaticEndpoints,
@@ -60,7 +58,7 @@ object SrcGenApplication {
             useIdiomaticEndpoints
           )
         case Model.SkeumorphGen =>
-          AvroSrcGenerator(compressionType, streamingImplementation, useIdiomaticEndpoints)
+          AvroSrcGenerator(compressionType, useIdiomaticEndpoints)
       },
       OpenApiSrcGenerator(
         httpImpl,

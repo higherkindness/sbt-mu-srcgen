@@ -30,7 +30,6 @@ trait AvroScalaGeneratorArbitrary {
       serializationType: SerializationType,
       marshallersImports: List[MarshallersImport],
       compressionType: CompressionType,
-      streamingImplementation: StreamingImplementation,
       useIdiomaticEndpoints: Boolean = true
   )
 
@@ -68,12 +67,11 @@ trait AvroScalaGeneratorArbitrary {
 
   def scenarioArbitrary(generateOutput: GenerateOutput): Arbitrary[Scenario] = Arbitrary {
     for {
-      inputResourcePath       <- Gen.oneOf("/avro/GreeterService.avpr", "/avro/GreeterService.avdl")
-      serializationType       <- Gen.const(Avro)
-      marshallersImports      <- Gen.listOf(marshallersImportGen(serializationType))
-      compressionType         <- Gen.oneOf(CompressionType.Gzip, CompressionType.Identity)
-      streamingImplementation <- Gen.oneOf(MonixObservable, Fs2Stream)
-      useIdiomaticEndpoints   <- Arbitrary.arbBool.arbitrary
+      inputResourcePath     <- Gen.oneOf("/avro/GreeterService.avpr", "/avro/GreeterService.avdl")
+      serializationType     <- Gen.const(Avro)
+      marshallersImports    <- Gen.listOf(marshallersImportGen(serializationType))
+      compressionType       <- Gen.oneOf(CompressionType.Gzip, CompressionType.Identity)
+      useIdiomaticEndpoints <- Arbitrary.arbBool.arbitrary
     } yield Scenario(
       Set(inputResourcePath),
       generateOutput(
@@ -87,7 +85,6 @@ trait AvroScalaGeneratorArbitrary {
       serializationType,
       marshallersImports,
       compressionType,
-      streamingImplementation,
       useIdiomaticEndpoints
     )
   }
