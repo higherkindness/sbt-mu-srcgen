@@ -22,7 +22,6 @@ import sbt.Keys._
 import sbt.{settingKey, Def, _}
 import sbt.io.{Path, PathFinder}
 import higherkindness.mu.rpc.srcgen.Model._
-import higherkindness.mu.rpc.srcgen.openapi.OpenApiSrcGenerator.HttpImpl
 
 object SrcGenPlugin extends AutoPlugin {
 
@@ -93,12 +92,6 @@ object SrcGenPlugin extends AutoPlugin {
           "namespace as prefix. `true` by default."
       )
 
-    lazy val muSrcGenOpenApiHttpImpl: SettingKey[HttpImpl] =
-      settingKey[HttpImpl](
-        "The HTTP framework and version, used for the code generation." +
-          "`Http4sV20` by default."
-      )
-
     lazy val muSrcGenAvroGeneratorType: SettingKey[AvroGeneratorTypeGen] =
       settingKey[AvroGeneratorTypeGen](
         "Specifies the Avro generation type: `SkeumorphGen` or `AvrohuggerGen`. `SkeumorphGen` by default."
@@ -144,7 +137,6 @@ object SrcGenPlugin extends AutoPlugin {
     },
     muSrcGenCompressionType    := NoCompressionGen,
     muSrcGenIdiomaticEndpoints := true,
-    muSrcGenOpenApiHttpImpl    := HttpImpl.Http4sV20,
     muSrcGenAvroGeneratorType  := SkeumorphGen,
     muSrcGenProtocVersion      := protocDefaultVersion
   )
@@ -186,8 +178,6 @@ object SrcGenPlugin extends AutoPlugin {
                 muSrcGenCompressionType.value,
                 muSrcGenIdiomaticEndpoints.value,
                 muSrcGenIdlTargetDir.value,
-                (Compile / resourceManaged).value.toPath,
-                muSrcGenOpenApiHttpImpl.value,
                 muSrcGenProtocVersion.value
               ),
               muSrcGenIdlType.value,

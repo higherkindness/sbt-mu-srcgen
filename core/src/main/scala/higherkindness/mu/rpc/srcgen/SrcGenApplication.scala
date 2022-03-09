@@ -17,11 +17,8 @@
 package higherkindness.mu.rpc.srcgen
 
 import java.io.File
-import java.nio.file.Path
 import higherkindness.mu.rpc.srcgen.avro.{AvroSrcGenerator, LegacyAvroSrcGenerator}
 import higherkindness.mu.rpc.srcgen.Model._
-import higherkindness.mu.rpc.srcgen.openapi.OpenApiSrcGenerator
-import higherkindness.mu.rpc.srcgen.openapi.OpenApiSrcGenerator.HttpImpl
 import higherkindness.mu.rpc.srcgen.proto.ProtoSrcGenerator
 import higherkindness.skeuomorph.mu.CompressionType
 
@@ -34,8 +31,6 @@ object SrcGenApplication {
       compressionTypeGen: CompressionTypeGen,
       useIdiomaticEndpoints: Boolean,
       idlTargetDir: File,
-      resourcesBasePath: Path,
-      httpImpl: HttpImpl,
       protocVersion: String
   ): GeneratorApplication[SrcGenerator] = {
     val compressionType: CompressionType = compressionTypeGen match {
@@ -59,11 +54,7 @@ object SrcGenApplication {
           )
         case Model.SkeumorphGen =>
           AvroSrcGenerator(compressionType, useIdiomaticEndpoints)
-      },
-      OpenApiSrcGenerator(
-        httpImpl,
-        resourcesBasePath
-      )
+      }
     )
   }
 }
