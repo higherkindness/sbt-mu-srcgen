@@ -22,7 +22,6 @@ object Model {
   object IdlType {
     case object Proto   extends IdlType
     case object Avro    extends IdlType
-    case object OpenAPI extends IdlType
     case object Unknown extends IdlType
   }
 
