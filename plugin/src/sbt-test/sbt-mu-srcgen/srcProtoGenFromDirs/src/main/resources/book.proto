@@ -29,6 +29,15 @@ service BookService {
 }
 
 message BookStore {
+    message Location {
+        message Country {
+            string name = 1;
+            string iso_code = 2;
+        }
+        string town = 1;
+        Country country = 2;
+    }
+
     string name = 1;
     map<int64, string> books = 2;
     repeated Genre genres = 3;
@@ -39,6 +48,20 @@ message BookStore {
         string iou_note = 6;
         Book barter = 7;
     }
+
+    oneof either {
+        int64 first = 8;
+        int32 second = 9;
+    }
+
+    Location location = 10;
+
+    enum CoffeeQuality {
+      DELICIOUS = 0;
+      DRINKABLE = 1;
+    }
+
+    CoffeeQuality coffee_quality = 11;
 }
 
 enum Genre {

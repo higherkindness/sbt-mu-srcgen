@@ -22,14 +22,25 @@ import sbt.Keys._
 import sbt.{settingKey, Def, _}
 import sbt.io.{Path, PathFinder}
 import higherkindness.mu.rpc.srcgen.Model._
+import sbtprotoc._
+import ProtocPlugin.autoImport._
 
 object SrcGenPlugin extends AutoPlugin {
 
   override def trigger: PluginTrigger = noTrigger
+  override def requires: Plugins      = ProtocPlugin
 
   object autoImport {
 
-    val protocDefaultVersion: String = "3.19.1"
+    lazy val muSrcGenExtract: TaskKey[Unit] =
+      taskKey[Unit](
+        "Extract IDL files from the jars specified in muSrcGenJarNames in preparation for code generation"
+      )
+
+    lazy val muSrcGenCopy: TaskKey[Unit] =
+      taskKey[Unit](
+        "Copy IDL files from the source directories (muSrcGenSourceDirs) to the IDL target directory (muSrcGenIdlTargetDir) in preparation for code generation"
+      )
 
     lazy val muSrcGen: TaskKey[Seq[File]] =
       taskKey[Seq[File]]("Generates mu Scala files from IDL definitions")
@@ -97,9 +108,9 @@ object SrcGenPlugin extends AutoPlugin {
         "Specifies the Avro generation type: `SkeumorphGen` or `AvrohuggerGen`. `SkeumorphGen` by default."
       )
 
-    lazy val muSrcGenProtocVersion: SettingKey[String] =
-      settingKey[String](
-        s"Specifies the protoc version. `$protocDefaultVersion` by default."
+    lazy val muSrcGenProtocVersion: SettingKey[Option[String]] =
+      settingKey[Option[String]](
+        s"Specifies the protoc version. If not set, ScalaPB's default version is used."
       )
 
   }
@@ -138,54 +149,67 @@ object SrcGenPlugin extends AutoPlugin {
     muSrcGenCompressionType    := NoCompressionGen,
     muSrcGenIdiomaticEndpoints := true,
     muSrcGenAvroGeneratorType  := SkeumorphGen,
-    muSrcGenProtocVersion      := protocDefaultVersion
+    muSrcGenProtocVersion      := None
   )
 
   lazy val taskSettings: Seq[Def.Setting[_]] = {
     Seq(
-      muSrcGen := Def
-        .sequential(
-          Def.task {
-            (Compile / dependencyClasspath).value.map(entry =>
-              extractIDLDefinitionsFromJar(
-                entry,
-                muSrcGenJarNames.value,
-                muSrcGenIdlTargetDir.value,
-                muSrcGenIdlExtension.value
-              )
+      Compile / muSrcGenExtract := Def.task {
+        val _ = (Compile / dependencyClasspath).value.map(entry =>
+          extractIDLDefinitionsFromJar(
+            entry,
+            muSrcGenJarNames.value,
+            muSrcGenIdlTargetDir.value,
+            muSrcGenIdlExtension.value
+          )
+        )
+      }.value,
+      Compile / muSrcGenCopy := Def.task {
+        muSrcGenSourceDirs.value.toSet.foreach { f: File =>
+          IO.copyDirectory(
+            f,
+            muSrcGenIdlTargetDir.value,
+            CopyOptions(
+              overwrite = true,
+              preserveLastModified = true,
+              preserveExecutable = true
             )
-          },
-          Def.task {
-
-            muSrcGenSourceDirs.value.toSet.foreach { f: File =>
-              IO.copyDirectory(
-                f,
-                muSrcGenIdlTargetDir.value,
-                CopyOptions(
-                  overwrite = true,
-                  preserveLastModified = true,
-                  preserveExecutable = true
-                )
+          )
+        }
+      }.value,
+      Compile / muSrcGen := (Def.taskDyn {
+        muSrcGenIdlType.value match {
+          case IdlType.Proto =>
+            // If we are doing srcgen from protobuf, we don't need to run
+            // our source generator because ScalaPB is in charge of the srcgen
+            Def.task[Seq[File]](Nil)
+          case _ =>
+            Def
+              .task {
+                srcGenTask(
+                  SrcGenApplication(
+                    muSrcGenAvroGeneratorType.value,
+                    muSrcGenMarshallerImports.value,
+                    muSrcGenBigDecimal.value,
+                    muSrcGenCompressionType.value,
+                    muSrcGenIdiomaticEndpoints.value
+                  ),
+                  muSrcGenIdlType.value,
+                  muSrcGenSerializationType.value,
+                  muSrcGenTargetDir.value,
+                  target.value / "srcGen"
+                )(muSrcGenIdlTargetDir.value.allPaths.get.toSet).toSeq
+              }
+              .dependsOn(
+                Compile / muSrcGenExtract,
+                Compile / muSrcGenCopy
               )
-            }
-          },
-          Def.task {
-            srcGenTask(
-              SrcGenApplication(
-                muSrcGenAvroGeneratorType.value,
-                muSrcGenMarshallerImports.value,
-                muSrcGenBigDecimal.value,
-                muSrcGenCompressionType.value,
-                muSrcGenIdiomaticEndpoints.value,
-                muSrcGenIdlTargetDir.value,
-                muSrcGenProtocVersion.value
-              ),
-              muSrcGenIdlType.value,
-              muSrcGenSerializationType.value,
-              muSrcGenTargetDir.value,
-              target.value / "srcGen"
-            )(muSrcGenIdlTargetDir.value.allPaths.get.toSet).toSeq
-          }
+        }
+      }).value,
+      Compile / PB.generate := (Compile / PB.generate)
+        .dependsOn(
+          Compile / muSrcGenExtract,
+          Compile / muSrcGenCopy
         )
         .value
     )
@@ -207,6 +231,37 @@ object SrcGenPlugin extends AutoPlugin {
     // If we don't do this, the compile task will not see the
     // generated files even if the user manually runs the muSrcGen task.
     Compile / sourceGenerators += (Compile / muSrcGen).taskValue
+  )
+
+  lazy val scalapbSettings: Seq[Def.Setting[_]] = Seq(
+    Compile / PB.protocVersion := {
+      muSrcGenProtocVersion.value match {
+        case Some(v) => s"-v${v.stripPrefix("-v")}" // scalapb wants e.g. "-v3.19.2"
+        case None    => (Compile / PB.protocVersion).value
+      }
+    },
+    Compile / PB.protoSources := List(muSrcGenIdlTargetDir.value),
+    Compile / PB.targets := {
+      muSrcGenIdlType.value match {
+        case IdlType.Proto =>
+          Seq(
+            // first do the standard ScalalPB codegen to generate the message classes
+            scalapb.gen(
+              grpc = false
+            ) -> muSrcGenTargetDir.value,
+
+            // then use our protoc plugin to generate the Mu service trait
+            higherkindness.mu.rpc.srcgen.proto.gen(
+              idiomaticEndpoints = muSrcGenIdiomaticEndpoints.value,
+              compressionType = muSrcGenCompressionType.value
+            ) -> muSrcGenTargetDir.value
+          )
+        case _ =>
+          // If we are doing codgen from Avro, we will use our own source generator.
+          // So we don't give ScalaPB any targets, effectively disabling ScalaPB.
+          Nil
+      }
+    }
   )
 
   private def srcGenTask(
@@ -257,5 +312,5 @@ object SrcGenPlugin extends AutoPlugin {
   }
 
   override def projectSettings: Seq[Def.Setting[_]] =
-    defaultSettings ++ taskSettings ++ packagingSettings ++ sourceGeneratorSettings
+    defaultSettings ++ taskSettings ++ packagingSettings ++ sourceGeneratorSettings ++ scalapbSettings
 }
