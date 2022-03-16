@@ -1,5 +1,7 @@
 import higherkindness.mu.rpc.srcgen.Model.IdlType
 
+ThisBuild / resolvers += Resolver.sonatypeRepo("snapshots")
+
 lazy val domain = project
   .in(file("domain"))
   .settings(name := "domain")

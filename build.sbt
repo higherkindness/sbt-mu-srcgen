@@ -8,8 +8,8 @@ addCommandAlias("ci-test", "scalafmtCheckAll; scalafmtSbtCheck; test; publishLoc
 addCommandAlias("ci-docs", "github; mdoc; headerCreateAll")
 addCommandAlias("ci-publish", "github; ci-release")
 
-lazy val muV =
-  "0.28.0+27-56debc04+20220314-1701-SNAPSHOT" // "0.28.0" // TODO update when mu-scala PR to add marshaller is merged
+ThisBuild / resolvers += Resolver.sonatypeRepo("snapshots")
+lazy val muV = "0.28.0+28-c32576e2-SNAPSHOT" // TODO update when mu-scala is released
 
 lazy val core = project
   .enablePlugins(BuildInfoPlugin)
