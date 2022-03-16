@@ -26,7 +26,7 @@ lazy val core = project
       "org.slf4j"             % "slf4j-nop"       % "1.7.36"  % Test
     ),
     buildInfoPackage := "higherkindness.mu.rpc.srcgen",
-    buildInfoKeys    := Seq[BuildInfoKey](organization, version, scalaVersion, sbtVersion)
+    buildInfoKeys    := Seq[BuildInfoKey](organization, moduleName, version, scalaVersion, scalaBinaryVersion, sbtVersion)
   )
 
 lazy val plugin = project

@@ -2,7 +2,7 @@ package higherkindness.mu.rpc.srcgen.proto
 
 import protocbridge.Artifact
 import protocbridge.SandboxedJvmGenerator
-import higherkindness.mu.rpc.srcgen.Model
+import higherkindness.mu.rpc.srcgen.{BuildInfo, Model}
 
 object gen {
 
@@ -17,9 +17,9 @@ object gen {
       SandboxedJvmGenerator.forModule(
         "scala",
         Artifact(
-          higherkindness.mu.rpc.srcgen.BuildInfo.organization,
-          "mu-srcgen-core_2.12",
-          higherkindness.mu.rpc.srcgen.BuildInfo.version
+          BuildInfo.organization,
+          s"${BuildInfo.moduleName}_${BuildInfo.scalaBinaryVersion}",
+          BuildInfo.version
         ),
         MuServiceGenerator.getClass.getName,
         Nil
