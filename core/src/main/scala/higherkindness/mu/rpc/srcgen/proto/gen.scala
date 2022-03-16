@@ -21,7 +21,7 @@ object gen {
           "mu-srcgen-core_2.12",
           higherkindness.mu.rpc.srcgen.BuildInfo.version
         ),
-        "higherkindness.mu.rpc.srcgen.proto.MuServiceGenerator$",
+        MuServiceGenerator.getClass.getName,
         Nil
       ),
       List(
