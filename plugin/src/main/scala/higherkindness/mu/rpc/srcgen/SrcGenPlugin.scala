@@ -152,7 +152,7 @@ object SrcGenPlugin extends AutoPlugin {
     muSrcGenProtocVersion      := None
   )
 
-  lazy val taskSettings: Seq[Def.Setting[_]] = {
+  lazy val taskSettings: Seq[Def.Setting[_]] =
     Seq(
       Compile / muSrcGenExtract := Def.task {
         val _ = (Compile / dependencyClasspath).value.map(entry =>
@@ -177,35 +177,34 @@ object SrcGenPlugin extends AutoPlugin {
           )
         }
       }.value,
-      Compile / muSrcGen := (Def.taskDyn {
-        muSrcGenIdlType.value match {
-          case IdlType.Proto =>
-            // If we are doing srcgen from protobuf, we don't need to run
-            // our source generator because ScalaPB is in charge of the srcgen
-            Def.task[Seq[File]](Nil)
-          case _ =>
-            Def
-              .task {
-                srcGenTask(
-                  SrcGenApplication(
-                    muSrcGenAvroGeneratorType.value,
-                    muSrcGenMarshallerImports.value,
-                    muSrcGenBigDecimal.value,
-                    muSrcGenCompressionType.value,
-                    muSrcGenIdiomaticEndpoints.value
-                  ),
-                  muSrcGenIdlType.value,
-                  muSrcGenSerializationType.value,
-                  muSrcGenTargetDir.value,
-                  target.value / "srcGen"
-                )(muSrcGenIdlTargetDir.value.allPaths.get.toSet).toSeq
-              }
-              .dependsOn(
-                Compile / muSrcGenExtract,
-                Compile / muSrcGenCopy
-              )
+      Compile / muSrcGen := Def
+        .task {
+          muSrcGenIdlType.value match {
+            case IdlType.Proto =>
+              // If we are doing srcgen from protobuf, we don't need to run
+              // our source generator because ScalaPB is in charge of the srcgen
+              Nil
+            case _ =>
+              srcGenTask(
+                SrcGenApplication(
+                  muSrcGenAvroGeneratorType.value,
+                  muSrcGenMarshallerImports.value,
+                  muSrcGenBigDecimal.value,
+                  muSrcGenCompressionType.value,
+                  muSrcGenIdiomaticEndpoints.value
+                ),
+                muSrcGenIdlType.value,
+                muSrcGenSerializationType.value,
+                muSrcGenTargetDir.value,
+                target.value / "srcGen"
+              )(muSrcGenIdlTargetDir.value.allPaths.get.toSet).toSeq
+          }
         }
-      }).value,
+        .dependsOn(
+          Compile / muSrcGenExtract,
+          Compile / muSrcGenCopy
+        )
+        .value,
       Compile / PB.generate := (Compile / PB.generate)
         .dependsOn(
           Compile / muSrcGenExtract,
@@ -213,16 +212,50 @@ object SrcGenPlugin extends AutoPlugin {
         )
         .value
     )
-  }
 
   lazy val packagingSettings: Seq[Def.Setting[_]] = Seq(
-    Compile / packageSrc / mappings ++= {
-      val allIDLDefinitions = ((Compile / muSrcGenIdlTargetDir).value ** "*") filter { _.isFile }
-      val idlMappings = allIDLDefinitions.get pair Path
-        .rebase((Compile / muSrcGenIdlTargetDir).value, (Compile / classDirectory).value)
-      IO.copy(idlMappings, overwrite = true, preserveLastModified = true, preserveExecutable = true)
+    /*
+     * Iterate through all files in the IDL target directory,
+     * which includes both files copied from the IDL source directories
+     * and IDL files extracted from jars.
+     *
+     * - add them to packageSrc/mappings so they will be included in the
+     *   sources jar
+     * - add them to packageBin/mappings so they will be included in the binary
+     *   jar as well
+     */
 
-      idlMappings.map { case (f1, f2) => (f1, f2.getAbsolutePath) }
+    Compile / packageSrc / mappings ++= {
+      val existingMappings = (Compile / packageSrc / mappings).value
+      val existingPaths    = existingMappings.map { case (_, path) => path }.toSet
+
+      val idlTargetDir      = (Compile / muSrcGenIdlTargetDir).value
+      val allIDLDefinitions = (idlTargetDir ** "*") filter { _.isFile }
+
+      val unfilteredMappings = allIDLDefinitions.pair(Path.relativeTo(idlTargetDir))
+
+      // Filter out any mappings that would conflict with mappings that are
+      // already present, e.g. because the file was in src/main/resources
+      val filteredMappings =
+        unfilteredMappings.filterNot { case (_, path) => existingPaths.contains(path) }
+
+      filteredMappings
+    },
+    Compile / packageBin / mappings ++= {
+      val existingMappings = (Compile / packageBin / mappings).value
+      val existingPaths    = existingMappings.map { case (_, path) => path }.toSet
+
+      val idlTargetDir      = (Compile / muSrcGenIdlTargetDir).value
+      val allIDLDefinitions = (idlTargetDir ** "*") filter { _.isFile }
+
+      val unfilteredMappings = allIDLDefinitions.pair(Path.relativeTo(idlTargetDir))
+
+      // Filter out any mappings that would conflict with mappings that are
+      // already present, e.g. because the file was in src/main/resources
+      val filteredMappings =
+        unfilteredMappings.filterNot { case (_, path) => existingPaths.contains(path) }
+
+      filteredMappings
     }
   )
 
@@ -241,11 +274,55 @@ object SrcGenPlugin extends AutoPlugin {
       }
     },
     Compile / PB.protoSources := List(muSrcGenIdlTargetDir.value),
+
+    /*
+     * sbt-protoc adds PB.protoSources to both unmanagedSourceDirectories and
+     * unmanagedResourceDirectories:
+     *
+     * - unmanagedSourceDirectories so the .proto files show up in the user's
+     *   IDE
+     * - unmanagedResourceDirectories so they get added to the jar when
+     *   packaging
+     *
+     * We don't really care about the former, but the latter causes problems
+     * when the original IDL files are under src/main/resources (which is the
+     * Mu convention).
+     *
+     * Example (based on the srcGenFromJars scripted test):
+     *
+     * - Say we have a source IDL file `src/main/resources/Hello.avdl`
+     *
+     * - The `muSrcGenCopy` task will copy it to the IDL target dir, say
+     *   `target/scala-2.12/resource_managed/main/avro/Hello.avdl`
+     *
+     * - sbt-protoc will add the IDL target dir to the
+     *   `unmanagedResourceDirectories` list
+     *
+     * - When we try to build a jar, the `packageSrc` task will try to copy two
+     *   files to the same location in the jar:
+     *    - `src/main/resources/Hello.avdl` -> `Hello.avdl`
+     *    - `target/scala-2.12/resource_managed/main/avro/Hello.avdl` -> `Hello.avdl`
+     *
+     * - This results in an error: "java.util.zip.ZipException: duplicate
+     *   entry: Hello.avdl"
+     *
+     * This problem does not occur when using sbt-protoc directly without
+     * sbt-mu-srcgen, because ScalaPB convention is to put the source IDL files
+     * under `src/main/protobuf`, not `/src/main/resources`.
+     *
+     * Long story short, we just need to undo ScalaPB's change and remove the
+     * IDL target directory from `unmanagedResourceDirectories`.
+     *
+     * When we add the IDL files to the source and binary jars in
+     * `packagingSettings`, we explicitly filter out any files that have
+     * already been added, to avoid this kind of filename conflict.
+     */
+    Compile / unmanagedResourceDirectories -= muSrcGenIdlTargetDir.value,
     Compile / PB.targets := {
       muSrcGenIdlType.value match {
         case IdlType.Proto =>
           Seq(
-            // first do the standard ScalalPB codegen to generate the message classes
+            // first do the standard ScalaPB codegen to generate the message classes
             scalapb.gen(
               grpc = false
             ) -> muSrcGenTargetDir.value,
