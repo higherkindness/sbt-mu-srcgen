@@ -6,17 +6,19 @@ lazy val domain = project
   .in(file("domain"))
   .enablePlugins(SrcGenPlugin)
   .settings(
-    organization := "foo.bar.srcgenfromjars",
+    organization := "foo.bar.srcprotogenfromjars",
     name         := "domain",
     scalaVersion := "2.13.8",
     version      := "1.0.0-SNAPSHOT",
     Compile / packageBin / mappings ~= { _.filter(!_._1.getName.endsWith(".class")) },
-    muSrcGenIdlType    := IdlType.Avro,
+    muSrcGenIdlType    := IdlType.Proto,
     muSrcGenSourceDirs := Seq((Compile / resourceDirectory).value),
-    muSrcGenTargetDir  := (Compile / sourceManaged).value / "generated_from_avro",
+    muSrcGenTargetDir  := (Compile / sourceManaged).value / "generated_from_proto",
     libraryDependencies ++= Seq(
-      "io.higherkindness" %% "mu-rpc-service" % sys.props("mu")
-    )
+      "io.higherkindness" %% "mu-rpc-service" % sys.props("mu"),
+      "io.higherkindness" %% "mu-rpc-fs2" % sys.props("mu")
+    ),
+    scalacOptions += "-Ymacro-annotations"
   )
 
 lazy val root = project
@@ -26,11 +28,12 @@ lazy val root = project
     name                 := "root",
     scalaVersion         := "2.13.8",
     version              := sys.props("version"),
-    muSrcGenIdlType      := IdlType.Avro,
+    muSrcGenIdlType      := IdlType.Proto,
     muSrcGenJarNames     := Seq("domain"),
-    muSrcGenIdlTargetDir := (Compile / resourceManaged).value / "avro",
-    muSrcGenTargetDir    := (Compile / sourceManaged).value / "generated_from_avro",
+    muSrcGenIdlTargetDir := (Compile / resourceManaged).value / "proto",
+    muSrcGenTargetDir    := (Compile / sourceManaged).value / "generated_from_proto",
     libraryDependencies ++= Seq(
-      "foo.bar.srcgenfromjars" %% "domain" % "1.0.0-SNAPSHOT"
-    )
+      "foo.bar.srcprotogenfromjars" %% "domain" % "1.0.0-SNAPSHOT"
+    ),
+    scalacOptions += "-Ymacro-annotations"
   )
