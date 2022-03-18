@@ -64,9 +64,24 @@ object Model {
   case object ScalaBigDecimalGen       extends BigDecimalTypeGen
   case object ScalaBigDecimalTaggedGen extends BigDecimalTypeGen
 
-  sealed abstract class CompressionTypeGen extends Product with Serializable
-  case object GzipGen                      extends CompressionTypeGen
-  case object NoCompressionGen             extends CompressionTypeGen
+  sealed abstract class CompressionTypeGen(
+      val annotationParameterValue: String
+  ) extends Product
+      with Serializable {
+    override def toString(): String = annotationParameterValue
+  }
+  case object GzipGen          extends CompressionTypeGen("Gzip")
+  case object NoCompressionGen extends CompressionTypeGen("Identity")
+  object CompressionTypeGen {
+    def fromString(
+        annotationParameterValue: String
+    ): Either[IllegalArgumentException, CompressionTypeGen] = annotationParameterValue match {
+      case "Gzip"     => Right(GzipGen)
+      case "Identity" => Right(NoCompressionGen)
+      case _ =>
+        Left(new IllegalArgumentException(s"Unknown compression type: '$annotationParameterValue'"))
+    }
+  }
 
   sealed abstract class AvroGeneratorTypeGen extends Product with Serializable
   case object AvrohuggerGen                  extends AvroGeneratorTypeGen

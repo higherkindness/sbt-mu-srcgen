@@ -8,20 +8,31 @@ addCommandAlias("ci-test", "scalafmtCheckAll; scalafmtSbtCheck; test; publishLoc
 addCommandAlias("ci-docs", "github; mdoc; headerCreateAll")
 addCommandAlias("ci-publish", "github; ci-release")
 
-lazy val muV = "0.28.0"
+ThisBuild / resolvers += Resolver.sonatypeRepo("snapshots")
+lazy val muV = "0.28.0+28-c32576e2-SNAPSHOT" // TODO update when mu-scala is released
 
 lazy val core = project
+  .enablePlugins(BuildInfoPlugin)
   .settings(moduleName := "mu-srcgen-core")
   .settings(
     libraryDependencies ++= Seq(
-      "io.higherkindness"          %% "mu-rpc-service"  % muV,
-      "io.higherkindness"          %% "skeuomorph"      % "0.1.3",
-      "com.github.julien-truffaut" %% "monocle-core"    % "2.1.0",
-      "com.julianpeeters"          %% "avrohugger-core" % "1.0.0",
-      "org.scalatest"              %% "scalatest"       % "3.2.11"  % Test,
-      "org.scalacheck"             %% "scalacheck"      % "1.15.4"  % Test,
-      "org.scalatestplus"          %% "scalacheck-1-14" % "3.2.2.0" % Test,
-      "org.slf4j"                   % "slf4j-nop"       % "1.7.36"  % Test
+      "io.higherkindness"    %% "mu-rpc-service"  % muV,
+      "io.higherkindness"    %% "skeuomorph"      % "0.1.3",
+      "com.julianpeeters"    %% "avrohugger-core" % "1.0.0",
+      "com.thesamet.scalapb" %% "compilerplugin"  % "0.11.1",
+      "org.scalatest"        %% "scalatest"       % "3.2.11"  % Test,
+      "org.scalacheck"       %% "scalacheck"      % "1.15.4"  % Test,
+      "org.scalatestplus"    %% "scalacheck-1-14" % "3.2.2.0" % Test,
+      "org.slf4j"             % "slf4j-nop"       % "1.7.36"  % Test
+    ),
+    buildInfoPackage := "higherkindness.mu.rpc.srcgen",
+    buildInfoKeys := Seq[BuildInfoKey](
+      organization,
+      moduleName,
+      version,
+      scalaVersion,
+      scalaBinaryVersion,
+      sbtVersion
     )
   )
 
@@ -30,6 +41,7 @@ lazy val plugin = project
   .settings(moduleName := "sbt-mu-srcgen")
   .enablePlugins(SbtPlugin)
   .settings(
+    addSbtPlugin("com.thesamet" % "sbt-protoc" % "1.0.6"),
     scriptedLaunchOpts ++= Seq(
       "-Xmx2048M",
       "-XX:ReservedCodeCacheSize=256m",

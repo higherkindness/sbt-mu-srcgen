@@ -32,18 +32,17 @@ class GeneratorApplication[T <: Generator](generators: T*) {
 
   private[this] val logger = getLogger
 
-  private lazy val generatorsByType = generators.map(gen => gen.idlType -> gen).toMap
-  private lazy val idlTypes         = generatorsByType.keySet
+  private val generatorsByType = generators.map(gen => gen.idlType -> gen).toMap
 
   def generateFrom(
       idlType: IdlType,
       serializationType: SerializationType,
       inputFiles: Set[File],
       outputDir: File
-  ): Seq[File] =
-    if (idlTypes.contains(idlType)) {
+  ): Seq[File] = generatorsByType.get(idlType) match {
+    case Some(generator) =>
       val result: ValidatedNel[(File, NonEmptyList[Error]), List[(File, List[String])]] =
-        generatorsByType(idlType)
+        generator
           .generateFrom(inputFiles, serializationType)
           .traverse {
             case Generator.Result(inputFile, Invalid(readErrors)) =>
@@ -71,13 +70,13 @@ class GeneratorApplication[T <: Generator](generators: T*) {
             outputFile
           }
       }
-    } else {
+    case None =>
       System.out.println(
-        s"Unknown IDL type '$idlType', skipping code generation in this module. " +
-          s"Valid values: ${idlTypes.mkString(", ")}"
+        s"Unsupported IDL type '$idlType', skipping code generation in this module. " +
+          s"Valid values: ${generatorsByType.keys.mkString(", ")}"
       )
       Seq.empty[File]
-    }
+  }
 
   // $COVERAGE-ON$
 }

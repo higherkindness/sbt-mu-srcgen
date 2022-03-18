@@ -1,3 +1,6 @@
 > compile
-$ exists target/scala-2.12/src_managed/main/compiled_proto/com/proto/author.scala
-$ exists target/scala-2.12/src_managed/main/compiled_proto/com/proto/book.scala
+$ exists target/scala-2.12/src_managed/main/compiled_proto/com/proto/author/Author.scala
+$ exists target/scala-2.12/src_managed/main/compiled_proto/com/proto/book/Book.scala
+$ exists target/scala-2.12/src_managed/main/compiled_proto/com/proto/book/GetBookRequest.scala
+$ exists target/scala-2.12/src_managed/main/compiled_proto/com/proto/book/BookService.scala
+$ must-mirror target/scala-2.12/src_managed/main/compiled_proto/com/proto/book/BookService.scala expected/BookService.scala.txt

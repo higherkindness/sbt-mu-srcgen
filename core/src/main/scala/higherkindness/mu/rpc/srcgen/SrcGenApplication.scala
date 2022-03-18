@@ -16,10 +16,8 @@
 
 package higherkindness.mu.rpc.srcgen
 
-import java.io.File
 import higherkindness.mu.rpc.srcgen.avro.{AvroSrcGenerator, LegacyAvroSrcGenerator}
 import higherkindness.mu.rpc.srcgen.Model._
-import higherkindness.mu.rpc.srcgen.proto.ProtoSrcGenerator
 import higherkindness.skeuomorph.mu.CompressionType
 
 object SrcGenApplication {
@@ -29,21 +27,13 @@ object SrcGenApplication {
       marshallersImports: List[MarshallersImport],
       bigDecimalTypeGen: BigDecimalTypeGen,
       compressionTypeGen: CompressionTypeGen,
-      useIdiomaticEndpoints: Boolean,
-      idlTargetDir: File,
-      protocVersion: String
+      useIdiomaticEndpoints: Boolean
   ): GeneratorApplication[SrcGenerator] = {
     val compressionType: CompressionType = compressionTypeGen match {
       case GzipGen          => CompressionType.Gzip
       case NoCompressionGen => CompressionType.Identity
     }
     new GeneratorApplication(
-      ProtoSrcGenerator(
-        idlTargetDir,
-        compressionType,
-        useIdiomaticEndpoints,
-        Some(protocVersion)
-      ),
       avroGeneratorTypeGen match {
         case Model.AvrohuggerGen =>
           LegacyAvroSrcGenerator(
