@@ -578,6 +578,73 @@ class CompanionObjectGeneratorSpec extends AnyFunSpec {
       compare(tree, expected)
     }
 
+    it("generates a contextClient method with Scala 2 syntax") {
+      val generator = new CompanionObjectGenerator(
+        serviceDefn,
+        MuServiceParams(
+          idiomaticEndpoints = true,
+          compressionType = GzipGen,
+          scala3 = false
+        )
+      )
+      val tree = generator.contextClientMethod
+
+      val expected = q"""
+        def contextClient[F[_], Context](
+          channelFor: _root_.higherkindness.mu.rpc.ChannelFor,
+          channelConfigList: List[_root_.higherkindness.mu.rpc.channel.ManagedChannelConfig] = List(_root_.higherkindness.mu.rpc.channel.UsePlaintext()),
+          options: _root_.io.grpc.CallOptions = _root_.io.grpc.CallOptions.DEFAULT
+        )(
+          implicit CE: _root_.cats.effect.Async[F],
+          clientContext: _root_.higherkindness.mu.rpc.internal.context.ClientContext[F, Context]
+        ): _root_.cats.effect.Resource[F, MyService[({type T[α] = _root_.cats.data.Kleisli[F, Context, α]})#T]] =
+          _root_.cats.effect.Resource.make(
+            new _root_.higherkindness.mu.rpc.channel.ManagedChannelInterpreter[F](channelFor, channelConfigList).build
+          )(
+            (channel) => CE.void(CE.delay(channel.shutdown()))
+          ).evalMap((ch) =>
+            CE.delay(new ContextClient[F, Context](ch, options))
+          )
+        """
+
+      compare(tree, expected)
+    }
+
+    it("generates a contextClient method with Scala 3 syntax") {
+      val generator = new CompanionObjectGenerator(
+        serviceDefn,
+        MuServiceParams(
+          idiomaticEndpoints = true,
+          compressionType = GzipGen,
+          scala3 = true
+        )
+      )
+      val tree = generator.contextClientMethod
+
+      val expected = {
+        import scala.meta.dialects.Scala3
+        q"""
+        def contextClient[F[_], Context](
+          channelFor: _root_.higherkindness.mu.rpc.ChannelFor,
+          channelConfigList: List[_root_.higherkindness.mu.rpc.channel.ManagedChannelConfig] = List(_root_.higherkindness.mu.rpc.channel.UsePlaintext()),
+          options: _root_.io.grpc.CallOptions = _root_.io.grpc.CallOptions.DEFAULT
+        )(
+          using CE: _root_.cats.effect.Async[F],
+          clientContext: _root_.higherkindness.mu.rpc.internal.context.ClientContext[F, Context]
+        ): _root_.cats.effect.Resource[F, MyService[[A] =>> _root_.cats.data.Kleisli[F, Context, A]]] =
+          _root_.cats.effect.Resource.make(
+            new _root_.higherkindness.mu.rpc.channel.ManagedChannelInterpreter[F](channelFor, channelConfigList).build
+          )(
+            (channel) => CE.void(CE.delay(channel.shutdown()))
+          ).evalMap((ch) =>
+            CE.delay(new ContextClient[F, Context](ch, options))
+          )
+        """
+      }
+
+      compare(tree, expected)
+    }
+
   }
 
   def compare(actual: Tree, expected: Tree): Assertion = {

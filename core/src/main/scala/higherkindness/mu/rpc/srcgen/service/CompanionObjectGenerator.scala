@@ -56,10 +56,10 @@ class CompanionObjectGenerator(
       $unsafeClientFromChannel
 
       $contextClientClass
-      // TODO contextClient method
-      // TODO contextClientFromChannel
-      // TODO unsafeContextClient
-      // TODO unsafeContextClientFromChannel
+      $contextClientMethod
+      $contextClientFromChannel
+      $unsafeContextClient
+      $unsafeContextClientFromChannel
 
     }
     """
@@ -438,6 +438,78 @@ class CompanionObjectGenerator(
     }
     """
   }
+
+  def contextClientMethod: Defn.Def =
+    q"""
+    def contextClient[F[_], Context](
+      channelFor: _root_.higherkindness.mu.rpc.ChannelFor,
+      channelConfigList: List[_root_.higherkindness.mu.rpc.channel.ManagedChannelConfig] = List(_root_.higherkindness.mu.rpc.channel.UsePlaintext()),
+      options: _root_.io.grpc.CallOptions = _root_.io.grpc.CallOptions.DEFAULT
+    )(
+      $implicitOrUsingCE,
+      ${implicitOrUsing(
+        param"clientContext: _root_.higherkindness.mu.rpc.internal.context.ClientContext[F, Context]"
+      )}
+    ): _root_.cats.effect.Resource[F, $serviceTypeName[$kleisliTypeLambda]] =
+      _root_.cats.effect.Resource.make(
+        new _root_.higherkindness.mu.rpc.channel.ManagedChannelInterpreter[F](channelFor, channelConfigList).build
+      )((channel) =>
+        CE.void(CE.delay(channel.shutdown()))
+      ).evalMap((ch) =>
+        CE.delay(new ContextClient[F, Context](ch, options))
+      )
+    """
+
+  def contextClientFromChannel: Defn.Def =
+    q"""
+    def contextClientFromChannel[F[_], Context](
+      channel: F[_root_.io.grpc.ManagedChannel],
+      options: _root_.io.grpc.CallOptions = _root_.io.grpc.CallOptions.DEFAULT
+    )(
+      $implicitOrUsingCE,
+      ${implicitOrUsing(
+        param"clientContext: _root_.higherkindness.mu.rpc.internal.context.ClientContext[F, Context]"
+      )}
+    ): _root_.cats.effect.Resource[F, $serviceTypeName[$kleisliTypeLambda]] =
+      _root_.cats.effect.Resource.make(channel)(
+        (channel) => CE.void(CE.delay(channel.shutdown()))
+      ).evalMap((ch) =>
+        CE.delay(new ContextClient[F, Context](ch, options))
+      )
+    """
+
+  def unsafeContextClient: Defn.Def =
+    q"""
+    def unsafeContextClient[F[_], Context](
+      channelFor: _root_.higherkindness.mu.rpc.ChannelFor,
+      channelConfigList: List[_root_.higherkindness.mu.rpc.channel.ManagedChannelConfig] = List(_root_.higherkindness.mu.rpc.channel.UsePlaintext()),
+      disp: _root_.cats.effect.std.Dispatcher[F],
+      options: _root_.io.grpc.CallOptions = _root_.io.grpc.CallOptions.DEFAULT
+    )(
+      $implicitOrUsingCE,
+      ${implicitOrUsing(
+        param"clientContext: _root_.higherkindness.mu.rpc.internal.context.ClientContext[F, Context]"
+      )}
+    ): $serviceTypeName[$kleisliTypeLambda] = {
+      val managedChannelInterpreter = new _root_.higherkindness.mu.rpc.channel.ManagedChannelInterpreter[F](channelFor, channelConfigList).unsafeBuild(disp)
+      new ContextClient[F, Context](managedChannelInterpreter, options)
+    }
+    """
+
+  def unsafeContextClientFromChannel: Defn.Def =
+    q"""
+    def unsafeContextClientFromChannel[F[_], Context](
+      channel: _root_.io.grpc.Channel,
+      options: _root_.io.grpc.CallOptions = _root_.io.grpc.CallOptions.DEFAULT
+    )(
+      $implicitOrUsingCE,
+      ${implicitOrUsing(
+        param"clientContext: _root_.higherkindness.mu.rpc.internal.context.ClientContext[F, Context]"
+      )}
+    ): $serviceTypeName[$kleisliTypeLambda] =
+      new ContextClient[F, Context](channel, options)
+    """
+
 }
 
 /*
@@ -702,11 +774,15 @@ object WeatherService {
   }}}
 
   {{{ contextClientFromChannel
-  def contextClientFromChannel[F[_$$1], Context](channel: F[_root_.io.grpc.ManagedChannel], options: _root_.io.grpc.CallOptions = _root_.io.grpc.CallOptions.DEFAULT)(implicit CE: _root_.cats.effect.Async[F], clientContext: _root_.higherkindness.mu.rpc.internal.context.ClientContext[F, Context]): _root_.cats.effect.Resource[F, WeatherService[(scala.AnyRef {
-    type T[α] = _root_.cats.data.Kleisli[F, Context, α]
-  })#T]] = _root_.cats.effect.Resource.make(channel)(((channel) => CE.void(CE.delay(channel.shutdown())))).flatMap(((ch) => _root_.cats.effect.Resource.make[F, WeatherService[(scala.AnyRef {
-    type T[α] = _root_.cats.data.Kleisli[F, Context, α]
-  })#T]](CE.delay(new ContextClient[F, Context](ch, options)))(((x$41) => CE.unit))))
+  def contextClientFromChannel[F[_$$1], Context](
+    channel: F[_root_.io.grpc.ManagedChannel],
+    options: _root_.io.grpc.CallOptions = _root_.io.grpc.CallOptions.DEFAULT
+  )(
+    implicit CE: _root_.cats.effect.Async[F],
+    clientContext: _root_.higherkindness.mu.rpc.internal.context.ClientContext[F, Context]
+  ): _root_.cats.effect.Resource[F, WeatherService[({type T[α] = _root_.cats.data.Kleisli[F, Context, α]})#T]] =
+    _root_.cats.effect.Resource.make(channel)(((channel) => CE.void(CE.delay(channel.shutdown()))))
+      .flatMap(((ch) => _root_.cats.effect.Resource.make[F, WeatherService[({type T[α] = _root_.cats.data.Kleisli[F, Context, α]})#T]](CE.delay(new ContextClient[F, Context](ch, options)))(((x$41) => CE.unit))))
   }}}
 
   {{{ unsafeContextClient
