@@ -131,7 +131,7 @@ class CompanionObjectGenerator(
       _root_.cats.effect.std.Dispatcher[F].evalMap { disp =>
         _root_.higherkindness.mu.rpc.internal.service.GRPCServiceDefBuilder.build[F](
           ${service.fullName},
-          ..${service.methods.toList.map(methodCall)}
+          ..${service.methods.map(methodCall)}
         )
       }
       """
@@ -207,7 +207,7 @@ class CompanionObjectGenerator(
       _root_.cats.effect.std.Dispatcher[F].evalMap { disp =>
         _root_.higherkindness.mu.rpc.internal.service.GRPCServiceDefBuilder.build[F](
           ${service.fullName},
-          ..${service.methods.toList.map(methodCall)}
+          ..${service.methods.map(methodCall)}
         )
       }
       """
