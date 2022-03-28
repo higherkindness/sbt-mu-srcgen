@@ -51,9 +51,9 @@ class CompanionObjectGeneratorSpec extends AnyFunSpec {
         serviceDefn,
         MuServiceParams(
           idiomaticEndpoints = true,
-          compressionType = GzipGen
-        ),
-        scala3 = false
+          compressionType = GzipGen,
+          scala3 = false
+        )
       )
       val tree = generator.methodDescriptorValDef(serviceDefn.methods.head)
 
@@ -76,9 +76,9 @@ class CompanionObjectGeneratorSpec extends AnyFunSpec {
         serviceDefn,
         MuServiceParams(
           idiomaticEndpoints = true,
-          compressionType = GzipGen
-        ),
-        scala3 = false
+          compressionType = GzipGen,
+          scala3 = false
+        )
       )
       val tree = generator.bindService
 
@@ -134,9 +134,9 @@ class CompanionObjectGeneratorSpec extends AnyFunSpec {
         serviceDefn,
         MuServiceParams(
           idiomaticEndpoints = true,
-          compressionType = GzipGen
-        ),
-        scala3 = true
+          compressionType = GzipGen,
+          scala3 = true
+        )
       )
       val tree = generator.bindService
 
@@ -195,9 +195,9 @@ class CompanionObjectGeneratorSpec extends AnyFunSpec {
         serviceDefn,
         MuServiceParams(
           idiomaticEndpoints = true,
-          compressionType = GzipGen
-        ),
-        scala3 = false
+          compressionType = GzipGen,
+          scala3 = false
+        )
       )
       val tree = generator.bindContextService
 
@@ -261,9 +261,9 @@ class CompanionObjectGeneratorSpec extends AnyFunSpec {
         serviceDefn,
         MuServiceParams(
           idiomaticEndpoints = true,
-          compressionType = GzipGen
-        ),
-        scala3 = true
+          compressionType = GzipGen,
+          scala3 = true
+        )
       )
       val tree = generator.bindContextService
 

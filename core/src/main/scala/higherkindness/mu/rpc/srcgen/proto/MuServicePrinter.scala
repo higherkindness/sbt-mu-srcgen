@@ -78,8 +78,7 @@ class MuServicePrinter(
         )
       )
     )
-    // TODO set scala3 flag based on scalaBinaryVersion
-    val generator = new CompanionObjectGenerator(serviceDefn, params, scala3 = false)
+    val generator = new CompanionObjectGenerator(serviceDefn, params)
     val tree      = generator.generateTree
     println("Companion object:")
     println(tree.show[Syntax])

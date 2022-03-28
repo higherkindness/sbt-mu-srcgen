@@ -11,7 +11,8 @@ object gen {
    */
   def apply(
       idiomaticEndpoints: Boolean,
-      compressionType: Model.CompressionTypeGen
+      compressionType: Model.CompressionTypeGen,
+      scala3: Boolean
   ): (SandboxedJvmGenerator, Seq[String]) =
     (
       SandboxedJvmGenerator.forModule(
@@ -26,7 +27,8 @@ object gen {
       ),
       List(
         idiomaticEndpoints.toString,
-        compressionType.annotationParameterValue
+        compressionType.annotationParameterValue,
+        scala3.toString
       )
     )
 

@@ -7,8 +7,7 @@ import higherkindness.mu.rpc.srcgen.Model.NoCompressionGen
 
 class CompanionObjectGenerator(
     service: ServiceDefn,
-    params: MuServiceParams,
-    scala3: Boolean
+    params: MuServiceParams
 ) {
 
   private val fullServiceName: String =
@@ -138,7 +137,7 @@ class CompanionObjectGenerator(
 
     val serviceTypeName = Type.Name(service.name)
 
-    if (scala3) {
+    if (params.scala3) {
       import scala.meta.dialects.Scala3
       q"""
       def bindService[F[_]](using CE: _root_.cats.effect.Async[F], algebra: $serviceTypeName[F]): _root_.cats.effect.Resource[F, _root_.io.grpc.ServerServiceDefinition] = $methodBody
@@ -214,7 +213,7 @@ class CompanionObjectGenerator(
 
     val serviceTypeName = Type.Name(service.name)
 
-    if (scala3) {
+    if (params.scala3) {
       import scala.meta.dialects.Scala3
       q"""
       def bindContextService[F[_], Context](

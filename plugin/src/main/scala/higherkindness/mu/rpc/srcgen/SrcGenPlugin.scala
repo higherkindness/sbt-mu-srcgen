@@ -330,7 +330,8 @@ object SrcGenPlugin extends AutoPlugin {
             // then use our protoc plugin to generate the Mu service trait
             higherkindness.mu.rpc.srcgen.proto.gen(
               idiomaticEndpoints = muSrcGenIdiomaticEndpoints.value,
-              compressionType = muSrcGenCompressionType.value
+              compressionType = muSrcGenCompressionType.value,
+              scala3 = scalaBinaryVersion.value.startsWith("3")
             ) -> muSrcGenTargetDir.value
           )
         case _ =>
