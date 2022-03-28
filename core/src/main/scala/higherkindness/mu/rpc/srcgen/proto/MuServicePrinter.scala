@@ -80,8 +80,6 @@ class MuServicePrinter(
     )
     val generator = new CompanionObjectGenerator(serviceDefn, params)
     val tree      = generator.generateTree
-    println("Companion object:")
-    println(tree.show[Syntax])
     fp.add(tree.show[Syntax])
   }
 
