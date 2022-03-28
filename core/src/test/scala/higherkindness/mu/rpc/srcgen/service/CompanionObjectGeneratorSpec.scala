@@ -335,7 +335,7 @@ class CompanionObjectGeneratorSpec extends AnyFunSpec {
           channel: _root_.io.grpc.Channel,
           options: _root_.io.grpc.CallOptions = _root_.io.grpc.CallOptions.DEFAULT
         )(
-          implicit val CE: _root_.cats.effect.Async[F]
+          implicit CE: _root_.cats.effect.Async[F]
         ) extends _root_.io.grpc.stub.AbstractStub[Client[F]](channel, options)
           with MyService[F] {
 
@@ -381,13 +381,78 @@ class CompanionObjectGeneratorSpec extends AnyFunSpec {
 
       compare(tree, expected)
     }
+
+    it("generates a client method with Scala 2 syntax") {
+      val generator = new CompanionObjectGenerator(
+        serviceDefn,
+        MuServiceParams(
+          idiomaticEndpoints = true,
+          compressionType = GzipGen,
+          scala3 = false
+        )
+      )
+      val tree = generator.clientMethod
+
+      val expected = q"""
+        def client[F[_]](
+          channelFor: _root_.higherkindness.mu.rpc.ChannelFor,
+          channelConfigList: List[_root_.higherkindness.mu.rpc.channel.ManagedChannelConfig] = List(_root_.higherkindness.mu.rpc.channel.UsePlaintext()),
+          options: _root_.io.grpc.CallOptions = _root_.io.grpc.CallOptions.DEFAULT
+        )(
+          implicit CE: _root_.cats.effect.Async[F]
+        ): _root_.cats.effect.Resource[F, MyService[F]] =
+          _root_.cats.effect.Resource.make(
+            new _root_.higherkindness.mu.rpc.channel.ManagedChannelInterpreter[F](channelFor, channelConfigList).build
+          )(
+            (channel) => CE.void(CE.delay(channel.shutdown()))
+          ).evalMap((ch) =>
+            CE.delay(new Client[F](ch, options))
+          )
+        """
+
+      compare(tree, expected)
+    }
+
+    it("generates a client method with Scala 3 syntax") {
+      val generator = new CompanionObjectGenerator(
+        serviceDefn,
+        MuServiceParams(
+          idiomaticEndpoints = true,
+          compressionType = GzipGen,
+          scala3 = true
+        )
+      )
+      val tree = generator.clientMethod
+
+      val expected = {
+        import scala.meta.dialects.Scala3
+        q"""
+        def client[F[_]](
+          channelFor: _root_.higherkindness.mu.rpc.ChannelFor,
+          channelConfigList: List[_root_.higherkindness.mu.rpc.channel.ManagedChannelConfig] = List(_root_.higherkindness.mu.rpc.channel.UsePlaintext()),
+          options: _root_.io.grpc.CallOptions = _root_.io.grpc.CallOptions.DEFAULT
+        )(
+          using CE: _root_.cats.effect.Async[F]
+        ): _root_.cats.effect.Resource[F, MyService[F]] =
+          _root_.cats.effect.Resource.make(
+            new _root_.higherkindness.mu.rpc.channel.ManagedChannelInterpreter[F](channelFor, channelConfigList).build
+          )(
+            (channel) => CE.void(CE.delay(channel.shutdown()))
+          ).evalMap((ch) =>
+            CE.delay(new Client[F](ch, options))
+          )
+        """
+      }
+
+      compare(tree, expected)
+    }
   }
 
   def compare(actual: Tree, expected: Tree): Assertion = {
     val equal = actual.isEqual(expected)
 
     if (!equal) {
-      println("Actual")
+      println("Actual:")
       println(actual.syntax)
       println("----")
       println("Expected:")

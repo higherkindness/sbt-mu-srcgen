@@ -30,10 +30,11 @@ class CompanionObjectGenerator(
 
       $clientClass
 
-      // TODO client method
-      // TODO clientFromChannel
-      // TODO unsafeClient
-      // TODO unsafeClientFromChannel
+      $clientMethod
+      $clientFromChannel
+      $unsafeClient
+      $unsafeClientFromChannel
+
       //
       // TODO ContextClient class
       // TODO contextClient method
@@ -234,6 +235,14 @@ class CompanionObjectGenerator(
     }
   }
 
+  private val implicitCE: Term.Param = {
+    val param = param"CE: _root_.cats.effect.Async[F]"
+    if (params.scala3)
+      param.copy(mods = List(Mod.Using()))
+    else
+      param.copy(mods = List(Mod.Implicit()))
+  }
+
   def clientClass: Defn.Class = {
     def method(md: MethodDefn): Defn.Def = (md.clientStreaming, md.serverStreaming) match {
       case (false, false) =>
@@ -297,7 +306,7 @@ class CompanionObjectGenerator(
       channel: _root_.io.grpc.Channel,
       options: _root_.io.grpc.CallOptions = _root_.io.grpc.CallOptions.DEFAULT
     )(
-      implicit val CE: _root_.cats.effect.Async[F]
+      $implicitCE
     ) extends _root_.io.grpc.stub.AbstractStub[Client[F]](channel, options) with (${serviceTypeName}[F]) {
 
       override def build(
@@ -311,6 +320,65 @@ class CompanionObjectGenerator(
     }
     """
   }
+
+  def clientMethod: Defn.Def =
+    q"""
+    def client[F[_]](
+      channelFor: _root_.higherkindness.mu.rpc.ChannelFor,
+      channelConfigList: List[_root_.higherkindness.mu.rpc.channel.ManagedChannelConfig] = List(_root_.higherkindness.mu.rpc.channel.UsePlaintext()),
+      options: _root_.io.grpc.CallOptions = _root_.io.grpc.CallOptions.DEFAULT
+    )(
+      $implicitCE
+    ): _root_.cats.effect.Resource[F, $serviceTypeName[F]] =
+      _root_.cats.effect.Resource.make(
+        new _root_.higherkindness.mu.rpc.channel.ManagedChannelInterpreter[F](channelFor, channelConfigList).build
+      )(
+        (channel) => CE.void(CE.delay(channel.shutdown()))
+      ).evalMap((ch) =>
+        CE.delay(new Client[F](ch, options))
+      )
+    """
+
+  def clientFromChannel: Defn.Def =
+    q"""
+    def clientFromChannel[F[_]](
+      channel: F[_root_.io.grpc.ManagedChannel],
+      options: _root_.io.grpc.CallOptions = _root_.io.grpc.CallOptions.DEFAULT
+    )(
+      $implicitCE
+    ): _root_.cats.effect.Resource[F, $serviceTypeName[F]] =
+      _root_.cats.effect.Resource.make(channel)(
+        (channel) => CE.void(CE.delay(channel.shutdown()))
+      ).evalMap((ch) =>
+        CE.delay(new Client[F](ch, options))
+      )
+    """
+
+  def unsafeClient: Defn.Def =
+    q"""
+    def unsafeClient[F[_]](
+      channelFor: _root_.higherkindness.mu.rpc.ChannelFor,
+      channelConfigList: List[_root_.higherkindness.mu.rpc.channel.ManagedChannelConfig] = List(_root_.higherkindness.mu.rpc.channel.UsePlaintext()),
+      disp: _root_.cats.effect.std.Dispatcher[F],
+      options: _root_.io.grpc.CallOptions = _root_.io.grpc.CallOptions.DEFAULT
+    )(
+      $implicitCE
+    ): $serviceTypeName[F] = {
+      val managedChannelInterpreter = new _root_.higherkindness.mu.rpc.channel.ManagedChannelInterpreter[F](channelFor, channelConfigList).unsafeBuild(disp)
+      new Client[F](managedChannelInterpreter, options)
+    }
+    """
+
+  def unsafeClientFromChannel: Defn.Def =
+    q"""
+    def unsafeClientFromChannel[F[_]](
+      channel: _root_.io.grpc.Channel,
+      options: _root_.io.grpc.CallOptions = _root_.io.grpc.CallOptions.DEFAULT
+    )(
+      $implicitCE
+    ): $serviceTypeName[F] =
+      new Client[F](channel, options)
+    """
 
 }
 
@@ -532,7 +600,12 @@ object WeatherService {
   }}}
 
   {{{ unsafeClient
-  def unsafeClient[F[_$$1]](channelFor: _root_.higherkindness.mu.rpc.ChannelFor, channelConfigList: List[_root_.higherkindness.mu.rpc.channel.ManagedChannelConfig] = List(_root_.higherkindness.mu.rpc.channel.UsePlaintext()), disp: _root_.cats.effect.std.Dispatcher[F], options: _root_.io.grpc.CallOptions = _root_.io.grpc.CallOptions.DEFAULT)(implicit CE: _root_.cats.effect.Async[F]): WeatherService[F] = {
+  def unsafeClient[F[_$$1]](
+    channelFor: _root_.higherkindness.mu.rpc.ChannelFor,
+    channelConfigList: List[_root_.higherkindness.mu.rpc.channel.ManagedChannelConfig] = List(_root_.higherkindness.mu.rpc.channel.UsePlaintext()),
+    disp: _root_.cats.effect.std.Dispatcher[F],
+    options: _root_.io.grpc.CallOptions = _root_.io.grpc.CallOptions.DEFAULT
+  )(implicit CE: _root_.cats.effect.Async[F]): WeatherService[F] = {
     val managedChannelInterpreter = new _root_.higherkindness.mu.rpc.channel.ManagedChannelInterpreter[F](channelFor, channelConfigList).unsafeBuild(disp)
     new Client[F, _root_.natchez.Span[F]](managedChannelInterpreter, options)
   }
