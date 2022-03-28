@@ -18,6 +18,26 @@ class CompanionObjectGenerator(
 
   private val serviceTypeName = Type.Name(service.name)
 
+  private def implicitOrUsing(param: Term.Param): Term.Param =
+    if (params.scala3)
+      param.copy(mods = List(Mod.Using()))
+    else
+      param.copy(mods = List(Mod.Implicit()))
+
+  private val implicitOrUsingCE: Term.Param =
+    implicitOrUsing(param"CE: _root_.cats.effect.Async[F]")
+
+  private val kleisliTypeLambda: Type =
+    if (params.scala3) {
+      import scala.meta.dialects.Scala3
+      t"[A] =>> _root_.cats.data.Kleisli[F, Context, A]"
+    } else {
+      t"({type T[α] = _root_.cats.data.Kleisli[F, Context, α]})#T"
+    }
+
+  private def kleisli(a: Type): Type =
+    t"_root_.cats.data.Kleisli[F, Context, $a]"
+
   def generateTree: Defn.Object =
     q"""
     object ${Term.Name(service.name)} {
@@ -35,8 +55,7 @@ class CompanionObjectGenerator(
       $unsafeClient
       $unsafeClientFromChannel
 
-      //
-      // TODO ContextClient class
+      $contextClientClass
       // TODO contextClient method
       // TODO contextClientFromChannel
       // TODO unsafeContextClient
@@ -129,26 +148,17 @@ class CompanionObjectGenerator(
       q"(${methodDescriptorValName(md)}, $serverCallHandler)"
     }
 
-    val methodBody =
-      q"""
+    q"""
+    def bindService[F[_]]($implicitOrUsingCE, ${implicitOrUsing(
+        param"algebra: $serviceTypeName[F]"
+      )}): _root_.cats.effect.Resource[F, _root_.io.grpc.ServerServiceDefinition] =
       _root_.cats.effect.std.Dispatcher[F].evalMap { disp =>
         _root_.higherkindness.mu.rpc.internal.service.GRPCServiceDefBuilder.build[F](
           ${service.fullName},
           ..${service.methods.map(methodCall)}
         )
       }
-      """
-
-    if (params.scala3) {
-      import scala.meta.dialects.Scala3
-      q"""
-      def bindService[F[_]](using CE: _root_.cats.effect.Async[F], algebra: $serviceTypeName[F]): _root_.cats.effect.Resource[F, _root_.io.grpc.ServerServiceDefinition] = $methodBody
-      """
-    } else {
-      q"""
-      def bindService[F[_]](implicit CE: _root_.cats.effect.Async[F], algebra: $serviceTypeName[F]): _root_.cats.effect.Resource[F, _root_.io.grpc.ServerServiceDefinition] = $methodBody
-      """
-    }
+    """
   }
 
   def bindContextService: Defn.Def = {
@@ -203,102 +213,72 @@ class CompanionObjectGenerator(
       q"(${methodDescriptorValName(md)}, $serverCallHandler)"
     }
 
-    val methodBody =
-      q"""
+    q"""
+    def bindContextService[F[_], Context](
+        $implicitOrUsingCE,
+        ${implicitOrUsing(
+        param"serverContext: _root_.higherkindness.mu.rpc.internal.context.ServerContext[F, Context]"
+      )},
+        ${implicitOrUsing(param"algebra: $serviceTypeName[$kleisliTypeLambda]")}
+    ): _root_.cats.effect.Resource[F, _root_.io.grpc.ServerServiceDefinition] =
       _root_.cats.effect.std.Dispatcher[F].evalMap { disp =>
         _root_.higherkindness.mu.rpc.internal.service.GRPCServiceDefBuilder.build[F](
           ${service.fullName},
           ..${service.methods.map(methodCall)}
         )
       }
-      """
-
-    if (params.scala3) {
-      import scala.meta.dialects.Scala3
-      q"""
-      def bindContextService[F[_], Context](
-        using
-          CE: _root_.cats.effect.Async[F],
-          serverContext: _root_.higherkindness.mu.rpc.internal.context.ServerContext[F, Context],
-          algebra: $serviceTypeName[[A] =>> _root_.cats.data.Kleisli[F, Context, A]]
-      ): _root_.cats.effect.Resource[F, _root_.io.grpc.ServerServiceDefinition] = $methodBody
-      """
-    } else {
-      q"""
-      def bindContextService[F[_], Context](
-        implicit
-          CE: _root_.cats.effect.Async[F],
-          serverContext: _root_.higherkindness.mu.rpc.internal.context.ServerContext[F, Context],
-          algebra: $serviceTypeName[({type T[α] = _root_.cats.data.Kleisli[F, Context, α]})#T]
-      ): _root_.cats.effect.Resource[F, _root_.io.grpc.ServerServiceDefinition] = $methodBody
-      """
-    }
-  }
-
-  private val implicitCE: Term.Param = {
-    val param = param"CE: _root_.cats.effect.Async[F]"
-    if (params.scala3)
-      param.copy(mods = List(Mod.Using()))
-    else
-      param.copy(mods = List(Mod.Implicit()))
+    """
   }
 
   def clientClass: Defn.Class = {
-    def method(md: MethodDefn): Defn.Def = (md.clientStreaming, md.serverStreaming) match {
-      case (false, false) =>
-        q"""
-        def ${Term.Name(md.name)}(input: ${inputType(md)}): F[${outputType(md)}] =
-          _root_.higherkindness.mu.rpc.internal.client.calls.unary[F, ${inputType(
-            md
-          )}, ${outputType(md)}](
-            input,
-            ${methodDescriptorValName(md)},
-            channel,
-            options
-          )
-        """
-      case (true, false) =>
-        q"""
-        def ${Term.Name(md.name)}(input: _root_.fs2.Stream[F, ${inputType(md)}]): F[${outputType(
-            md
-          )}] =
-          _root_.higherkindness.mu.rpc.internal.client.fs2.calls.clientStreaming[F, ${inputType(
-            md
-          )}, ${outputType(md)}](
-            input,
-            ${methodDescriptorValName(md)},
-            channel,
-            options
-          )
-        """
-      case (false, true) =>
-        q"""
-        def ${Term.Name(md.name)}(input: ${inputType(md)}): F[_root_.fs2.Stream[F, ${outputType(
-            md
-          )}]] =
-          _root_.higherkindness.mu.rpc.internal.client.fs2.calls.serverStreaming[F, ${inputType(
-            md
-          )}, ${outputType(md)}](
-            input,
-            ${methodDescriptorValName(md)},
-            channel,
-            options
-          )
-        """
-      case (true, true) =>
-        q"""
-        def ${Term.Name(md.name)}(input: _root_.fs2.Stream[F, ${inputType(
-            md
-          )}]): F[_root_.fs2.Stream[F, ${outputType(md)}]] =
-          _root_.higherkindness.mu.rpc.internal.client.fs2.calls.bidiStreaming[F, ${inputType(
-            md
-          )}, ${outputType(md)}](
-            input,
-            ${methodDescriptorValName(md)},
-            channel,
-            options
-          )
-        """
+    def method(md: MethodDefn): Defn.Def = {
+      val in  = inputType(md)
+      val out = outputType(md)
+
+      (md.clientStreaming, md.serverStreaming) match {
+        case (false, false) =>
+          q"""
+          def ${Term.Name(md.name)}(input: $in): F[$out] =
+            _root_.higherkindness.mu.rpc.internal.client.calls.unary[F, $in, $out](
+              input,
+              ${methodDescriptorValName(md)},
+              channel,
+              options
+            )
+          """
+        case (true, false) =>
+          q"""
+          def ${Term.Name(md.name)}(input: _root_.fs2.Stream[F, $in]): F[$out] =
+            _root_.higherkindness.mu.rpc.internal.client.fs2.calls.clientStreaming[F, $in, $out](
+              input,
+              ${methodDescriptorValName(md)},
+              channel,
+              options
+            )
+          """
+        case (false, true) =>
+          q"""
+          def ${Term.Name(md.name)}(input: $in): F[_root_.fs2.Stream[F, $out]] =
+            _root_.higherkindness.mu.rpc.internal.client.fs2.calls.serverStreaming[F, $in, $out](
+              input,
+              ${methodDescriptorValName(md)},
+              channel,
+              options
+            )
+          """
+        case (true, true) =>
+          q"""
+          def ${Term.Name(
+              md.name
+            )}(input: _root_.fs2.Stream[F, $in]): F[_root_.fs2.Stream[F, $out]] =
+            _root_.higherkindness.mu.rpc.internal.client.fs2.calls.bidiStreaming[F, $in, $out](
+              input,
+              ${methodDescriptorValName(md)},
+              channel,
+              options
+            )
+          """
+      }
     }
 
     q"""
@@ -306,7 +286,7 @@ class CompanionObjectGenerator(
       channel: _root_.io.grpc.Channel,
       options: _root_.io.grpc.CallOptions = _root_.io.grpc.CallOptions.DEFAULT
     )(
-      $implicitCE
+      $implicitOrUsingCE
     ) extends _root_.io.grpc.stub.AbstractStub[Client[F]](channel, options) with (${serviceTypeName}[F]) {
 
       override def build(
@@ -328,7 +308,7 @@ class CompanionObjectGenerator(
       channelConfigList: List[_root_.higherkindness.mu.rpc.channel.ManagedChannelConfig] = List(_root_.higherkindness.mu.rpc.channel.UsePlaintext()),
       options: _root_.io.grpc.CallOptions = _root_.io.grpc.CallOptions.DEFAULT
     )(
-      $implicitCE
+      $implicitOrUsingCE
     ): _root_.cats.effect.Resource[F, $serviceTypeName[F]] =
       _root_.cats.effect.Resource.make(
         new _root_.higherkindness.mu.rpc.channel.ManagedChannelInterpreter[F](channelFor, channelConfigList).build
@@ -345,7 +325,7 @@ class CompanionObjectGenerator(
       channel: F[_root_.io.grpc.ManagedChannel],
       options: _root_.io.grpc.CallOptions = _root_.io.grpc.CallOptions.DEFAULT
     )(
-      $implicitCE
+      $implicitOrUsingCE
     ): _root_.cats.effect.Resource[F, $serviceTypeName[F]] =
       _root_.cats.effect.Resource.make(channel)(
         (channel) => CE.void(CE.delay(channel.shutdown()))
@@ -362,7 +342,7 @@ class CompanionObjectGenerator(
       disp: _root_.cats.effect.std.Dispatcher[F],
       options: _root_.io.grpc.CallOptions = _root_.io.grpc.CallOptions.DEFAULT
     )(
-      $implicitCE
+      $implicitOrUsingCE
     ): $serviceTypeName[F] = {
       val managedChannelInterpreter = new _root_.higherkindness.mu.rpc.channel.ManagedChannelInterpreter[F](channelFor, channelConfigList).unsafeBuild(disp)
       new Client[F](managedChannelInterpreter, options)
@@ -375,11 +355,89 @@ class CompanionObjectGenerator(
       channel: _root_.io.grpc.Channel,
       options: _root_.io.grpc.CallOptions = _root_.io.grpc.CallOptions.DEFAULT
     )(
-      $implicitCE
+      $implicitOrUsingCE
     ): $serviceTypeName[F] =
       new Client[F](channel, options)
     """
 
+  def contextClientClass: Defn.Class = {
+    def method(md: MethodDefn): Defn.Def = {
+      val in  = inputType(md)
+      val out = outputType(md)
+
+      (md.clientStreaming, md.serverStreaming) match {
+        case (false, false) =>
+          q"""
+          def ${Term.Name(md.name)}(input: $in): ${kleisli(out)} =
+            _root_.higherkindness.mu.rpc.internal.client.calls.contextUnary[F, Context, $in, $out](
+              input,
+              ${methodDescriptorValName(md)},
+              channel,
+              options
+            )
+          """
+        case (true, false) =>
+          q"""
+          def ${Term.Name(md.name)}(input: _root_.fs2.Stream[$kleisliTypeLambda, $in]): ${kleisli(
+              out
+            )} =
+            _root_.higherkindness.mu.rpc.internal.client.fs2.calls.contextClientStreaming[F, Context, $in, $out](
+              input,
+              ${methodDescriptorValName(md)},
+              channel,
+              options
+            )
+          """
+        case (false, true) =>
+          q"""
+          def ${Term.Name(md.name)}(input: $in): ${kleisli(
+              t"_root_.fs2.Stream[$kleisliTypeLambda, $out]"
+            )} =
+            _root_.higherkindness.mu.rpc.internal.client.fs2.calls.contextServerStreaming[F, Context, $in, $out](
+              input,
+              ${methodDescriptorValName(md)},
+              channel,
+              options
+            )
+          """
+        case (true, true) =>
+          q"""
+          def ${Term.Name(md.name)}(input: _root_.fs2.Stream[$kleisliTypeLambda, $in]): ${kleisli(
+              t"_root_.fs2.Stream[$kleisliTypeLambda, $out]"
+            )} =
+            _root_.higherkindness.mu.rpc.internal.client.fs2.calls.contextBidiStreaming[F, Context, $in, $out](
+              input,
+              ${methodDescriptorValName(md)},
+              channel,
+              options
+            )
+          """
+      }
+    }
+
+    q"""
+    class ContextClient[F[_], Context](
+      channel: _root_.io.grpc.Channel,
+      options: _root_.io.grpc.CallOptions = _root_.io.grpc.CallOptions.DEFAULT
+    )(
+      $implicitOrUsingCE,
+      ${implicitOrUsing(
+        param"clientContext: _root_.higherkindness.mu.rpc.internal.context.ClientContext[F, Context]"
+      )}
+    ) extends _root_.io.grpc.stub.AbstractStub[ContextClient[F, Context]](channel, options)
+      with ($serviceTypeName[$kleisliTypeLambda]) {
+
+      override def build(
+        channel: _root_.io.grpc.Channel,
+        options: _root_.io.grpc.CallOptions
+      ): ContextClient[F, Context] =
+        new ContextClient[F, Context](channel, options)
+
+      ..${service.methods.map(method)}
+
+    }
+    """
+  }
 }
 
 /*

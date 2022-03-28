@@ -446,6 +446,138 @@ class CompanionObjectGeneratorSpec extends AnyFunSpec {
 
       compare(tree, expected)
     }
+
+    it("generates a ContextClient class with Scala 2 syntax") {
+      val generator = new CompanionObjectGenerator(
+        serviceDefn,
+        MuServiceParams(
+          idiomaticEndpoints = true,
+          compressionType = GzipGen,
+          scala3 = false
+        )
+      )
+      val tree = generator.contextClientClass
+
+      val expected = q"""
+        class ContextClient[F[_], Context](
+          channel: _root_.io.grpc.Channel,
+          options: _root_.io.grpc.CallOptions = _root_.io.grpc.CallOptions.DEFAULT
+        )(
+          implicit CE: _root_.cats.effect.Async[F],
+          clientContext: _root_.higherkindness.mu.rpc.internal.context.ClientContext[F, Context]
+        ) extends _root_.io.grpc.stub.AbstractStub[ContextClient[F, Context]](channel, options)
+          with MyService[({type T[α] = _root_.cats.data.Kleisli[F, Context, α]})#T] {
+
+          override def build(
+            channel: _root_.io.grpc.Channel,
+            options: _root_.io.grpc.CallOptions
+          ): ContextClient[F, Context] =
+            new ContextClient[F, Context](channel, options)
+
+          def methodOne(input: _root_.com.foo.bar.MethodOneRequest): _root_.cats.data.Kleisli[F, Context, _root_.com.foo.bar.MethodOneResponse] =
+            _root_.higherkindness.mu.rpc.internal.client.calls.contextUnary[F, Context, _root_.com.foo.bar.MethodOneRequest, _root_.com.foo.bar.MethodOneResponse](
+              input,
+              methodOneMethodDescriptor,
+              channel,
+              options
+            )
+
+          def methodTwo(input: _root_.fs2.Stream[({type T[α] = _root_.cats.data.Kleisli[F, Context, α]})#T, _root_.com.foo.bar.MethodTwoRequest]): _root_.cats.data.Kleisli[F, Context, _root_.com.foo.bar.MethodTwoResponse] =
+            _root_.higherkindness.mu.rpc.internal.client.fs2.calls.contextClientStreaming[F, Context, _root_.com.foo.bar.MethodTwoRequest, _root_.com.foo.bar.MethodTwoResponse](
+              input,
+              methodTwoMethodDescriptor,
+              channel,
+              options
+            )
+
+          def methodThree(input: _root_.com.foo.bar.MethodThreeRequest): _root_.cats.data.Kleisli[F, Context, _root_.fs2.Stream[({type T[α] = _root_.cats.data.Kleisli[F, Context, α]})#T, _root_.com.foo.bar.MethodThreeResponse]] =
+            _root_.higherkindness.mu.rpc.internal.client.fs2.calls.contextServerStreaming[F, Context, _root_.com.foo.bar.MethodThreeRequest, _root_.com.foo.bar.MethodThreeResponse](
+              input,
+              methodThreeMethodDescriptor,
+              channel,
+              options
+            )
+
+          def methodFour(input: _root_.fs2.Stream[({type T[α] = _root_.cats.data.Kleisli[F, Context, α]})#T, _root_.com.foo.bar.MethodFourRequest]): _root_.cats.data.Kleisli[F, Context, _root_.fs2.Stream[({type T[α] = _root_.cats.data.Kleisli[F, Context, α]})#T, _root_.com.foo.bar.MethodFourResponse]] =
+            _root_.higherkindness.mu.rpc.internal.client.fs2.calls.contextBidiStreaming[F, Context, _root_.com.foo.bar.MethodFourRequest, _root_.com.foo.bar.MethodFourResponse](
+              input,
+              methodFourMethodDescriptor,
+              channel,
+              options
+            )
+        }
+        """
+
+      compare(tree, expected)
+    }
+
+    it("generates a ContextClient class with Scala 3 syntax") {
+      val generator = new CompanionObjectGenerator(
+        serviceDefn,
+        MuServiceParams(
+          idiomaticEndpoints = true,
+          compressionType = GzipGen,
+          scala3 = true
+        )
+      )
+      val tree = generator.contextClientClass
+
+      val expected = {
+        import scala.meta.dialects.Scala3
+        q"""
+        class ContextClient[F[_], Context](
+          channel: _root_.io.grpc.Channel,
+          options: _root_.io.grpc.CallOptions = _root_.io.grpc.CallOptions.DEFAULT
+        )(
+          using CE: _root_.cats.effect.Async[F],
+          clientContext: _root_.higherkindness.mu.rpc.internal.context.ClientContext[F, Context]
+        ) extends _root_.io.grpc.stub.AbstractStub[ContextClient[F, Context]](channel, options)
+          with MyService[[A] =>> _root_.cats.data.Kleisli[F, Context, A]] {
+
+          override def build(
+            channel: _root_.io.grpc.Channel,
+            options: _root_.io.grpc.CallOptions
+          ): ContextClient[F, Context] =
+            new ContextClient[F, Context](channel, options)
+
+          def methodOne(input: _root_.com.foo.bar.MethodOneRequest): _root_.cats.data.Kleisli[F, Context, _root_.com.foo.bar.MethodOneResponse] =
+            _root_.higherkindness.mu.rpc.internal.client.calls.contextUnary[F, Context, _root_.com.foo.bar.MethodOneRequest, _root_.com.foo.bar.MethodOneResponse](
+              input,
+              methodOneMethodDescriptor,
+              channel,
+              options
+            )
+
+          def methodTwo(input: _root_.fs2.Stream[[A] =>> _root_.cats.data.Kleisli[F, Context, A], _root_.com.foo.bar.MethodTwoRequest]): _root_.cats.data.Kleisli[F, Context, _root_.com.foo.bar.MethodTwoResponse] =
+            _root_.higherkindness.mu.rpc.internal.client.fs2.calls.contextClientStreaming[F, Context, _root_.com.foo.bar.MethodTwoRequest, _root_.com.foo.bar.MethodTwoResponse](
+              input,
+              methodTwoMethodDescriptor,
+              channel,
+              options
+            )
+
+          def methodThree(input: _root_.com.foo.bar.MethodThreeRequest): _root_.cats.data.Kleisli[F, Context, _root_.fs2.Stream[[A] =>> _root_.cats.data.Kleisli[F, Context, A], _root_.com.foo.bar.MethodThreeResponse]] =
+            _root_.higherkindness.mu.rpc.internal.client.fs2.calls.contextServerStreaming[F, Context, _root_.com.foo.bar.MethodThreeRequest, _root_.com.foo.bar.MethodThreeResponse](
+              input,
+              methodThreeMethodDescriptor,
+              channel,
+              options
+            )
+
+          def methodFour(input: _root_.fs2.Stream[[A] =>> _root_.cats.data.Kleisli[F, Context, A], _root_.com.foo.bar.MethodFourRequest]): _root_.cats.data.Kleisli[F, Context, _root_.fs2.Stream[[A] =>> _root_.cats.data.Kleisli[F, Context, A], _root_.com.foo.bar.MethodFourResponse]] =
+            _root_.higherkindness.mu.rpc.internal.client.fs2.calls.contextBidiStreaming[F, Context, _root_.com.foo.bar.MethodFourRequest, _root_.com.foo.bar.MethodFourResponse](
+              input,
+              methodFourMethodDescriptor,
+              channel,
+              options
+            )
+        }
+        """
+      }
+
+      compare(tree, expected)
+    }
+
   }
 
   def compare(actual: Tree, expected: Tree): Assertion = {
@@ -454,9 +586,11 @@ class CompanionObjectGeneratorSpec extends AnyFunSpec {
     if (!equal) {
       println("Actual:")
       println(actual.syntax)
+      // println(actual.structure)
       println("----")
       println("Expected:")
       println(expected.syntax)
+      // println(expected.structure)
     }
 
     assert(equal)
