@@ -1,4 +1,4 @@
-// vim: set foldmethod=marker
+// vim: set foldmethod=marker:
 package higherkindness.mu.rpc.srcgen.service
 
 import scala.meta._
@@ -16,6 +16,8 @@ class CompanionObjectGenerator(
     else
       service.name
 
+  private val serviceTypeName = Type.Name(service.name)
+
   def generateTree: Defn.Object =
     q"""
     object ${Term.Name(service.name)} {
@@ -26,7 +28,8 @@ class CompanionObjectGenerator(
 
       $bindContextService
 
-      // TODO Client class
+      $clientClass
+
       // TODO client method
       // TODO clientFromChannel
       // TODO unsafeClient
@@ -135,8 +138,6 @@ class CompanionObjectGenerator(
       }
       """
 
-    val serviceTypeName = Type.Name(service.name)
-
     if (params.scala3) {
       import scala.meta.dialects.Scala3
       q"""
@@ -211,8 +212,6 @@ class CompanionObjectGenerator(
       }
       """
 
-    val serviceTypeName = Type.Name(service.name)
-
     if (params.scala3) {
       import scala.meta.dialects.Scala3
       q"""
@@ -233,6 +232,84 @@ class CompanionObjectGenerator(
       ): _root_.cats.effect.Resource[F, _root_.io.grpc.ServerServiceDefinition] = $methodBody
       """
     }
+  }
+
+  def clientClass: Defn.Class = {
+    def method(md: MethodDefn): Defn.Def = (md.clientStreaming, md.serverStreaming) match {
+      case (false, false) =>
+        q"""
+        def ${Term.Name(md.name)}(input: ${inputType(md)}): F[${outputType(md)}] =
+          _root_.higherkindness.mu.rpc.internal.client.calls.unary[F, ${inputType(
+            md
+          )}, ${outputType(md)}](
+            input,
+            ${methodDescriptorValName(md)},
+            channel,
+            options
+          )
+        """
+      case (true, false) =>
+        q"""
+        def ${Term.Name(md.name)}(input: _root_.fs2.Stream[F, ${inputType(md)}]): F[${outputType(
+            md
+          )}] =
+          _root_.higherkindness.mu.rpc.internal.client.fs2.calls.clientStreaming[F, ${inputType(
+            md
+          )}, ${outputType(md)}](
+            input,
+            ${methodDescriptorValName(md)},
+            channel,
+            options
+          )
+        """
+      case (false, true) =>
+        q"""
+        def ${Term.Name(md.name)}(input: ${inputType(md)}): F[_root_.fs2.Stream[F, ${outputType(
+            md
+          )}]] =
+          _root_.higherkindness.mu.rpc.internal.client.fs2.calls.serverStreaming[F, ${inputType(
+            md
+          )}, ${outputType(md)}](
+            input,
+            ${methodDescriptorValName(md)},
+            channel,
+            options
+          )
+        """
+      case (true, true) =>
+        q"""
+        def ${Term.Name(md.name)}(input: _root_.fs2.Stream[F, ${inputType(
+            md
+          )}]): F[_root_.fs2.Stream[F, ${outputType(md)}]] =
+          _root_.higherkindness.mu.rpc.internal.client.fs2.calls.bidiStreaming[F, ${inputType(
+            md
+          )}, ${outputType(md)}](
+            input,
+            ${methodDescriptorValName(md)},
+            channel,
+            options
+          )
+        """
+    }
+
+    q"""
+    class Client[F[_]](
+      channel: _root_.io.grpc.Channel,
+      options: _root_.io.grpc.CallOptions = _root_.io.grpc.CallOptions.DEFAULT
+    )(
+      implicit val CE: _root_.cats.effect.Async[F]
+    ) extends _root_.io.grpc.stub.AbstractStub[Client[F]](channel, options) with (${serviceTypeName}[F]) {
+
+      override def build(
+        channel: _root_.io.grpc.Channel,
+        options: _root_.io.grpc.CallOptions
+      ): Client[F] =
+        new Client[F](channel, options)
+
+      ..${service.methods.map(method)}
+
+    }
+    """
   }
 
 }

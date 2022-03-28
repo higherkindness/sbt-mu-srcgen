@@ -201,9 +201,7 @@ class CompanionObjectGeneratorSpec extends AnyFunSpec {
       )
       val tree = generator.bindContextService
 
-      val expected = {
-        import scala.meta.dialects.Scala3
-        q"""
+      val expected = q"""
         def bindContextService[F[_], Context](
           implicit CE: _root_.cats.effect.Async[F],
           serverContext: _root_.higherkindness.mu.rpc.internal.context.ServerContext[F, Context],
@@ -251,7 +249,6 @@ class CompanionObjectGeneratorSpec extends AnyFunSpec {
             )
           }
         """
-      }
 
       compare(tree, expected)
     }
@@ -322,6 +319,68 @@ class CompanionObjectGeneratorSpec extends AnyFunSpec {
       compare(tree, expected)
     }
 
+    it("generates a Client class") {
+      val generator = new CompanionObjectGenerator(
+        serviceDefn,
+        MuServiceParams(
+          idiomaticEndpoints = true,
+          compressionType = GzipGen,
+          scala3 = false
+        )
+      )
+      val tree = generator.clientClass
+
+      val expected = q"""
+        class Client[F[_]](
+          channel: _root_.io.grpc.Channel,
+          options: _root_.io.grpc.CallOptions = _root_.io.grpc.CallOptions.DEFAULT
+        )(
+          implicit val CE: _root_.cats.effect.Async[F]
+        ) extends _root_.io.grpc.stub.AbstractStub[Client[F]](channel, options)
+          with MyService[F] {
+
+          override def build(
+            channel: _root_.io.grpc.Channel,
+            options: _root_.io.grpc.CallOptions
+          ): Client[F] =
+            new Client[F](channel, options)
+
+          def methodOne(input: _root_.com.foo.bar.MethodOneRequest): F[_root_.com.foo.bar.MethodOneResponse] =
+            _root_.higherkindness.mu.rpc.internal.client.calls.unary[F, _root_.com.foo.bar.MethodOneRequest, _root_.com.foo.bar.MethodOneResponse](
+              input,
+              methodOneMethodDescriptor,
+              channel,
+              options
+            )
+
+          def methodTwo(input: _root_.fs2.Stream[F, _root_.com.foo.bar.MethodTwoRequest]): F[_root_.com.foo.bar.MethodTwoResponse] =
+            _root_.higherkindness.mu.rpc.internal.client.fs2.calls.clientStreaming[F, _root_.com.foo.bar.MethodTwoRequest, _root_.com.foo.bar.MethodTwoResponse](
+              input,
+              methodTwoMethodDescriptor,
+              channel,
+              options
+            )
+
+          def methodThree(input: _root_.com.foo.bar.MethodThreeRequest): F[_root_.fs2.Stream[F, _root_.com.foo.bar.MethodThreeResponse]] =
+            _root_.higherkindness.mu.rpc.internal.client.fs2.calls.serverStreaming[F, _root_.com.foo.bar.MethodThreeRequest, _root_.com.foo.bar.MethodThreeResponse](
+              input,
+              methodThreeMethodDescriptor,
+              channel,
+              options
+            )
+
+          def methodFour(input: _root_.fs2.Stream[F, _root_.com.foo.bar.MethodFourRequest]): F[_root_.fs2.Stream[F, _root_.com.foo.bar.MethodFourResponse]] =
+            _root_.higherkindness.mu.rpc.internal.client.fs2.calls.bidiStreaming[F, _root_.com.foo.bar.MethodFourRequest, _root_.com.foo.bar.MethodFourResponse](
+              input,
+              methodFourMethodDescriptor,
+              channel,
+              options
+            )
+        }
+        """
+
+      compare(tree, expected)
+    }
   }
 
   def compare(actual: Tree, expected: Tree): Assertion = {
