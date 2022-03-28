@@ -8,6 +8,7 @@ import scalapb.options.Scalapb
 import scala.collection.JavaConverters._
 import scala.util.Try
 import higherkindness.mu.rpc.srcgen.Model.CompressionTypeGen
+import higherkindness.mu.rpc.srcgen.service.MuServiceParams
 
 /**
  * A source generator to generate Mu service traits from protobuf definitions.

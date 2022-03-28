@@ -5,6 +5,7 @@ import com.google.protobuf.Descriptors._
 import scalapb.compiler.{DescriptorImplicits, FunctionalPrinter}
 import scala.collection.JavaConverters._
 import scala.meta.prettyprinters.Syntax
+import higherkindness.mu.rpc.srcgen.service._
 
 /**
  * A printer that generates a Mu service trait based on a protobuf ServiceDescriptor
@@ -64,8 +65,21 @@ class MuServicePrinter(
   }
 
   private def printObject(fp: FunctionalPrinter): FunctionalPrinter = {
+    val serviceDefn = ServiceDefn(
+      service.getName,
+      service.getFullName,
+      service.methods.toList.map(md =>
+        MethodDefn(
+          md.getName,
+          FullyQualified(md.getInputType.scalaType.fullNameWithMaybeRoot),
+          FullyQualified(md.getOutputType.scalaType.fullNameWithMaybeRoot),
+          md.isClientStreaming,
+          md.isServerStreaming
+        )
+      )
+    )
     // TODO set scala3 flag based on scalaBinaryVersion
-    val generator = new CompanionObjectGenerator(service, params, implicits, scala3 = false)
+    val generator = new CompanionObjectGenerator(serviceDefn, params, scala3 = false)
     val tree      = generator.generateTree
     println("Companion object:")
     println(tree.show[Syntax])

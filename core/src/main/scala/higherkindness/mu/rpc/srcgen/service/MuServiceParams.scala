@@ -1,4 +1,4 @@
-package higherkindness.mu.rpc.srcgen.proto
+package higherkindness.mu.rpc.srcgen.service
 
 import higherkindness.mu.rpc.srcgen.Model.CompressionTypeGen
 

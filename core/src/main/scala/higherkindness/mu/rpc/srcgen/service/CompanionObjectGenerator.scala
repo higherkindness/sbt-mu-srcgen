@@ -1,31 +1,27 @@
 // vim: set foldmethod=marker
-package higherkindness.mu.rpc.srcgen.proto
+package higherkindness.mu.rpc.srcgen.service
 
-import com.google.protobuf.Descriptors._
-import scalapb.compiler.DescriptorImplicits
 import scala.meta._
 import higherkindness.mu.rpc.srcgen.Model.GzipGen
 import higherkindness.mu.rpc.srcgen.Model.NoCompressionGen
 
 class CompanionObjectGenerator(
-    service: ServiceDescriptor,
+    service: ServiceDefn,
     params: MuServiceParams,
-    implicits: DescriptorImplicits,
     scala3: Boolean
 ) {
-  import implicits._
 
-  private val fullServiceName =
+  private val fullServiceName: String =
     if (params.idiomaticEndpoints)
-      service.getFullName
+      service.fullName
     else
-      service.getName
+      service.name
 
   def generateTree: Defn.Object =
     q"""
-    object ${Term.Name(service.getName)} {
+    object ${Term.Name(service.name)} {
 
-      ..${service.methods.toList.map(methodDescriptorValDef)}
+      ..${service.methods.map(methodDescriptorValDef)}
 
       $bindService
 
@@ -46,20 +42,20 @@ class CompanionObjectGenerator(
     }
     """
 
-  def methodDescriptorValName(md: MethodDescriptor): Term.Name =
-    Term.Name(s"${md.getName}MethodDescriptor")
+  def methodDescriptorValName(md: MethodDefn): Term.Name =
+    Term.Name(s"${md.name}MethodDescriptor")
 
-  def inputType(md: MethodDescriptor): Type =
-    md.getInputType.scalaType.fullNameWithMaybeRoot.parse[Type].get
+  def inputType(md: MethodDefn): Type =
+    md.in.tpe.parse[Type].get
 
-  def outputType(md: MethodDescriptor): Type =
-    md.getOutputType.scalaType.fullNameWithMaybeRoot.parse[Type].get
+  def outputType(md: MethodDefn): Type =
+    md.out.tpe.parse[Type].get
 
-  def methodDescriptorValDef(md: MethodDescriptor): Defn.Val = {
+  def methodDescriptorValDef(md: MethodDefn): Defn.Val = {
     val in: Type  = inputType(md)
     val out: Type = outputType(md)
 
-    val methodType = (md.isClientStreaming, md.isServerStreaming) match {
+    val methodType = (md.clientStreaming, md.serverStreaming) match {
       case (false, false) => "UNARY"
       case (true, false)  => "CLIENT_STREAMING"
       case (false, true)  => "SERVER_STREAMING"
@@ -70,28 +66,29 @@ class CompanionObjectGenerator(
     q"""
     val $valName: _root_.io.grpc.MethodDescriptor[$in, $out] =
       _root_.io.grpc.MethodDescriptor.newBuilder(
+        // Note: marshallers hardcoded to protobuf for now
         _root_.scalapb.grpc.Marshaller.forMessage[$in],
         _root_.scalapb.grpc.Marshaller.forMessage[$out]
       )
       .setType(_root_.io.grpc.MethodDescriptor.MethodType.${Term.Name(methodType)})
-      .setFullMethodName(_root_.io.grpc.MethodDescriptor.generateFullMethodName($fullServiceName, ${md.getName}))
+      .setFullMethodName(_root_.io.grpc.MethodDescriptor.generateFullMethodName($fullServiceName, ${md.name}))
       .build()
     """
   }
 
   def bindService: Defn.Def = {
-    def methodCall(md: MethodDescriptor): Term.Tuple = {
+    def methodCall(md: MethodDefn): Term.Tuple = {
       val in: Type  = inputType(md)
       val out: Type = outputType(md)
       val compression: Term.Select = params.compressionType match {
         case GzipGen          => q"_root_.higherkindness.mu.rpc.protocol.Gzip"
         case NoCompressionGen => q"_root_.higherkindness.mu.rpc.protocol.Identity"
       }
-      val algebraMethod = Term.Name(md.getName)
+      val algebraMethod = Term.Name(md.name)
 
       // a curse on @Daenyth for making the argument order inconsistent between
       // server.handlers and server.fs2.handlers :D
-      val serverCallHandler = (md.isClientStreaming, md.isServerStreaming) match {
+      val serverCallHandler = (md.clientStreaming, md.serverStreaming) match {
         case (false, false) =>
           q"""
           _root_.higherkindness.mu.rpc.internal.server.handlers.unary[F, $in, $out](
@@ -133,13 +130,13 @@ class CompanionObjectGenerator(
       q"""
       _root_.cats.effect.std.Dispatcher[F].evalMap { disp =>
         _root_.higherkindness.mu.rpc.internal.service.GRPCServiceDefBuilder.build[F](
-          ${service.getFullName},
+          ${service.fullName},
           ..${service.methods.toList.map(methodCall)}
         )
       }
       """
 
-    val serviceTypeName = Type.Name(service.getName)
+    val serviceTypeName = Type.Name(service.name)
 
     if (scala3) {
       import scala.meta.dialects.Scala3
@@ -154,16 +151,16 @@ class CompanionObjectGenerator(
   }
 
   def bindContextService: Defn.Def = {
-    def methodCall(md: MethodDescriptor): Term.Tuple = {
+    def methodCall(md: MethodDefn): Term.Tuple = {
       val in: Type  = inputType(md)
       val out: Type = outputType(md)
       val compression: Term.Select = params.compressionType match {
         case GzipGen          => q"_root_.higherkindness.mu.rpc.protocol.Gzip"
         case NoCompressionGen => q"_root_.higherkindness.mu.rpc.protocol.Identity"
       }
-      val algebraMethod = Term.Name(md.getName)
+      val algebraMethod = Term.Name(md.name)
 
-      val serverCallHandler = (md.isClientStreaming, md.isServerStreaming) match {
+      val serverCallHandler = (md.clientStreaming, md.serverStreaming) match {
         case (false, false) =>
           q"""
           _root_.higherkindness.mu.rpc.internal.server.handlers.contextUnary[F, Context, $in, $out](
@@ -209,13 +206,13 @@ class CompanionObjectGenerator(
       q"""
       _root_.cats.effect.std.Dispatcher[F].evalMap { disp =>
         _root_.higherkindness.mu.rpc.internal.service.GRPCServiceDefBuilder.build[F](
-          ${service.getFullName},
+          ${service.fullName},
           ..${service.methods.toList.map(methodCall)}
         )
       }
       """
 
-    val serviceTypeName = Type.Name(service.getName)
+    val serviceTypeName = Type.Name(service.name)
 
     if (scala3) {
       import scala.meta.dialects.Scala3
