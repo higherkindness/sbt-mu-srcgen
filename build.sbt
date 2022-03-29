@@ -20,10 +20,12 @@ lazy val core = project
       "io.higherkindness"    %% "skeuomorph"      % "0.1.3",
       "com.julianpeeters"    %% "avrohugger-core" % "1.0.0",
       "com.thesamet.scalapb" %% "compilerplugin"  % "0.11.10",
+      "org.scalameta"        %% "scalameta"       % "4.5.0",
       "org.scalatest"        %% "scalatest"       % "3.2.11"  % Test,
       "org.scalacheck"       %% "scalacheck"      % "1.15.4"  % Test,
       "org.scalatestplus"    %% "scalacheck-1-14" % "3.2.2.0" % Test,
-      "org.slf4j"             % "slf4j-nop"       % "1.7.36"  % Test
+      "org.slf4j"             % "slf4j-nop"       % "1.7.36"  % Test,
+      "org.scalameta"        %% "contrib"         % "4.1.6"   % Test
     ),
     buildInfoPackage := "higherkindness.mu.rpc.srcgen",
     buildInfoKeys := Seq[BuildInfoKey](

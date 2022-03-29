@@ -8,6 +8,7 @@ import scalapb.options.Scalapb
 import scala.collection.JavaConverters._
 import scala.util.Try
 import higherkindness.mu.rpc.srcgen.Model.CompressionTypeGen
+import higherkindness.mu.rpc.srcgen.service.MuServiceParams
 
 /**
  * A source generator to generate Mu service traits from protobuf definitions.
@@ -52,12 +53,13 @@ object MuServiceGenerator extends CodeGenApp {
   private def parseMuParams(params: Seq[String]): Either[Throwable, MuServiceParams] =
     for {
       _ <- Either.cond(
-        params.size == 2,
+        params.size == 3,
         (),
-        new IllegalArgumentException(s"Expected exactly 2 arguments, got: $params")
+        new IllegalArgumentException(s"Expected exactly 3 arguments, got: $params")
       )
       idiomaticEndpoints <- Try(params(0).toBoolean).toEither
       compressionType    <- CompressionTypeGen.fromString(params(1))
-    } yield MuServiceParams(idiomaticEndpoints, compressionType)
+      scala3             <- Try(params(2).toBoolean).toEither
+    } yield MuServiceParams(idiomaticEndpoints, compressionType, scala3)
 
 }

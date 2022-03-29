@@ -4,6 +4,8 @@ import com.google.protobuf.compiler.PluginProtos.CodeGeneratorResponse
 import com.google.protobuf.Descriptors._
 import scalapb.compiler.{DescriptorImplicits, FunctionalPrinter}
 import scala.collection.JavaConverters._
+import scala.meta.prettyprinters.Syntax
+import higherkindness.mu.rpc.srcgen.service._
 
 /**
  * A printer that generates a Mu service trait based on a protobuf ServiceDescriptor
@@ -22,38 +24,19 @@ class MuServicePrinter(
     b.build()
   }
 
-  /*
-   * Ideally we should avoid imports and use fully-qualified names everywhere,
-   * but the @service macro requires the serialization type (e.g. `Protobuf`)
-   * to be unqualified.
-   */
-  private val imports = List(
-    "import _root_.higherkindness.mu.rpc.protocol._"
-  )
-
   def content: String = {
     val fp = new FunctionalPrinter()
       .add(s"package ${service.getFile.scalaPackage.fullName}")
       .add("")
-      .add(imports: _*)
-      .add("")
       .call(printTrait)
+      .add("")
+      .call(printObject)
 
     fp.result()
   }
 
   private def printTrait(fp: FunctionalPrinter): FunctionalPrinter = {
-    val namespace =
-      if (params.idiomaticEndpoints) {
-        s"""Some("${service.getFile.getPackage}")"""
-      } else {
-        "None"
-      }
-
     fp
-      .add(
-        s"@service(Protobuf, compressionType = ${params.compressionType}, namespace = $namespace)"
-      )
       .add(s"trait ${service.name}[F[_]] {")
       .indented(
         _.print(service.getMethods.asScala)(printMethod)
@@ -79,6 +62,25 @@ class MuServicePrinter(
       }
 
     fp.add(s"def ${method.getName}(req: $reqType): F[$respType]")
+  }
+
+  private def printObject(fp: FunctionalPrinter): FunctionalPrinter = {
+    val serviceDefn = ServiceDefn(
+      service.getName,
+      service.getFullName,
+      service.methods.toList.map(md =>
+        MethodDefn(
+          md.getName,
+          FullyQualified(md.getInputType.scalaType.fullNameWithMaybeRoot),
+          FullyQualified(md.getOutputType.scalaType.fullNameWithMaybeRoot),
+          md.isClientStreaming,
+          md.isServerStreaming
+        )
+      )
+    )
+    val generator = new CompanionObjectGenerator(serviceDefn, params)
+    val tree      = generator.generateTree
+    fp.add(tree.show[Syntax])
   }
 
 }
