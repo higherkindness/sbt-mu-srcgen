@@ -18,8 +18,6 @@ package higherkindness.mu.rpc
 
 import cats.data.ValidatedNel
 
-import higherkindness.mu.rpc.protocol.{Avro, AvroWithSchema, Custom, Protobuf, SerializationType}
-
 package object srcgen {
 
   val DefaultRequestParamName = "arg"
@@ -29,13 +27,5 @@ package object srcgen {
   type ErrorsOr[A] = ValidatedNel[Error, A]
 
   val ScalaFileExtension = ".scala"
-
-  val serializationTypes: Map[String, SerializationType] =
-    Map(
-      "Protobuf"       -> Protobuf,
-      "Avro"           -> Avro,
-      "AvroWithSchema" -> AvroWithSchema,
-      "Custom"         -> Custom
-    )
 
 }
