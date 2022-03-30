@@ -6,10 +6,11 @@ lazy val domain = project
   .in(file("domain"))
   .enablePlugins(SrcGenPlugin)
   .settings(
-    organization := "foo.bar.srcgenfromjars2",
-    name         := "domain",
-    scalaVersion := "2.13.8",
-    version      := "1.0.0-SNAPSHOT",
+    organization  := "foo.bar.srcgenfromjars2",
+    name          := "domain",
+    scalaVersion  := "2.13.8",
+    scalacOptions += "-Ymacro-annotations",
+    version       := "1.0.0-SNAPSHOT",
     Compile / packageBin / mappings ~= { _.filter(!_._1.getName.endsWith(".class")) },
     muSrcGenIdlType    := IdlType.Avro,
     muSrcGenSourceDirs := Seq(baseDirectory.value / "src/main/avro"),
@@ -25,6 +26,7 @@ lazy val root = project
   .settings(
     name                 := "root",
     scalaVersion         := "2.13.8",
+    scalacOptions        += "-Ymacro-annotations",
     version              := sys.props("version"),
     muSrcGenIdlType      := IdlType.Avro,
     muSrcGenJarNames     := Seq("domain"),

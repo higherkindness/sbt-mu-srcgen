@@ -1,10 +1,10 @@
 $ exists src/main/resources/model.avdl
 > 'set muSrcGenIdlType := higherkindness.mu.rpc.srcgen.Model.IdlType.Avro'
 > muSrcGen
-$ exists target/scala-2.12/src_managed/main/foo/model.scala
+$ exists target/scala-2.13/src_managed/main/foo/model.scala
 > compile
 > 'set muSrcGenAvroGeneratorType := higherkindness.mu.rpc.srcgen.Model.AvrohuggerGen'
 > clean
 > muSrcGen
-$ exists target/scala-2.12/src_managed/main/foo/model.scala
+$ exists target/scala-2.13/src_managed/main/foo/model.scala
 > compile

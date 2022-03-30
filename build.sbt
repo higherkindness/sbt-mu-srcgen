@@ -9,7 +9,7 @@ addCommandAlias("ci-docs", "github; mdoc; headerCreateAll")
 addCommandAlias("ci-publish", "github; ci-release")
 
 ThisBuild / resolvers += Resolver.sonatypeRepo("snapshots")
-lazy val muV = "0.28.0+28-c32576e2-SNAPSHOT" // TODO update when mu-scala is released
+lazy val muV = "0.28.0+34-effa638e-SNAPSHOT" // TODO update when mu-scala is released
 
 lazy val core = project
   .enablePlugins(BuildInfoPlugin)
@@ -19,7 +19,7 @@ lazy val core = project
       "io.higherkindness"    %% "skeuomorph"      % "0.1.3",
       "com.julianpeeters"    %% "avrohugger-core" % "1.0.0",
       "com.thesamet.scalapb" %% "compilerplugin"  % "0.11.10",
-      "org.scalameta"        %% "scalameta"       % "4.5.0",
+      "org.scalameta"        %% "scalameta"       % "4.5.1",
       "org.scalatest"        %% "scalatest"       % "3.2.11"  % Test,
       "org.scalacheck"       %% "scalacheck"      % "1.15.4"  % Test,
       "org.scalatestplus"    %% "scalacheck-1-14" % "3.2.2.0" % Test,
