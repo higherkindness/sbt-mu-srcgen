@@ -515,7 +515,7 @@ class CompanionObjectGeneratorSpec extends AnyFunSpec {
       // as implicit (usually every param in the list would have the implicit modifier).
       // So we need to remove the implicit modifier from the corresponding param in
       // our expected tree to make the trees match.
-      val ce :: clientContext :: Nil = expected.ctor.paramss(1)
+      val ce :: clientContext :: Nil    = expected.ctor.paramss(1)
       val secondParamListWithWorkaround = ce :: clientContext.copy(mods = Nil) :: Nil
 
       val expectedWithWorkaround = expected.copy(
@@ -598,7 +598,7 @@ class CompanionObjectGeneratorSpec extends AnyFunSpec {
       // as 'using' (usually every param in the list would have the 'using' modifier).
       // So we need to remove the 'using' modifier from the corresponding param in
       // our expected tree to make the trees match.
-      val ce :: clientContext :: Nil = expected.ctor.paramss(1)
+      val ce :: clientContext :: Nil    = expected.ctor.paramss(1)
       val secondParamListWithWorkaround = ce :: clientContext.copy(mods = Nil) :: Nil
 
       val expectedWithWorkaround = expected.copy(
