@@ -420,9 +420,7 @@ class CompanionObjectGenerator(
       options: _root_.io.grpc.CallOptions = _root_.io.grpc.CallOptions.DEFAULT
     )(
       $implicitOrUsingCE,
-      ${implicitOrUsing(
-        param"clientContext: _root_.higherkindness.mu.rpc.internal.context.ClientContext[F, Context]"
-      )}
+      clientContext: _root_.higherkindness.mu.rpc.internal.context.ClientContext[F, Context]
     ) extends _root_.io.grpc.stub.AbstractStub[ContextClient[F, Context]](channel, options)
       with ($serviceTypeName[$kleisliTypeLambda]) {
 
