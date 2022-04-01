@@ -1,0 +1,23 @@
+package foo
+
+import higherkindness.mu.rpc.internal.encoders.avro.bigDecimalTagged._
+import higherkindness.mu.rpc.internal.encoders.avro.javatime._
+import higherkindness.mu.rpc.protocol._
+
+
+
+
+
+sealed trait model
+
+sealed trait Suit extends model
+
+object Suit {
+  case object SPADES extends Suit
+  case object HEARTS extends Suit
+  case object DIAMONDS extends Suit
+  case object CLUBS extends Suit
+}
+
+final case class Thing(id: java.util.UUID, name: String, optionalString: Option[String], intStringOrBoolean: Int :+: String :+: Boolean :+: CNil, suit: Suit, price: @@[scala.math.BigDecimal, (shapeless.Nat._6, shapeless.Nat._2)], theDate: java.time.LocalDate, theTimeInMillis: Int) extends model
+

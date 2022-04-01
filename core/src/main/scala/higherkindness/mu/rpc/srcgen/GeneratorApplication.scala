@@ -16,14 +16,18 @@
 
 package higherkindness.mu.rpc.srcgen
 
-import java.io.File
 
-import FileUtil._
-import cats.data.{NonEmptyList, ValidatedNel}
 import higherkindness.mu.rpc.srcgen.Model.{IdlType, SerializationType}
+import higherkindness.mu.rpc.srcgen.avro.rewrites.RemoveShapelessImports
+import cats.data.{NonEmptyList, ValidatedNel}
 import cats.data.Validated.Invalid
 import cats.data.Validated.Valid
 import cats.implicits._
+import scalafix.interfaces.Scalafix
+
+import java.io.File
+import java.nio.file.Files
+import scala.jdk.CollectionConverters._
 
 class GeneratorApplication[T <: Generator](generators: T*) {
   // Code covered by plugin tests
@@ -60,11 +64,13 @@ class GeneratorApplication[T <: Generator](generators: T*) {
             s"One or more IDL files are invalid. Error details:\n $formattedErrorMessage"
           )
         case Valid(outputFiles) =>
-          outputFiles.map { case (outputFile, content) =>
+          val files = outputFiles.map { case (outputFile, content) =>
             Option(outputFile.getParentFile).foreach(_.mkdirs())
-            outputFile.write(content)
+            Files.write(outputFile.toPath, content.asJava)
             outputFile
           }
+          applyRewrites(files)
+          files
       }
     case None =>
       System.out.println(
@@ -72,6 +78,22 @@ class GeneratorApplication[T <: Generator](generators: T*) {
           s"Valid values: ${generatorsByType.keys.mkString(", ")}"
       )
       Seq.empty[File]
+  }
+
+  private def applyRewrites(files: Seq[File]): Unit = {
+    println(s"Applying Scalafix rewrites to $files")
+    // TODO descend into classloader hell
+    val scalafix = Scalafix.classloadInstance(classOf[RemoveShapelessImports].getClassLoader)
+    //val scalafix = Scalafix.fetchAndClassloadInstance(BuildInfo.scalaBinaryVersion)
+    val errors = scalafix.newArguments
+      .withWorkingDirectory(files.head.toPath.getParent)
+      .withPaths(files.map(_.toPath).asJava)
+      .withRules(List("class:higherkindness.mu.rpc.srcgen.avro.rewrites.RemoveShapelessImports").asJava)
+      .run()
+
+    errors.foreach(e => println(s"Scalafix error: $e"))
+
+    println("Scalafix rewrites done")
   }
 
   // $COVERAGE-ON$

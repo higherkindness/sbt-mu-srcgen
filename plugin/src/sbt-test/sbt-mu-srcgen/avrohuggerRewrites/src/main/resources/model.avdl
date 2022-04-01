@@ -1,0 +1,22 @@
+@namespace("foo")
+protocol model {
+
+  enum Suit {
+    SPADES,
+    HEARTS,
+    DIAMONDS,
+    CLUBS
+  }
+
+  record Thing {
+    uuid id;
+    string name;
+    union { null, string } optionalString;
+    union { int, string, boolean } intStringOrBoolean;
+    Suit suit;
+    decimal(6,2) price;
+    date theDate;
+    time_ms theTimeInMillis;
+  }
+
+}

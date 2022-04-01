@@ -42,7 +42,7 @@ final case class LegacyAvroSrcGenerator(
     case ScalaBigDecimalGen       => ScalaBigDecimal(None)
     case ScalaBigDecimalTaggedGen => ScalaBigDecimalWithPrecision(None)
   }
-  private val avroScalaCustomTypes = Standard.defaultTypes.copy(decimal = avroBigDecimal)
+  private val avroScalaCustomTypes = Standard.defaultTypes.copy(enum = ScalaCaseObjectEnum, decimal = avroBigDecimal)
   private val mainGenerator =
     avrohugger.Generator(Standard, avroScalaCustomTypes = Some(avroScalaCustomTypes))
 
