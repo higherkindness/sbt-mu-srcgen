@@ -2,5 +2,5 @@ $ exists src/main/resources/greeter.avdl
 > 'set muSrcGenIdlType := higherkindness.mu.rpc.srcgen.Model.IdlType.Avro'
 > 'set muSrcGenSerializationType := higherkindness.mu.rpc.srcgen.Model.SerializationType.AvroWithSchema'
 -> muSrcGen
--$ exists target/scala-2.12/src_managed/main/io/higherkindness/Greeter.scala
+-$ exists target/scala-2.13/src_managed/main/io/higherkindness/Greeter.scala
 -> compile

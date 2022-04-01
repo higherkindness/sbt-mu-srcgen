@@ -9,14 +9,13 @@ addCommandAlias("ci-docs", "github; mdoc; headerCreateAll")
 addCommandAlias("ci-publish", "github; ci-release")
 
 ThisBuild / resolvers += Resolver.sonatypeRepo("snapshots")
-lazy val muV = "0.28.0+28-c32576e2-SNAPSHOT" // TODO update when mu-scala is released
+lazy val muV = "0.28.0+34-effa638e-SNAPSHOT" // TODO update when mu-scala is released
 
 lazy val core = project
   .enablePlugins(BuildInfoPlugin)
   .settings(moduleName := "mu-srcgen-core")
   .settings(
     libraryDependencies ++= Seq(
-      "io.higherkindness"    %% "mu-rpc-service"  % muV,
       "io.higherkindness"    %% "skeuomorph"      % "0.1.3",
       "com.julianpeeters"    %% "avrohugger-core" % "1.0.0",
       "com.thesamet.scalapb" %% "compilerplugin"  % "0.11.10",

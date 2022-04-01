@@ -21,7 +21,6 @@ import java.io.File
 import FileUtil._
 import cats.data.{NonEmptyList, ValidatedNel}
 import higherkindness.mu.rpc.srcgen.Model.{IdlType, SerializationType}
-import org.log4s.getLogger
 import cats.data.Validated.Invalid
 import cats.data.Validated.Valid
 import cats.implicits._
@@ -29,8 +28,6 @@ import cats.implicits._
 class GeneratorApplication[T <: Generator](generators: T*) {
   // Code covered by plugin tests
   // $COVERAGE-OFF$
-
-  private[this] val logger = getLogger
 
   private val generatorsByType = generators.map(gen => gen.idlType -> gen).toMap
 
@@ -47,9 +44,8 @@ class GeneratorApplication[T <: Generator](generators: T*) {
           .traverse {
             case Generator.Result(inputFile, Invalid(readErrors)) =>
               (inputFile, readErrors).invalidNel
-            case Generator.Result(inputFile, Valid(Generator.Output(path, content))) =>
+            case Generator.Result(_, Valid(Generator.Output(path, content))) =>
               val outputFile = new File(outputDir, path.toString)
-              logger.info(s"$inputFile -> $outputFile")
               (outputFile, content).validNel
           }
       result match {

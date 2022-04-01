@@ -508,7 +508,23 @@ class CompanionObjectGeneratorSpec extends AnyFunSpec {
         }
         """
 
-      compare(tree, expected)
+      // We have to fiddle with the second param in the implicit params list
+      // to work around https://github.com/scalameta/scalameta/issues/2699.
+      //
+      // The workaround in CompanionObjectGenerator is to mark only the first param
+      // as implicit (usually every param in the list would have the implicit modifier).
+      // So we need to remove the implicit modifier from the corresponding param in
+      // our expected tree to make the trees match.
+      val ce :: clientContext :: Nil    = expected.ctor.paramss(1)
+      val secondParamListWithWorkaround = ce :: clientContext.copy(mods = Nil) :: Nil
+
+      val expectedWithWorkaround = expected.copy(
+        ctor = expected.ctor.copy(
+          paramss = expected.ctor.paramss.head :: secondParamListWithWorkaround :: Nil
+        )
+      )
+
+      compare(tree, expectedWithWorkaround)
     }
 
     it("generates a ContextClient class with Scala 3 syntax") {
@@ -575,7 +591,23 @@ class CompanionObjectGeneratorSpec extends AnyFunSpec {
         """
       }
 
-      compare(tree, expected)
+      // We have to fiddle with the second param in the 'using' params list
+      // to work around https://github.com/scalameta/scalameta/issues/2699
+      //
+      // The workaround in CompanionObjectGenerator is to mark only the first param
+      // as 'using' (usually every param in the list would have the 'using' modifier).
+      // So we need to remove the 'using' modifier from the corresponding param in
+      // our expected tree to make the trees match.
+      val ce :: clientContext :: Nil    = expected.ctor.paramss(1)
+      val secondParamListWithWorkaround = ce :: clientContext.copy(mods = Nil) :: Nil
+
+      val expectedWithWorkaround = expected.copy(
+        ctor = expected.ctor.copy(
+          paramss = expected.ctor.paramss.head :: secondParamListWithWorkaround :: Nil
+        )
+      )
+
+      compare(tree, expectedWithWorkaround)
     }
 
     it("generates a contextClient method with Scala 2 syntax") {
