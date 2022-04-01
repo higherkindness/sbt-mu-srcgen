@@ -1,6 +1,5 @@
 version := sys.props("version")
-scalaVersion := "2.13.8"
-scalacOptions += "-Ymacro-annotations"
+scalaVersion := "3.1.1"
 
 enablePlugins(SrcGenPlugin)
 

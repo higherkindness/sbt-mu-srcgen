@@ -1,10 +1,6 @@
 package foo
 
-import higherkindness.mu.rpc.internal.encoders.avro.bigDecimalTagged._
-import higherkindness.mu.rpc.internal.encoders.avro.javatime._
 import higherkindness.mu.rpc.protocol._
-
-
 
 
 
@@ -19,5 +15,5 @@ object Suit {
   case object CLUBS extends Suit
 }
 
-final case class Thing(id: java.util.UUID, name: String, optionalString: Option[String], intStringOrBoolean: Int :+: String :+: Boolean :+: CNil, suit: Suit, price: @@[scala.math.BigDecimal, (shapeless.Nat._6, shapeless.Nat._2)], theDate: java.time.LocalDate, theTimeInMillis: Int) extends model
+final case class Thing(id: java.util.UUID, name: String, optionalString: Option[String], intStringOrBoolean: _root_.higherkindness.mu.rpc.avro.AvroUnion3[Int, String, Boolean], suit: Suit, price: BigDecimal, theDate: java.time.LocalDate, theTimeInMillis: Int) extends model
 

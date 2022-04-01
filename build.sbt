@@ -9,7 +9,7 @@ addCommandAlias("ci-docs", "github; mdoc; headerCreateAll")
 addCommandAlias("ci-publish", "github; ci-release")
 
 ThisBuild / resolvers += Resolver.sonatypeRepo("snapshots")
-lazy val muV = "0.28.0+34-effa638e-SNAPSHOT" // TODO update when mu-scala is released
+lazy val muV = "0.28.0+37-6ddee869+20220401-1613-SNAPSHOT" // TODO update when mu-scala is released
 
 lazy val core = project
   .enablePlugins(BuildInfoPlugin)

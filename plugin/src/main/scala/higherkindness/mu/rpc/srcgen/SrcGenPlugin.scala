@@ -80,12 +80,6 @@ object SrcGenPlugin extends AutoPlugin {
           "in subpackages based on the namespaces declared in the IDL files."
       )
 
-    lazy val muSrcGenBigDecimal: SettingKey[BigDecimalTypeGen] =
-      settingKey[BigDecimalTypeGen](
-        "The Scala generated type for `decimals`. Possible values are `ScalaBigDecimalGen` and `ScalaBigDecimalTaggedGen`" +
-          "The difference is that `ScalaBigDecimalTaggedGen` will append the 'precision' and the 'scale' as tagged types, i.e. `scala.math.BigDecimal @@ (Nat._8, Nat._2)`"
-      )
-
     lazy val muSrcGenMarshallerImports: SettingKey[List[MarshallersImport]] =
       settingKey[List[MarshallersImport]](
         "List of imports needed for creating the request/response marshallers. " +
@@ -131,15 +125,10 @@ object SrcGenPlugin extends AutoPlugin {
     muSrcGenSourceDirs        := Seq((Compile / resourceDirectory).value),
     muSrcGenIdlTargetDir := (Compile / resourceManaged).value / muSrcGenIdlType.value.toString.toLowerCase,
     muSrcGenTargetDir  := (Compile / sourceManaged).value,
-    muSrcGenBigDecimal := ScalaBigDecimalTaggedGen,
     muSrcGenMarshallerImports := {
       muSrcGenSerializationType.value match {
         case SerializationType.Avro | SerializationType.AvroWithSchema =>
-          val bigDecimal = muSrcGenBigDecimal.value match {
-            case ScalaBigDecimalGen       => BigDecimalAvroMarshallers
-            case ScalaBigDecimalTaggedGen => BigDecimalTaggedAvroMarshallers
-          }
-          List(bigDecimal, JavaTimeDateAvroMarshallers)
+          Nil
         case SerializationType.Protobuf =>
           List(BigDecimalProtobufMarshallers, JavaTimeDateProtobufMarshallers)
         case _ =>
@@ -189,7 +178,6 @@ object SrcGenPlugin extends AutoPlugin {
                 SrcGenApplication(
                   muSrcGenAvroGeneratorType.value,
                   muSrcGenMarshallerImports.value,
-                  muSrcGenBigDecimal.value,
                   muSrcGenCompressionType.value,
                   muSrcGenIdiomaticEndpoints.value
                 ),

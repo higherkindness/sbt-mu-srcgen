@@ -80,6 +80,11 @@ class GeneratorApplication[T <: Generator](generators: T*) {
       Seq.empty[File]
   }
 
+  private val rules = List(
+    "class:higherkindness.mu.rpc.srcgen.avro.rewrites.RemoveShapelessImports",
+    "class:higherkindness.mu.rpc.srcgen.avro.rewrites.ReplaceShapelessCoproduct",
+  )
+
   private def applyRewrites(files: Seq[File]): Unit = {
     println(s"Applying Scalafix rewrites to $files")
     // TODO descend into classloader hell
@@ -88,7 +93,7 @@ class GeneratorApplication[T <: Generator](generators: T*) {
     val errors = scalafix.newArguments
       .withWorkingDirectory(files.head.toPath.getParent)
       .withPaths(files.map(_.toPath).asJava)
-      .withRules(List("class:higherkindness.mu.rpc.srcgen.avro.rewrites.RemoveShapelessImports").asJava)
+      .withRules(rules.asJava)
       .run()
 
     errors.foreach(e => println(s"Scalafix error: $e"))
