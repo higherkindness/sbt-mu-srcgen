@@ -9,10 +9,10 @@ sealed trait model
 sealed trait Suit extends model
 
 object Suit {
-  case object SPADES extends Suit
-  case object HEARTS extends Suit
-  case object DIAMONDS extends Suit
-  case object CLUBS extends Suit
+  @_root_.com.sksamuel.avro4s.AvroSortPriority(0) case object SPADES extends Suit
+  @_root_.com.sksamuel.avro4s.AvroSortPriority(1) case object HEARTS extends Suit
+  @_root_.com.sksamuel.avro4s.AvroSortPriority(2) case object DIAMONDS extends Suit
+  @_root_.com.sksamuel.avro4s.AvroSortPriority(3) case object CLUBS extends Suit
 }
 
 final case class A(a: String) extends model

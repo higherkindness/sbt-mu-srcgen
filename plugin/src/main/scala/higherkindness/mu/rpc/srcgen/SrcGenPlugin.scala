@@ -124,7 +124,7 @@ object SrcGenPlugin extends AutoPlugin {
     muSrcGenJarNames          := Seq.empty,
     muSrcGenSourceDirs        := Seq((Compile / resourceDirectory).value),
     muSrcGenIdlTargetDir := (Compile / resourceManaged).value / muSrcGenIdlType.value.toString.toLowerCase,
-    muSrcGenTargetDir  := (Compile / sourceManaged).value,
+    muSrcGenTargetDir := (Compile / sourceManaged).value,
     muSrcGenMarshallerImports := {
       muSrcGenSerializationType.value match {
         case SerializationType.Avro | SerializationType.AvroWithSchema =>

@@ -16,7 +16,6 @@
 
 package higherkindness.mu.rpc.srcgen
 
-
 import higherkindness.mu.rpc.srcgen.Model.{IdlType, SerializationType}
 import cats.data.{NonEmptyList, ValidatedNel}
 import cats.data.Validated.Invalid
@@ -68,6 +67,8 @@ class GeneratorApplication[T <: Generator](generators: T*) {
             Files.write(outputFile.toPath, content.asJava)
             outputFile
           }
+          // TODO pass in a flag to configure this, as we only want to
+          // apply the rewrites when generating Scala 3 code
           applyRewrites(files)
           files
       }
@@ -82,6 +83,7 @@ class GeneratorApplication[T <: Generator](generators: T*) {
   private val rules = List(
     "class:higherkindness.mu.rpc.srcgen.avro.rewrites.RemoveShapelessImports",
     "class:higherkindness.mu.rpc.srcgen.avro.rewrites.ReplaceShapelessCoproduct",
+    "class:higherkindness.mu.rpc.srcgen.avro.rewrites.AddAvroOrderingAnnotations"
   )
 
   private def applyRewrites(files: Seq[File]): Unit = {

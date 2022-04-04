@@ -9,6 +9,20 @@ class ReplaceShapelessCoproduct extends SyntacticRule("ReplaceShapelessCoproduct
   override def isRewrite: Boolean = true
 
   override def fix(implicit doc: SyntacticDocument): Patch = {
+    /*
+     * This rule rewrites shapeless Coproducts, e.g.
+     *
+     * {{{
+     * Int :+: String :+: MyRecord :+: CNil
+     * }}}
+     *
+     * to Mu's wrappers of Scala 3 union types:
+     *
+     * {{{
+     * AvroUnion3[String, Int, MyRecord]
+     * }}}
+     *
+     */
     doc.tree.collect {
       // format: off
 
