@@ -18,7 +18,6 @@ package higherkindness.mu.rpc.srcgen
 
 
 import higherkindness.mu.rpc.srcgen.Model.{IdlType, SerializationType}
-import higherkindness.mu.rpc.srcgen.avro.rewrites.RemoveShapelessImports
 import cats.data.{NonEmptyList, ValidatedNel}
 import cats.data.Validated.Invalid
 import cats.data.Validated.Valid
@@ -86,10 +85,7 @@ class GeneratorApplication[T <: Generator](generators: T*) {
   )
 
   private def applyRewrites(files: Seq[File]): Unit = {
-    println(s"Applying Scalafix rewrites to $files")
-    // TODO descend into classloader hell
-    val scalafix = Scalafix.classloadInstance(classOf[RemoveShapelessImports].getClassLoader)
-    //val scalafix = Scalafix.fetchAndClassloadInstance(BuildInfo.scalaBinaryVersion)
+    val scalafix = Scalafix.classloadInstance(getClass.getClassLoader)
     val errors = scalafix.newArguments
       .withWorkingDirectory(files.head.toPath.getParent)
       .withPaths(files.map(_.toPath).asJava)
@@ -97,8 +93,6 @@ class GeneratorApplication[T <: Generator](generators: T*) {
       .run()
 
     errors.foreach(e => println(s"Scalafix error: $e"))
-
-    println("Scalafix rewrites done")
   }
 
   // $COVERAGE-ON$
