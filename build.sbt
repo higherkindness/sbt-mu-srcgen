@@ -8,9 +8,6 @@ addCommandAlias("ci-test", "scalafmtCheckAll; scalafmtSbtCheck; test; publishLoc
 addCommandAlias("ci-docs", "github; mdoc; headerCreateAll")
 addCommandAlias("ci-publish", "github; ci-release")
 
-ThisBuild / resolvers += Resolver.sonatypeRepo("snapshots")
-lazy val muV = "0.28.0+37-6ddee869+20220401-1613-SNAPSHOT" // TODO update when mu-scala is released
-
 lazy val core = project
   .enablePlugins(BuildInfoPlugin)
   .settings(moduleName := "mu-srcgen-core")
@@ -40,6 +37,7 @@ lazy val core = project
     )
   )
 
+val muV = "0.28.0+38-89e943a4+20220404-1749-SNAPSHOT" // TODO update when mu-scala is released
 lazy val plugin = project
   .dependsOn(core)
   .settings(moduleName := "sbt-mu-srcgen")

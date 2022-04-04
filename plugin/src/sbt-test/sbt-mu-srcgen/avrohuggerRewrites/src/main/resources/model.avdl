@@ -8,15 +8,31 @@ protocol model {
     CLUBS
   }
 
+  record A {
+    string a;
+  }
+
+  record B {
+    string b;
+  }
+
+  record C {
+    string c;
+  }
+
   record Thing {
     uuid id;
     string name;
     union { null, string } optionalString;
-    union { int, string, boolean } intStringOrBoolean;
+    union { int, string } union2;
+    union { int, string, boolean } union3;
+    union { int, string, boolean, long } union4;
+    union { int, string, boolean, long, array<string> } union5;
+    union { int, string, boolean, long, array<string>, A } union6;
+    union { int, string, boolean, long, array<string>, A, B } union7;
+    union { int, string, boolean, long, array<string>, A, B, C } union8;
     Suit suit;
     decimal(6,2) price;
-    date theDate;
-    time_ms theTimeInMillis;
   }
 
 }
