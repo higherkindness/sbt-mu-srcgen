@@ -34,11 +34,12 @@ import scala.util.Right
 final case class LegacyAvroSrcGenerator(
     marshallersImports: List[MarshallersImport],
     compressionType: CompressionType = CompressionType.Identity,
-    useIdiomaticEndpoints: Boolean = true
+    useIdiomaticEndpoints: Boolean = true,
+    scala3: Boolean
 ) extends Generator {
 
   private val avroScalaCustomTypes = Standard.defaultTypes.copy(
-    enum = ScalaCaseObjectEnum,
+    enum = if (scala3) ScalaCaseObjectEnum else ScalaEnumeration,
     decimal = ScalaBigDecimal(None)
   )
   private val mainGenerator =

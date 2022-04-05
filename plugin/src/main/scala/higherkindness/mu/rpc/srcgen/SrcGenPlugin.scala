@@ -179,13 +179,13 @@ object SrcGenPlugin extends AutoPlugin {
                   muSrcGenAvroGeneratorType.value,
                   muSrcGenMarshallerImports.value,
                   muSrcGenCompressionType.value,
-                  muSrcGenIdiomaticEndpoints.value
+                  muSrcGenIdiomaticEndpoints.value,
+                  scala3 = scalaBinaryVersion.value.startsWith("3")
                 ),
                 muSrcGenIdlType.value,
                 muSrcGenSerializationType.value,
                 muSrcGenTargetDir.value,
-                target.value / "srcGen",
-                scala3 = scalaBinaryVersion.value.startsWith("3")
+                target.value / "srcGen"
               )(muSrcGenIdlTargetDir.value.allPaths.get.toSet).toSeq
           }
         }
@@ -336,12 +336,11 @@ object SrcGenPlugin extends AutoPlugin {
       idlType: IdlType,
       serializationType: SerializationType,
       targetDir: File,
-      cacheDir: File,
-      scala3: Boolean
+      cacheDir: File
   ): Set[File] => Set[File] =
     FileFunction.cached(cacheDir, FilesInfo.lastModified, FilesInfo.exists) {
       inputFiles: Set[File] =>
-        generator.generateSources(idlType, serializationType, inputFiles, targetDir, scala3).toSet
+        generator.generateSources(idlType, serializationType, inputFiles, targetDir).toSet
     }
 
   private def extractIDLDefinitionsFromJar(

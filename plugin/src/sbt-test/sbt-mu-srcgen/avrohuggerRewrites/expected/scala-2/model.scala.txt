@@ -6,13 +6,9 @@ import shapeless.{:+:, CNil}
 
 sealed trait model
 
-sealed trait Suit extends model
-
-object Suit {
-  case object SPADES extends Suit
-  case object HEARTS extends Suit
-  case object DIAMONDS extends Suit
-  case object CLUBS extends Suit
+final object Suit extends Enumeration with model {
+  type Suit = Value
+  val SPADES, HEARTS, DIAMONDS, CLUBS = Value
 }
 
 final case class A(a: String) extends model
@@ -21,5 +17,5 @@ final case class B(b: String) extends model
 
 final case class C(c: String) extends model
 
-final case class Thing(id: java.util.UUID, name: String, optionalString: Option[String], union2: Either[Int, String], union3: Int :+: String :+: Boolean :+: CNil, union4: Int :+: String :+: Boolean :+: Long :+: CNil, union5: Int :+: String :+: Boolean :+: Long :+: Seq[String] :+: CNil, union6: Int :+: String :+: Boolean :+: Long :+: Seq[String] :+: A :+: CNil, union7: Int :+: String :+: Boolean :+: Long :+: Seq[String] :+: A :+: B :+: CNil, union8: Int :+: String :+: Boolean :+: Long :+: Seq[String] :+: A :+: B :+: C :+: CNil, suit: Suit, price: BigDecimal) extends model
+final case class Thing(id: java.util.UUID, name: String, optionalString: Option[String], union2: Either[Int, String], union3: Int :+: String :+: Boolean :+: CNil, union4: Int :+: String :+: Boolean :+: Long :+: CNil, union5: Int :+: String :+: Boolean :+: Long :+: Seq[String] :+: CNil, union6: Int :+: String :+: Boolean :+: Long :+: Seq[String] :+: A :+: CNil, union7: Int :+: String :+: Boolean :+: Long :+: Seq[String] :+: A :+: B :+: CNil, union8: Int :+: String :+: Boolean :+: Long :+: Seq[String] :+: A :+: B :+: C :+: CNil, suit: Suit.Value, price: BigDecimal) extends model
 

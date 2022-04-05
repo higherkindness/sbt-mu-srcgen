@@ -106,8 +106,8 @@ class LegacyAvroSrcGenTests
       val actual :: Nil = {
         LegacyAvroSrcGenerator(
           List(BigDecimalAvroMarshallers),
-          ScalaBigDecimalTaggedGen,
-          CompressionType.Identity
+          CompressionType.Identity,
+          scala3 = false
         ).generateFrom(
           Set(new File(getClass.getResource("/avro/Invalid.avdl").toURI)),
           Avro
@@ -128,9 +128,9 @@ class LegacyAvroSrcGenTests
     val output =
       LegacyAvroSrcGenerator(
         scenario.marshallersImports,
-        ScalaBigDecimalTaggedGen,
         scenario.compressionType,
-        scenario.useIdiomaticEndpoints
+        scenario.useIdiomaticEndpoints,
+        scala3 = false
       ).generateFrom(
         scenario.inputResourcesPath.map(path => new File(getClass.getResource(path).toURI)),
         scenario.serializationType

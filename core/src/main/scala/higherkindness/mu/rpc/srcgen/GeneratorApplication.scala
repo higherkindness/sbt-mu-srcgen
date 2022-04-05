@@ -27,7 +27,7 @@ import java.io.File
 import java.nio.file.Files
 import scala.jdk.CollectionConverters._
 
-class GeneratorApplication(generators: Generator*) {
+class GeneratorApplication(scala3: Boolean, generators: Generator*) {
   // Code covered by plugin tests
   // $COVERAGE-OFF$
 
@@ -37,8 +37,7 @@ class GeneratorApplication(generators: Generator*) {
       idlType: IdlType,
       serializationType: SerializationType,
       inputFiles: Set[File],
-      outputDir: File,
-      scala3: Boolean
+      outputDir: File
   ): Seq[File] = generatorsByType.get(idlType) match {
     case Some(generator) =>
       val result: ValidatedNel[(File, NonEmptyList[Error]), List[(File, List[String])]] =
