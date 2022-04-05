@@ -27,7 +27,7 @@ object SrcGenApplication {
       marshallersImports: List[MarshallersImport],
       compressionTypeGen: CompressionTypeGen,
       useIdiomaticEndpoints: Boolean
-  ): GeneratorApplication[SrcGenerator] = {
+  ): GeneratorApplication = {
     val compressionType: CompressionType = compressionTypeGen match {
       case GzipGen          => CompressionType.Gzip
       case NoCompressionGen => CompressionType.Identity

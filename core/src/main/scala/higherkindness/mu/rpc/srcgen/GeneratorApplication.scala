@@ -27,17 +27,18 @@ import java.io.File
 import java.nio.file.Files
 import scala.jdk.CollectionConverters._
 
-class GeneratorApplication[T <: Generator](generators: T*) {
+class GeneratorApplication(generators: Generator*) {
   // Code covered by plugin tests
   // $COVERAGE-OFF$
 
   private val generatorsByType = generators.map(gen => gen.idlType -> gen).toMap
 
-  def generateFrom(
+  def generateSources(
       idlType: IdlType,
       serializationType: SerializationType,
       inputFiles: Set[File],
-      outputDir: File
+      outputDir: File,
+      scala3: Boolean
   ): Seq[File] = generatorsByType.get(idlType) match {
     case Some(generator) =>
       val result: ValidatedNel[(File, NonEmptyList[Error]), List[(File, List[String])]] =
@@ -67,9 +68,11 @@ class GeneratorApplication[T <: Generator](generators: T*) {
             Files.write(outputFile.toPath, content.asJava)
             outputFile
           }
-          // TODO pass in a flag to configure this, as we only want to
-          // apply the rewrites when generating Scala 3 code
-          applyRewrites(files)
+
+          if (scala3) {
+            applyRewrites(files)
+          }
+
           files
       }
     case None =>

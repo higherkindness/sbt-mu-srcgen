@@ -35,7 +35,7 @@ final case class LegacyAvroSrcGenerator(
     marshallersImports: List[MarshallersImport],
     compressionType: CompressionType = CompressionType.Identity,
     useIdiomaticEndpoints: Boolean = true
-) extends SrcGenerator {
+) extends Generator {
 
   private val avroScalaCustomTypes = Standard.defaultTypes.copy(
     enum = ScalaCaseObjectEnum,
