@@ -6,8 +6,8 @@ lazy val root = project
   .in(file("."))
   .enablePlugins(SrcGenPlugin)
   .settings(
-    name := "root",
-    version := "1.0.0",
+    name         := "root",
+    version      := "1.0.0",
     scalaVersion := "2.13.8",
     scalacOptions += "-Ymacro-annotations",
     muSrcGenIdlType := IdlType.Avro,
