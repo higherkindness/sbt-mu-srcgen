@@ -37,7 +37,7 @@ lazy val core = project
     )
   )
 
-val muV = "0.28.0+38-89e943a4+20220404-1749-SNAPSHOT" // TODO update when mu-scala is released
+val muV = "0.28.0+40-69f23b26-SNAPSHOT" // TODO update when mu-scala is released
 lazy val plugin = project
   .dependsOn(core)
   .settings(moduleName := "sbt-mu-srcgen")
