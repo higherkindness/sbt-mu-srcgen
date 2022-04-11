@@ -16,7 +16,7 @@ lazy val domain = project
     muSrcGenTargetDir  := (Compile / sourceManaged).value / "generated_from_proto",
     libraryDependencies ++= Seq(
       "io.higherkindness" %% "mu-rpc-service" % sys.props("mu"),
-      "io.higherkindness" %% "mu-rpc-fs2" % sys.props("mu")
+      "io.higherkindness" %% "mu-rpc-fs2"     % sys.props("mu")
     ),
     scalacOptions += "-Ymacro-annotations"
   )
