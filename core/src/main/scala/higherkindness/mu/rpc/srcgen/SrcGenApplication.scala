@@ -25,6 +25,7 @@ object SrcGenApplication {
   def apply(
       avroGeneratorTypeGen: AvroGeneratorTypeGen,
       marshallersImports: List[MarshallersImport],
+      bigDecimalTypeGen: BigDecimalTypeGen,
       compressionTypeGen: CompressionTypeGen,
       useIdiomaticEndpoints: Boolean,
       scala3: Boolean
@@ -39,6 +40,7 @@ object SrcGenApplication {
         case Model.AvrohuggerGen =>
           LegacyAvroSrcGenerator(
             marshallersImports,
+            bigDecimalTypeGen,
             compressionType,
             useIdiomaticEndpoints,
             scala3

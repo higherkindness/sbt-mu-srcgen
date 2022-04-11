@@ -85,6 +85,7 @@ class GeneratorApplication(scala3: Boolean, generators: Generator*) {
   private val rules = List(
     "class:higherkindness.mu.rpc.srcgen.avro.rewrites.RemoveShapelessImports",
     "class:higherkindness.mu.rpc.srcgen.avro.rewrites.ReplaceShapelessCoproduct",
+    "class:higherkindness.mu.rpc.srcgen.avro.rewrites.ReplaceShapelessTaggedDecimal",
     "class:higherkindness.mu.rpc.srcgen.avro.rewrites.AddAvroOrderingAnnotations"
   )
 
@@ -94,6 +95,7 @@ class GeneratorApplication(scala3: Boolean, generators: Generator*) {
       .withWorkingDirectory(files.head.toPath.getParent)
       .withPaths(files.map(_.toPath).asJava)
       .withRules(rules.asJava)
+      .withScalaVersion("3")
       .run()
 
     errors.foreach(e => println(s"Scalafix error: $e"))

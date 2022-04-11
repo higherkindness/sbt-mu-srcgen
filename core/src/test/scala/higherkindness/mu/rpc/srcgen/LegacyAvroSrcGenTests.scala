@@ -106,6 +106,7 @@ class LegacyAvroSrcGenTests
       val actual :: Nil = {
         LegacyAvroSrcGenerator(
           List(BigDecimalAvroMarshallers),
+          ScalaBigDecimalTaggedGen,
           CompressionType.Identity,
           scala3 = false
         ).generateFrom(
@@ -128,6 +129,7 @@ class LegacyAvroSrcGenTests
     val output =
       LegacyAvroSrcGenerator(
         scenario.marshallersImports,
+        ScalaBigDecimalTaggedGen,
         scenario.compressionType,
         scenario.useIdiomaticEndpoints,
         scala3 = false
