@@ -135,7 +135,11 @@ object SrcGenPlugin extends AutoPlugin {
     muSrcGenMarshallerImports := {
       muSrcGenSerializationType.value match {
         case SerializationType.Avro | SerializationType.AvroWithSchema =>
-          Nil
+          val bigDecimal = muSrcGenBigDecimal.value match {
+            case ScalaBigDecimalGen       => BigDecimalAvroMarshallers
+            case ScalaBigDecimalTaggedGen => BigDecimalTaggedAvroMarshallers
+          }
+          List(bigDecimal, JavaTimeDateAvroMarshallers)
         case SerializationType.Protobuf =>
           List(BigDecimalProtobufMarshallers, JavaTimeDateProtobufMarshallers)
         case _ =>
