@@ -18,7 +18,6 @@ package higherkindness.mu.rpc.srcgen
 
 import higherkindness.mu.rpc.srcgen.Model.SerializationType._
 import higherkindness.mu.rpc.srcgen.Model._
-import higherkindness.skeuomorph.mu.CompressionType
 import org.scalacheck._
 
 trait AvroScalaGeneratorArbitrary {
@@ -29,7 +28,7 @@ trait AvroScalaGeneratorArbitrary {
       expectedOutputFilePath: String,
       serializationType: SerializationType,
       marshallersImports: List[MarshallersImport],
-      compressionType: CompressionType,
+      compressionType: CompressionTypeGen,
       useIdiomaticEndpoints: Boolean = true
   )
 
@@ -63,14 +62,14 @@ trait AvroScalaGeneratorArbitrary {
       )
 
   type GenerateOutput =
-    (SerializationType, List[MarshallersImport], CompressionType, Boolean, Boolean) => List[String]
+    (SerializationType, List[MarshallersImport], CompressionTypeGen, Boolean, Boolean) => List[String]
 
   def scenarioArbitrary(generateOutput: GenerateOutput): Arbitrary[Scenario] = Arbitrary {
     for {
       inputResourcePath     <- Gen.oneOf("/avro/GreeterService.avpr", "/avro/GreeterService.avdl")
       serializationType     <- Gen.const(Avro)
       marshallersImports    <- Gen.listOf(marshallersImportGen(serializationType))
-      compressionType       <- Gen.oneOf(CompressionType.Gzip, CompressionType.Identity)
+      compressionType       <- Gen.oneOf(GzipGen, NoCompressionGen)
       useIdiomaticEndpoints <- Arbitrary.arbBool.arbitrary
     } yield Scenario(
       Set(inputResourcePath),

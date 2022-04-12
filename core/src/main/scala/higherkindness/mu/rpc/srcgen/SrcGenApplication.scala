@@ -41,7 +41,7 @@ object SrcGenApplication {
           LegacyAvroSrcGenerator(
             marshallersImports,
             bigDecimalTypeGen,
-            compressionType,
+            compressionTypeGen,
             useIdiomaticEndpoints,
             scala3
           )

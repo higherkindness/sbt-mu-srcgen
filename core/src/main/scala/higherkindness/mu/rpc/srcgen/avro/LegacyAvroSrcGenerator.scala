@@ -22,7 +22,7 @@ import cats.data.NonEmptyList
 import cats.implicits._
 import higherkindness.mu.rpc.srcgen.Model._
 import higherkindness.mu.rpc.srcgen._
-import higherkindness.skeuomorph.mu.CompressionType
+import higherkindness.mu.rpc.srcgen.service._
 
 import java.io.File
 import org.apache.avro._
@@ -34,7 +34,7 @@ import scala.util.Right
 final case class LegacyAvroSrcGenerator(
     marshallersImports: List[MarshallersImport],
     bigDecimalTypeGen: BigDecimalTypeGen,
-    compressionType: CompressionType = CompressionType.Identity,
+    compressionType: CompressionTypeGen = NoCompressionGen,
     useIdiomaticEndpoints: Boolean = true,
     scala3: Boolean
 ) extends Generator {
@@ -119,6 +119,8 @@ final case class LegacyAvroSrcGenerator(
 
     val schemaGenerator = if (protocol.getMessages.isEmpty) adtGenerator else mainGenerator
 
+    // TODO rewrite most of the code below, once we have scripted tests in place to check the file contents
+
     val schemaLines = schemaGenerator
       .protocolToStrings(protocol)
       .mkString
@@ -129,19 +131,16 @@ final case class LegacyAvroSrcGenerator(
 
     val packageLines = List(schemaLines.head, "")
 
+    // TODO decide what to do about custom marshallers
     val importLines =
-      ("import higherkindness.mu.rpc.protocol._" :: marshallersImports
-        .map(_.marshallersImport)
-        .map("import " + _)).sorted
+      if (scala3)
+        Nil
+      else
+        marshallersImports
+          .map(mi => s"import ${mi.marshallersImport}")
+          .sorted
 
     val messageLines = (schemaLines.tail :+ "").toList
-
-    val serviceParams = Seq(
-      serializationType.toString,
-      s"compressionType = $compressionType",
-      if (useIdiomaticEndpoints) s"""namespace = Some("${protocol.getNamespace}")"""
-      else "namespace = None"
-    ).mkString(", ")
 
     val requestLines = protocol.getMessages.asScala.toList.flatTraverse { case (name, message) =>
       val comment = Option(message.getDoc).map(doc => s"  /** $doc */").toList
@@ -150,16 +149,45 @@ final case class LegacyAvroSrcGenerator(
       }
     }
 
+    def buildMethodDefn(methodName: String, message: Protocol#Message): MethodDefn = MethodDefn(
+      name = methodName,
+      in = fullyQualifiedRequestType(message.getRequest),
+      out = fullyQualifiedResponseType(message.getResponse),
+      clientStreaming = false,
+      serverStreaming = false
+    )
+
     val outputCode = requestLines.map { requests =>
-      val serviceLines =
-        if (requests.isEmpty) List.empty
-        else {
-          List(
-            s"@service($serviceParams) trait ${protocol.getName}[F[_]] {",
-            ""
-          ) ++ requests :+ "}"
-        }
-      packageLines ++ importLines ++ messageLines ++ serviceLines
+      val (serviceTraitLines, companionObjectLines) = requests match {
+        case Nil =>
+          (Nil, Nil)
+        case _ =>
+          val traitLines =
+            List(
+              s"trait ${protocol.getName}[F[_]] {",
+              ""
+            ) ++ requests :+ "}"
+
+          val serviceDefn = ServiceDefn(
+            name = protocol.getName,
+            fullName = s"${protocol.getNamespace}.${protocol.getName}",
+            methods = protocol.getMessages.asScala.toList.map { case (methodName, message) => buildMethodDefn(methodName, message) }
+          )
+
+          val params = MuServiceParams(
+            idiomaticEndpoints = useIdiomaticEndpoints,
+            compressionType = compressionType,
+            serializationType = serializationType,
+            scala3 = scala3
+          )
+
+          val companionObjectTree = new CompanionObjectGenerator(serviceDefn, params).generateTree
+          val companionObjectLines = companionObjectTree.syntax.split('\n').toList
+
+          (traitLines, companionObjectLines)
+      }
+
+      packageLines ++ importLines ++ messageLines ++ serviceTraitLines ++ companionObjectLines
     }
 
     outputCode.map(Generator.Output(getPath(protocol), _))
@@ -194,6 +222,25 @@ final case class LegacyAvroSrcGenerator(
         s"RPC method ${request.getName} has more than 1 request parameter".invalidNel
     }
   }
+
+  private def fullyQualifiedRequestType(request: Schema): FullyQualified = {
+    val requestArgs = request.getFields.asScala
+    requestArgs.toList match {
+      case Nil =>
+        FullyQualified(EmptyType)
+      case _ =>
+        FullyQualified(requestArgs.head.schema.getFullName)
+    }
+  }
+
+  private def fullyQualifiedResponseType(response: Schema): FullyQualified =
+    response.getType match {
+      case Schema.Type.NULL =>
+        FullyQualified(EmptyType)
+      case _ =>
+        FullyQualified(response.getFullName)
+    }
+
 
   private def validateResponse(response: Schema): ErrorsOr[String] = {
     response.getType match {

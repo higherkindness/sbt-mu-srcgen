@@ -23,7 +23,6 @@ import higherkindness.mu.rpc.srcgen.Generator.Result
 import higherkindness.mu.rpc.srcgen.Model.SerializationType.Avro
 import higherkindness.mu.rpc.srcgen.Model._
 import higherkindness.mu.rpc.srcgen.avro._
-import higherkindness.skeuomorph.mu.CompressionType
 import org.scalacheck.Arbitrary
 import org.scalacheck.Prop.forAll
 import org.scalatest._
@@ -39,10 +38,12 @@ class LegacyAvroSrcGenTests
     with OneInstancePerTest
     with Checkers {
 
+  // TODO need to update these tests
+
   def generateOutput(
       serializationType: SerializationType,
       marshallersImports: List[MarshallersImport],
-      compressionType: CompressionType,
+      compressionType: CompressionTypeGen,
       useIdiomaticEndpoints: Boolean = true,
       messagesAsImportFile: Boolean = true
   ): List[String] = {
@@ -107,7 +108,7 @@ class LegacyAvroSrcGenTests
         LegacyAvroSrcGenerator(
           List(BigDecimalAvroMarshallers),
           ScalaBigDecimalTaggedGen,
-          CompressionType.Identity,
+          NoCompressionGen,
           scala3 = false
         ).generateFrom(
           Set(new File(getClass.getResource("/avro/Invalid.avdl").toURI)),

@@ -1,6 +1,5 @@
 package foo
 
-import higherkindness.mu.rpc.protocol._
 
 
 
