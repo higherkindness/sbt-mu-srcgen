@@ -30,7 +30,15 @@ object Model {
     case object Protobuf       extends SerializationType
     case object Avro           extends SerializationType
     case object AvroWithSchema extends SerializationType
-    case object Custom         extends SerializationType
+
+    def fromString(string: String): Either[IllegalArgumentException, SerializationType] =
+      string match {
+        case "Protobuf" => Right(Protobuf)
+        case "Avro" => Right(Avro)
+        case "AvroWithSchema" => Right(AvroWithSchema)
+        case other => Left(new IllegalArgumentException(s"Unknown serialization type: '$other'"))
+      }
+
   }
 
   sealed abstract class MarshallersImport(val marshallersImport: String)
