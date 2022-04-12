@@ -24,7 +24,7 @@ import avrohugger.input.parsers.FileInputParser
 import avrohugger.stores.ClassStore
 import cats.data.NonEmptyList
 import cats.implicits._
-import higherkindness.mu.rpc.srcgen.{ErrorsOr, Generator, Model, ScalaFileExtension, SrcGenerator}
+import higherkindness.mu.rpc.srcgen.{ErrorsOr, Generator, Model, ScalaFileExtension}
 import higherkindness.droste.data.Mu
 import higherkindness.skeuomorph.avro.{AvroF, Protocol => AvroProtocol}
 import higherkindness.skeuomorph.mu.{codegen, CompressionType, MuF, Protocol => MuProtocol}
@@ -37,7 +37,7 @@ object AvroSrcGenerator {
   def apply(
       compressionType: CompressionType,
       useIdiomaticEndpoints: Boolean = true
-  ): SrcGenerator = new SrcGenerator {
+  ): Generator = new Generator {
     private val classStore              = new ClassStore
     private val classLoader             = getClass.getClassLoader
     override def idlType: Model.IdlType = Model.IdlType.Avro

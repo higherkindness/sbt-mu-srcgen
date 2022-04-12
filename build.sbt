@@ -8,23 +8,23 @@ addCommandAlias("ci-test", "scalafmtCheckAll; scalafmtSbtCheck; test; publishLoc
 addCommandAlias("ci-docs", "github; mdoc; headerCreateAll")
 addCommandAlias("ci-publish", "github; ci-release")
 
-ThisBuild / resolvers += Resolver.sonatypeRepo("snapshots")
-lazy val muV = "0.28.0+34-effa638e-SNAPSHOT" // TODO update when mu-scala is released
-
 lazy val core = project
   .enablePlugins(BuildInfoPlugin)
   .settings(moduleName := "mu-srcgen-core")
   .settings(
     libraryDependencies ++= Seq(
-      "io.higherkindness"    %% "skeuomorph"      % "0.1.3",
-      "com.julianpeeters"    %% "avrohugger-core" % "1.0.0",
-      "com.thesamet.scalapb" %% "compilerplugin"  % "0.11.10",
-      "org.scalameta"        %% "scalameta"       % "4.5.3",
-      "org.scalatest"        %% "scalatest"       % "3.2.11"  % Test,
-      "org.scalacheck"       %% "scalacheck"      % "1.16.0"  % Test,
-      "org.scalatestplus"    %% "scalacheck-1-14" % "3.2.2.0" % Test,
-      "org.slf4j"             % "slf4j-nop"       % "1.7.36"  % Test,
-      "org.scalameta"        %% "contrib"         % "4.1.6"   % Test
+      "io.higherkindness"    %% "skeuomorph"          % "0.1.3",
+      "com.julianpeeters"    %% "avrohugger-core"     % "1.0.0",
+      "com.thesamet.scalapb" %% "compilerplugin"      % "0.11.10",
+      "org.scalameta"        %% "scalameta"           % "4.5.3",
+      "ch.epfl.scala"        %% "scalafix-core"       % "0.9.34",
+      "ch.epfl.scala"        %% "scalafix-cli"        % "0.9.34" cross CrossVersion.full,
+      "ch.epfl.scala"         % "scalafix-interfaces" % "0.9.34",
+      "org.scalatest"        %% "scalatest"           % "3.2.11"  % Test,
+      "org.scalacheck"       %% "scalacheck"          % "1.16.0"  % Test,
+      "org.scalatestplus"    %% "scalacheck-1-14"     % "3.2.2.0" % Test,
+      "org.slf4j"             % "slf4j-nop"           % "1.7.36"  % Test,
+      "org.scalameta"        %% "contrib"             % "4.1.6"   % Test
     ),
     buildInfoPackage := "higherkindness.mu.rpc.srcgen",
     buildInfoKeys := Seq[BuildInfoKey](
@@ -37,6 +37,7 @@ lazy val core = project
     )
   )
 
+val muV = "0.28.0+42-bd246ae6-SNAPSHOT" // TODO update when mu-scala is released
 lazy val plugin = project
   .dependsOn(core)
   .settings(moduleName := "sbt-mu-srcgen")

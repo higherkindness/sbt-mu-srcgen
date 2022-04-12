@@ -1,0 +1,27 @@
+package foo
+
+import higherkindness.mu.rpc.protocol._
+
+
+
+
+
+sealed trait model
+
+sealed trait Suit extends model
+
+object Suit {
+  @_root_.com.sksamuel.avro4s.AvroSortPriority(0) case object SPADES extends Suit
+  @_root_.com.sksamuel.avro4s.AvroSortPriority(1) case object HEARTS extends Suit
+  @_root_.com.sksamuel.avro4s.AvroSortPriority(2) case object DIAMONDS extends Suit
+  @_root_.com.sksamuel.avro4s.AvroSortPriority(3) case object CLUBS extends Suit
+}
+
+final case class A(a: String) extends model
+
+final case class B(b: String) extends model
+
+final case class C(c: String) extends model
+
+final case class Thing(id: java.util.UUID, name: String, optionalString: Option[String], union2: Either[Int, String], union3: _root_.higherkindness.mu.rpc.avro.AvroUnion3[Int, String, Boolean], union4: _root_.higherkindness.mu.rpc.avro.AvroUnion4[Int, String, Boolean, Long], union5: _root_.higherkindness.mu.rpc.avro.AvroUnion5[Int, String, Boolean, Long, Seq[String]], union6: _root_.higherkindness.mu.rpc.avro.AvroUnion6[Int, String, Boolean, Long, Seq[String], A], union7: _root_.higherkindness.mu.rpc.avro.AvroUnion7[Int, String, Boolean, Long, Seq[String], A, B], union8: _root_.higherkindness.mu.rpc.avro.AvroUnion8[Int, String, Boolean, Long, Seq[String], A, B, C], suit: Suit, price: _root_.higherkindness.mu.rpc.avro.Decimals.TaggedDecimal[6, 2]) extends model
+

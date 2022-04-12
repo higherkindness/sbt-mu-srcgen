@@ -27,20 +27,23 @@ object SrcGenApplication {
       marshallersImports: List[MarshallersImport],
       bigDecimalTypeGen: BigDecimalTypeGen,
       compressionTypeGen: CompressionTypeGen,
-      useIdiomaticEndpoints: Boolean
-  ): GeneratorApplication[SrcGenerator] = {
+      useIdiomaticEndpoints: Boolean,
+      scala3: Boolean
+  ): GeneratorApplication = {
     val compressionType: CompressionType = compressionTypeGen match {
       case GzipGen          => CompressionType.Gzip
       case NoCompressionGen => CompressionType.Identity
     }
     new GeneratorApplication(
+      scala3,
       avroGeneratorTypeGen match {
         case Model.AvrohuggerGen =>
           LegacyAvroSrcGenerator(
             marshallersImports,
             bigDecimalTypeGen,
             compressionType,
-            useIdiomaticEndpoints
+            useIdiomaticEndpoints,
+            scala3
           )
         case Model.SkeumorphGen =>
           AvroSrcGenerator(compressionType, useIdiomaticEndpoints)

@@ -35,14 +35,18 @@ final case class LegacyAvroSrcGenerator(
     marshallersImports: List[MarshallersImport],
     bigDecimalTypeGen: BigDecimalTypeGen,
     compressionType: CompressionType = CompressionType.Identity,
-    useIdiomaticEndpoints: Boolean = true
-) extends SrcGenerator {
+    useIdiomaticEndpoints: Boolean = true,
+    scala3: Boolean
+) extends Generator {
 
   private val avroBigDecimal: AvroScalaDecimalType = bigDecimalTypeGen match {
     case ScalaBigDecimalGen       => ScalaBigDecimal(None)
     case ScalaBigDecimalTaggedGen => ScalaBigDecimalWithPrecision(None)
   }
-  private val avroScalaCustomTypes = Standard.defaultTypes.copy(decimal = avroBigDecimal)
+  private val avroScalaCustomTypes = Standard.defaultTypes.copy(
+    enum = if (scala3) ScalaCaseObjectEnum else ScalaEnumeration,
+    decimal = avroBigDecimal
+  )
   private val mainGenerator =
     avrohugger.Generator(Standard, avroScalaCustomTypes = Some(avroScalaCustomTypes))
 

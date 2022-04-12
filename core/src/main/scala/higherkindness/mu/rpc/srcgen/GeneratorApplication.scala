@@ -16,22 +16,24 @@
 
 package higherkindness.mu.rpc.srcgen
 
-import java.io.File
-
-import FileUtil._
-import cats.data.{NonEmptyList, ValidatedNel}
 import higherkindness.mu.rpc.srcgen.Model.{IdlType, SerializationType}
+import cats.data.{NonEmptyList, ValidatedNel}
 import cats.data.Validated.Invalid
 import cats.data.Validated.Valid
 import cats.implicits._
+import scalafix.interfaces.Scalafix
 
-class GeneratorApplication[T <: Generator](generators: T*) {
+import java.io.File
+import java.nio.file.Files
+import scala.jdk.CollectionConverters._
+
+class GeneratorApplication(scala3: Boolean, generators: Generator*) {
   // Code covered by plugin tests
   // $COVERAGE-OFF$
 
   private val generatorsByType = generators.map(gen => gen.idlType -> gen).toMap
 
-  def generateFrom(
+  def generateSources(
       idlType: IdlType,
       serializationType: SerializationType,
       inputFiles: Set[File],
@@ -60,11 +62,17 @@ class GeneratorApplication[T <: Generator](generators: T*) {
             s"One or more IDL files are invalid. Error details:\n $formattedErrorMessage"
           )
         case Valid(outputFiles) =>
-          outputFiles.map { case (outputFile, content) =>
+          val files = outputFiles.map { case (outputFile, content) =>
             Option(outputFile.getParentFile).foreach(_.mkdirs())
-            outputFile.write(content)
+            Files.write(outputFile.toPath, content.asJava)
             outputFile
           }
+
+          if (scala3) {
+            applyRewrites(files)
+          }
+
+          files
       }
     case None =>
       System.out.println(
@@ -72,6 +80,25 @@ class GeneratorApplication[T <: Generator](generators: T*) {
           s"Valid values: ${generatorsByType.keys.mkString(", ")}"
       )
       Seq.empty[File]
+  }
+
+  private val rules = List(
+    "class:higherkindness.mu.rpc.srcgen.avro.rewrites.RemoveShapelessImports",
+    "class:higherkindness.mu.rpc.srcgen.avro.rewrites.ReplaceShapelessCoproduct",
+    "class:higherkindness.mu.rpc.srcgen.avro.rewrites.ReplaceShapelessTaggedDecimal",
+    "class:higherkindness.mu.rpc.srcgen.avro.rewrites.AddAvroOrderingAnnotations"
+  )
+
+  private def applyRewrites(files: Seq[File]): Unit = {
+    val scalafix = Scalafix.classloadInstance(getClass.getClassLoader)
+    val errors = scalafix.newArguments
+      .withWorkingDirectory(files.head.toPath.getParent)
+      .withPaths(files.map(_.toPath).asJava)
+      .withRules(rules.asJava)
+      .withScalaVersion("3")
+      .run()
+
+    errors.foreach(e => println(s"Scalafix error: $e"))
   }
 
   // $COVERAGE-ON$

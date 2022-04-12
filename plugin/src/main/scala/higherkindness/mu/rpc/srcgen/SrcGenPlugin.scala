@@ -135,11 +135,7 @@ object SrcGenPlugin extends AutoPlugin {
     muSrcGenMarshallerImports := {
       muSrcGenSerializationType.value match {
         case SerializationType.Avro | SerializationType.AvroWithSchema =>
-          val bigDecimal = muSrcGenBigDecimal.value match {
-            case ScalaBigDecimalGen       => BigDecimalAvroMarshallers
-            case ScalaBigDecimalTaggedGen => BigDecimalTaggedAvroMarshallers
-          }
-          List(bigDecimal, JavaTimeDateAvroMarshallers)
+          Nil
         case SerializationType.Protobuf =>
           List(BigDecimalProtobufMarshallers, JavaTimeDateProtobufMarshallers)
         case _ =>
@@ -191,7 +187,8 @@ object SrcGenPlugin extends AutoPlugin {
                   muSrcGenMarshallerImports.value,
                   muSrcGenBigDecimal.value,
                   muSrcGenCompressionType.value,
-                  muSrcGenIdiomaticEndpoints.value
+                  muSrcGenIdiomaticEndpoints.value,
+                  scala3 = scalaBinaryVersion.value.startsWith("3")
                 ),
                 muSrcGenIdlType.value,
                 muSrcGenSerializationType.value,
@@ -343,7 +340,7 @@ object SrcGenPlugin extends AutoPlugin {
   )
 
   private def srcGenTask(
-      generator: GeneratorApplication[_],
+      generator: GeneratorApplication,
       idlType: IdlType,
       serializationType: SerializationType,
       targetDir: File,
@@ -351,7 +348,7 @@ object SrcGenPlugin extends AutoPlugin {
   ): Set[File] => Set[File] =
     FileFunction.cached(cacheDir, FilesInfo.lastModified, FilesInfo.exists) {
       inputFiles: Set[File] =>
-        generator.generateFrom(idlType, serializationType, inputFiles, targetDir).toSet
+        generator.generateSources(idlType, serializationType, inputFiles, targetDir).toSet
     }
 
   private def extractIDLDefinitionsFromJar(
