@@ -33,20 +33,16 @@ import scala.util.Right
 
 final case class LegacyAvroSrcGenerator(
     marshallersImports: List[MarshallersImport],
-    bigDecimalTypeGen: BigDecimalTypeGen,
     compressionType: CompressionTypeGen = NoCompressionGen,
     useIdiomaticEndpoints: Boolean = true,
     scala3: Boolean
 ) extends Generator {
 
-  private val avroBigDecimal: AvroScalaDecimalType = bigDecimalTypeGen match {
-    case ScalaBigDecimalGen       => ScalaBigDecimal(None)
-    case ScalaBigDecimalTaggedGen => ScalaBigDecimalWithPrecision(None)
-  }
   private val avroScalaCustomTypes = Standard.defaultTypes.copy(
     enum = if (scala3) ScalaCaseObjectEnum else ScalaEnumeration,
-    decimal = avroBigDecimal
+    decimal = ScalaBigDecimalWithPrecision(None)
   )
+
   private val mainGenerator =
     avrohugger.Generator(Standard, avroScalaCustomTypes = Some(avroScalaCustomTypes))
 
@@ -131,7 +127,6 @@ final case class LegacyAvroSrcGenerator(
 
     val packageLines = List(schemaLines.head, "")
 
-    // TODO decide what to do about custom marshallers
     val importLines =
       if (scala3)
         Nil

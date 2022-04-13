@@ -106,8 +106,7 @@ class LegacyAvroSrcGenTests
     "return a non-empty list of errors instead of generating code from an invalid IDL file" in {
       val actual :: Nil = {
         LegacyAvroSrcGenerator(
-          List(BigDecimalAvroMarshallers),
-          ScalaBigDecimalTaggedGen,
+          List(BigDecimalTaggedAvroMarshallers),
           NoCompressionGen,
           scala3 = false
         ).generateFrom(
@@ -130,7 +129,6 @@ class LegacyAvroSrcGenTests
     val output =
       LegacyAvroSrcGenerator(
         scenario.marshallersImports,
-        ScalaBigDecimalTaggedGen,
         scenario.compressionType,
         scenario.useIdiomaticEndpoints,
         scala3 = false

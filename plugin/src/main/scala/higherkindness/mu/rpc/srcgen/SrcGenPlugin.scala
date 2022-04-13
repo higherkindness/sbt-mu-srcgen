@@ -80,16 +80,12 @@ object SrcGenPlugin extends AutoPlugin {
           "in subpackages based on the namespaces declared in the IDL files."
       )
 
-    lazy val muSrcGenBigDecimal: SettingKey[BigDecimalTypeGen] =
-      settingKey[BigDecimalTypeGen](
-        "The Scala generated type for `decimals`. Possible values are `ScalaBigDecimalGen` and `ScalaBigDecimalTaggedGen`" +
-          "The difference is that `ScalaBigDecimalTaggedGen` will append the 'precision' and the 'scale' as tagged types, i.e. `scala.math.BigDecimal @@ (Nat._8, Nat._2)`"
-      )
-
+    // Note: this is a slight misnomer.
+    // It's actually used to import avro4s SchemaFor/Encoder/Decoder instances, not Marshallers.
     lazy val muSrcGenMarshallerImports: SettingKey[List[MarshallersImport]] =
       settingKey[List[MarshallersImport]](
         "List of imports needed for creating the request/response marshallers. " +
-          "By default, this include the instances for serializing `BigDecimal`, `java.time.LocalDate`, and `java.time.LocalDateTime`"
+          "By default, this include the instances for serializing `BigDecimal` and `java.time.LocalDateTime`"
       )
 
     lazy val muSrcGenCompressionType: SettingKey[CompressionTypeGen] =
@@ -131,15 +127,16 @@ object SrcGenPlugin extends AutoPlugin {
     muSrcGenSourceDirs        := Seq((Compile / resourceDirectory).value),
     muSrcGenIdlTargetDir := (Compile / resourceManaged).value / muSrcGenIdlType.value.toString.toLowerCase,
     muSrcGenTargetDir  := (Compile / sourceManaged).value,
-    muSrcGenBigDecimal := ScalaBigDecimalTaggedGen,
     muSrcGenMarshallerImports := {
       muSrcGenSerializationType.value match {
         case SerializationType.Avro | SerializationType.AvroWithSchema =>
-          val bigDecimal = muSrcGenBigDecimal.value match {
-            case ScalaBigDecimalGen       => BigDecimalAvroMarshallers
-            case ScalaBigDecimalTaggedGen => BigDecimalTaggedAvroMarshallers
+          if (scalaBinaryVersion.value.startsWith("3")) {
+            // No need to import any codec instances for TaggedDecimal
+            // because they are in the TaggedDecimal companion object
+            List(JavaTimeDateAvroMarshallers)
+          } else {
+            List(BigDecimalTaggedAvroMarshallers, JavaTimeDateAvroMarshallers)
           }
-          List(bigDecimal, JavaTimeDateAvroMarshallers)
         case _ =>
           Nil
       }
@@ -187,7 +184,6 @@ object SrcGenPlugin extends AutoPlugin {
                 SrcGenApplication(
                   muSrcGenAvroGeneratorType.value,
                   muSrcGenMarshallerImports.value,
-                  muSrcGenBigDecimal.value,
                   muSrcGenCompressionType.value,
                   muSrcGenIdiomaticEndpoints.value,
                   scala3 = scalaBinaryVersion.value.startsWith("3")

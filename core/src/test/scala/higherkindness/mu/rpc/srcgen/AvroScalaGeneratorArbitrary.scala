@@ -36,7 +36,7 @@ trait AvroScalaGeneratorArbitrary {
     serializationType match {
       case Avro | AvroWithSchema =>
         Gen.oneOf(
-          Gen.const(BigDecimalAvroMarshallers),
+          Gen.const(BigDecimalTaggedAvroMarshallers),
           customMarshallersImportsGen
         )
       case _ => customMarshallersImportsGen

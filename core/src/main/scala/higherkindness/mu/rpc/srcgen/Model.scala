@@ -47,18 +47,11 @@ object Model {
 
   final case class CustomMarshallersImport(mi: String) extends MarshallersImport(mi)
 
-  case object BigDecimalAvroMarshallers
-      extends MarshallersImport("higherkindness.mu.rpc.internal.encoders.avro.bigdecimal._")
-
   case object BigDecimalTaggedAvroMarshallers
       extends MarshallersImport("higherkindness.mu.rpc.internal.encoders.avro.bigDecimalTagged._")
 
   case object JavaTimeDateAvroMarshallers
       extends MarshallersImport("higherkindness.mu.rpc.internal.encoders.avro.javatime._")
-
-  sealed trait BigDecimalTypeGen       extends Product with Serializable
-  case object ScalaBigDecimalGen       extends BigDecimalTypeGen
-  case object ScalaBigDecimalTaggedGen extends BigDecimalTypeGen
 
   sealed abstract class CompressionTypeGen(
       val annotationParameterValue: String
