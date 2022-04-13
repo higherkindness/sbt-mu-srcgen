@@ -56,12 +56,6 @@ object Model {
   case object JavaTimeDateAvroMarshallers
       extends MarshallersImport("higherkindness.mu.rpc.internal.encoders.avro.javatime._")
 
-  case object BigDecimalProtobufMarshallers
-      extends MarshallersImport("higherkindness.mu.rpc.internal.encoders.pbd.bigdecimal._")
-
-  case object JavaTimeDateProtobufMarshallers
-      extends MarshallersImport("higherkindness.mu.rpc.internal.encoders.pbd.javatime._")
-
   sealed trait BigDecimalTypeGen       extends Product with Serializable
   case object ScalaBigDecimalGen       extends BigDecimalTypeGen
   case object ScalaBigDecimalTaggedGen extends BigDecimalTypeGen

@@ -140,8 +140,6 @@ object SrcGenPlugin extends AutoPlugin {
             case ScalaBigDecimalTaggedGen => BigDecimalTaggedAvroMarshallers
           }
           List(bigDecimal, JavaTimeDateAvroMarshallers)
-        case SerializationType.Protobuf =>
-          List(BigDecimalProtobufMarshallers, JavaTimeDateProtobufMarshallers)
         case _ =>
           Nil
       }
