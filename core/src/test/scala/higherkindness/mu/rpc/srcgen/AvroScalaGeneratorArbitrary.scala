@@ -53,7 +53,13 @@ trait AvroScalaGeneratorArbitrary {
       )
 
   type GenerateOutput =
-    (SerializationType, List[MarshallersImport], CompressionTypeGen, Boolean, Boolean) => List[String]
+    (
+        SerializationType,
+        List[MarshallersImport],
+        CompressionTypeGen,
+        Boolean,
+        Boolean
+    ) => List[String]
 
   def scenarioArbitrary(generateOutput: GenerateOutput): Arbitrary[Scenario] = Arbitrary {
     for {

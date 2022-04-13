@@ -163,7 +163,9 @@ final case class LegacyAvroSrcGenerator(
           val serviceDefn = ServiceDefn(
             name = protocol.getName,
             fullName = s"${protocol.getNamespace}.${protocol.getName}",
-            methods = protocol.getMessages.asScala.toList.map { case (methodName, message) => buildMethodDefn(methodName, message) }
+            methods = protocol.getMessages.asScala.toList.map { case (methodName, message) =>
+              buildMethodDefn(methodName, message)
+            }
           )
 
           val params = MuServiceParams(
@@ -173,7 +175,7 @@ final case class LegacyAvroSrcGenerator(
             scala3 = scala3
           )
 
-          val companionObjectTree = new CompanionObjectGenerator(serviceDefn, params).generateTree
+          val companionObjectTree  = new CompanionObjectGenerator(serviceDefn, params).generateTree
           val companionObjectLines = companionObjectTree.syntax.split('\n').toList
 
           (traitLines, companionObjectLines)
@@ -232,7 +234,6 @@ final case class LegacyAvroSrcGenerator(
       case _ =>
         FullyQualified(response.getFullName)
     }
-
 
   private def validateResponse(response: Schema): ErrorsOr[String] = {
     response.getType match {

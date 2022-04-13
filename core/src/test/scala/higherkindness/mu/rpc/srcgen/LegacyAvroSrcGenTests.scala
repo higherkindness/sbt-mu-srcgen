@@ -87,12 +87,21 @@ class LegacyAvroSrcGenTests
          |""".stripMargin
 
     if (messagesAsImportFile)
-      (packageAndImports ++ serviceTrait ++ startOfCompanionObject).split("\n").filter(_.nonEmpty).toList
+      (packageAndImports ++ serviceTrait ++ startOfCompanionObject)
+        .split("\n")
+        .filter(_.nonEmpty)
+        .toList
     else
-      (packageAndImports ++ messages ++ serviceTrait ++ startOfCompanionObject).split("\n").filter(_.nonEmpty).toList
+      (packageAndImports ++ messages ++ serviceTrait ++ startOfCompanionObject)
+        .split("\n")
+        .filter(_.nonEmpty)
+        .toList
   }
 
-  implicit val scenarioArb: Arbitrary[Scenario] = scenarioArbitrary((serializationType, marshallersImports, _, _, messagesAsImportFile) => generateOutput(serializationType, marshallersImports, messagesAsImportFile))
+  implicit val scenarioArb: Arbitrary[Scenario] =
+    scenarioArbitrary((serializationType, marshallersImports, _, _, messagesAsImportFile) =>
+      generateOutput(serializationType, marshallersImports, messagesAsImportFile)
+    )
 
   "Legacy Avro Scala Generator" should {
 
@@ -138,7 +147,9 @@ class LegacyAvroSrcGenTests
     output should not be empty
     output forall { case Result(_, contents) =>
       contents.map(_.path.toString) shouldBe Valid(scenario.expectedOutputFilePath)
-      contents.map(_.contents.filter(_.nonEmpty).take(scenario.expectedOutput.size)) shouldBe Valid(scenario.expectedOutput)
+      contents.map(_.contents.filter(_.nonEmpty).take(scenario.expectedOutput.size)) shouldBe Valid(
+        scenario.expectedOutput
+      )
       true
     }
   }

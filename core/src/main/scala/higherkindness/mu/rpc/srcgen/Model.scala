@@ -33,8 +33,8 @@ object Model {
 
     def fromString(string: String): Either[IllegalArgumentException, SerializationType] =
       string match {
-        case "Protobuf" => Right(Protobuf)
-        case "Avro" => Right(Avro)
+        case "Protobuf"       => Right(Protobuf)
+        case "Avro"           => Right(Avro)
         case "AvroWithSchema" => Right(AvroWithSchema)
         case other => Left(new IllegalArgumentException(s"Unknown serialization type: '$other'"))
       }
