@@ -9,7 +9,7 @@ lazy val root = project
     name         := "root",
     version      := "1.0.0",
     scalaVersion := "2.13.8",
-    scalacOptions += "-Ymacro-annotations",
+    muSrcGenAvroGeneratorType := higherkindness.mu.rpc.srcgen.Model.AvrohuggerGen,
     muSrcGenIdlType := IdlType.Avro,
     muSrcGenSourceDirs := Seq(
       (Compile / resourceDirectory).value / "domain",
