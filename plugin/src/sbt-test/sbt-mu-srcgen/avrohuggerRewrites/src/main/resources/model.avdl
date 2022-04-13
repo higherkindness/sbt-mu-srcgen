@@ -32,7 +32,9 @@ protocol model {
     union { int, string, boolean, long, array<string>, A, B } union7;
     union { int, string, boolean, long, array<string>, A, B, C } union8;
     Suit suit;
-    decimal(6,2) price;
+    decimal(6,2) taggedDecimal;
+    decimal(16,8) largePrecision;
+    decimal(36,24) largePrecisionAndScale;
   }
 
 }
