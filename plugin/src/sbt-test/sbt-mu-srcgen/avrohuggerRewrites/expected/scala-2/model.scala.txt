@@ -1,7 +1,6 @@
 package foo
 
 import higherkindness.mu.rpc.internal.encoders.avro.bigDecimalTagged._
-import higherkindness.mu.rpc.internal.encoders.avro.javatime._
 
 import shapeless.{:+:, CNil}
 

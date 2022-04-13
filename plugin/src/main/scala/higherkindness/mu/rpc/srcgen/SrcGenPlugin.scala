@@ -85,7 +85,7 @@ object SrcGenPlugin extends AutoPlugin {
     lazy val muSrcGenMarshallerImports: SettingKey[List[MarshallersImport]] =
       settingKey[List[MarshallersImport]](
         "List of imports needed for creating the request/response marshallers. " +
-          "By default, this include the instances for serializing `BigDecimal` and `java.time.LocalDateTime`"
+          "By default, this include the instances for serializing `BigDecimal`"
       )
 
     lazy val muSrcGenCompressionType: SettingKey[CompressionTypeGen] =
@@ -133,9 +133,9 @@ object SrcGenPlugin extends AutoPlugin {
           if (scalaBinaryVersion.value.startsWith("3")) {
             // No need to import any codec instances for TaggedDecimal
             // because they are in the TaggedDecimal companion object
-            List(JavaTimeDateAvroMarshallers)
+            Nil
           } else {
-            List(BigDecimalTaggedAvroMarshallers, JavaTimeDateAvroMarshallers)
+            List(BigDecimalTaggedAvroMarshallers)
           }
         case _ =>
           Nil

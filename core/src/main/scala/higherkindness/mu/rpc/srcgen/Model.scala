@@ -50,9 +50,6 @@ object Model {
   case object BigDecimalTaggedAvroMarshallers
       extends MarshallersImport("higherkindness.mu.rpc.internal.encoders.avro.bigDecimalTagged._")
 
-  case object JavaTimeDateAvroMarshallers
-      extends MarshallersImport("higherkindness.mu.rpc.internal.encoders.avro.javatime._")
-
   sealed abstract class CompressionTypeGen(
       val annotationParameterValue: String
   ) extends Product

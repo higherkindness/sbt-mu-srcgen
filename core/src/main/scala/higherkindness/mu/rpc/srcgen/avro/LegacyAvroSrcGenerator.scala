@@ -128,12 +128,9 @@ final case class LegacyAvroSrcGenerator(
     val packageLines = List(schemaLines.head, "")
 
     val importLines =
-      if (scala3)
-        Nil
-      else
-        marshallersImports
-          .map(mi => s"import ${mi.marshallersImport}")
-          .sorted
+      marshallersImports
+        .map(mi => s"import ${mi.marshallersImport}")
+        .sorted
 
     val messageLines = (schemaLines.tail :+ "").toList
 
