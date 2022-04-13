@@ -38,27 +38,16 @@ class LegacyAvroSrcGenTests
     with OneInstancePerTest
     with Checkers {
 
-  // TODO need to update these tests
-
   def generateOutput(
       serializationType: SerializationType,
       marshallersImports: List[MarshallersImport],
-      compressionType: CompressionTypeGen,
-      useIdiomaticEndpoints: Boolean = true,
       messagesAsImportFile: Boolean = true
   ): List[String] = {
 
-    val imports: String = ("import higherkindness.mu.rpc.protocol._" :: marshallersImports
-      .map(_.marshallersImport)
-      .map("import " + _)).sorted
+    val imports: String = marshallersImports
+      .map(mi => s"import ${mi.marshallersImport}")
+      .sorted
       .mkString("\n")
-
-    val serviceParams: String = Seq(
-      serializationType.toString,
-      s"compressionType = $compressionType",
-      if (useIdiomaticEndpoints) s"""namespace = Some("foo.bar")"""
-      else "namespace = None"
-    ).mkString(", ")
 
     val packageAndImports =
       s"""
@@ -76,24 +65,34 @@ class LegacyAvroSrcGenTests
         |
         |""".stripMargin
 
-    val service =
+    val serviceTrait =
       s"""
-         |@service($serviceParams) trait MyGreeterService[F[_]] {
+         |trait MyGreeterService[F[_]] {
          |
          |  def sayHelloAvro(arg: foo.bar.HelloRequest): F[foo.bar.HelloResponse]
          |
-         |  def sayNothingAvro(arg: Empty.type): F[Empty.type]
+         |  def sayNothingAvro(arg: _root_.higherkindness.mu.rpc.protocol.Empty.type): F[_root_.higherkindness.mu.rpc.protocol.Empty.type]
          |}
          |
          |""".stripMargin
 
+    // Checking the whole content of the companion object would be pretty
+    // painful and would duplicate the checks we do in
+    // CompanionObjectGeneratorSpec and the scripted tests, so we only check
+    // the first couple of lines
+    val startOfCompanionObject =
+      s"""
+         |object MyGreeterService {
+         |  import _root_.higherkindness.mu.rpc.internal.encoders.${serializationType.toString.toLowerCase}._
+         |""".stripMargin
+
     if (messagesAsImportFile)
-      (packageAndImports ++ service).split("\n").filter(_.nonEmpty).toList
+      (packageAndImports ++ serviceTrait ++ startOfCompanionObject).split("\n").filter(_.nonEmpty).toList
     else
-      (packageAndImports ++ messages ++ service).split("\n").filter(_.nonEmpty).toList
+      (packageAndImports ++ messages ++ serviceTrait ++ startOfCompanionObject).split("\n").filter(_.nonEmpty).toList
   }
 
-  implicit val scenarioArb: Arbitrary[Scenario] = scenarioArbitrary(generateOutput)
+  implicit val scenarioArb: Arbitrary[Scenario] = scenarioArbitrary((serializationType, marshallersImports, _, _, messagesAsImportFile) => generateOutput(serializationType, marshallersImports, messagesAsImportFile))
 
   "Legacy Avro Scala Generator" should {
 
@@ -139,7 +138,7 @@ class LegacyAvroSrcGenTests
     output should not be empty
     output forall { case Result(_, contents) =>
       contents.map(_.path.toString) shouldBe Valid(scenario.expectedOutputFilePath)
-      contents.map(_.contents.filter(_.nonEmpty)) shouldBe Valid(scenario.expectedOutput)
+      contents.map(_.contents.filter(_.nonEmpty).take(scenario.expectedOutput.size)) shouldBe Valid(scenario.expectedOutput)
       true
     }
   }
