@@ -106,7 +106,7 @@ class AvroSrcGenTests extends AnyWordSpec with Matchers with OneInstancePerTest 
 
     "return a non-empty list of errors instead of generating code from an invalid IDL file" in {
       val actual :: Nil = {
-        AvroSrcGenerator(CompressionType.Identity, true).generateFrom(
+        AvroSrcGenerator(CompressionType.Identity, true).generateFromFiles(
           Set(new File(getClass.getResource("/avro/Invalid.avdl").toURI)),
           Avro
         )
@@ -127,7 +127,7 @@ class AvroSrcGenTests extends AnyWordSpec with Matchers with OneInstancePerTest 
       AvroSrcGenerator(
         convertCompressionType(scenario.compressionType),
         scenario.useIdiomaticEndpoints
-      ).generateFrom(
+      ).generateFromFiles(
         scenario.inputResourcesPath.map(path => new File(getClass.getResource(path).toURI)),
         scenario.serializationType
       )

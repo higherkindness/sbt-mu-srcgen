@@ -117,7 +117,7 @@ class LegacyAvroSrcGenTests
           List(BigDecimalTaggedAvroMarshallers),
           NoCompressionGen,
           scala3 = false
-        ).generateFrom(
+        ).generateFromFiles(
           Set(new File(getClass.getResource("/avro/Invalid.avdl").toURI)),
           Avro
         )
@@ -140,7 +140,7 @@ class LegacyAvroSrcGenTests
         scenario.compressionType,
         scenario.useIdiomaticEndpoints,
         scala3 = false
-      ).generateFrom(
+      ).generateFromFiles(
         scenario.inputResourcesPath.map(path => new File(getClass.getResource(path).toURI)),
         scenario.serializationType
       )

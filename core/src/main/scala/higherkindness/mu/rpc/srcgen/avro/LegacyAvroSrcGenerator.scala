@@ -29,7 +29,6 @@ import org.apache.avro._
 
 import java.nio.file.{Path, Paths}
 import scala.collection.JavaConverters._
-import scala.util.Right
 
 final case class LegacyAvroSrcGenerator(
     marshallersImports: List[MarshallersImport],
@@ -62,15 +61,15 @@ final case class LegacyAvroSrcGenerator(
 
   // We must process all inputs including imported files from outside our initial fileset,
   // so we then reduce our output to that based on this fileset
-  override def generateFrom(
+  override def generateFromFiles(
       files: Set[File],
       serializationType: SerializationType
   ): List[Generator.Result] =
     super
-      .generateFrom(files, serializationType)
+      .generateFromFiles(files, serializationType)
       .filter(output => files.contains(output.inputFile))
 
-  def generateFrom(
+  def generateFromFile(
       inputFile: File,
       serializationType: SerializationType
   ): ErrorsOr[Generator.Output] =
@@ -85,30 +84,17 @@ final case class LegacyAvroSrcGenerator(
       serializationType
     )
 
-  def generateFrom(
-      input: String,
-      serializationType: SerializationType
-  ): ErrorsOr[Generator.Output] =
-    generateFromSchemaProtocols(
-      mainGenerator.stringParser
-        .getSchemaOrProtocols(input, mainGenerator.schemaStore),
-      serializationType
-    )
-
   private def generateFromSchemaProtocols(
       schemasOrProtocols: List[Either[Schema, Protocol]],
       serializationType: SerializationType
   ): ErrorsOr[Generator.Output] =
     Some(schemasOrProtocols)
       .filter(_.nonEmpty)
-      .flatMap(_.last match {
-        case Right(p) => Some(p)
-        case _        => None
-      })
+      .flatMap(_.last.toOption)
       .toValidNel(s"No protocol definition found")
-      .andThen(generateFrom(_, serializationType))
+      .andThen(generateFromProtocol(_, serializationType))
 
-  def generateFrom(
+  def generateFromProtocol(
       protocol: Protocol,
       serializationType: SerializationType
   ): ErrorsOr[Generator.Output] = {

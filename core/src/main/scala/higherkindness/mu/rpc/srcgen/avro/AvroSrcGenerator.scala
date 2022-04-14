@@ -47,7 +47,7 @@ object AvroSrcGenerator {
         file.getName.endsWith(AvdlExtension) || file.getName.endsWith(AvprExtension)
       }.toList
 
-    override protected def generateFrom(
+    override protected def generateFromFile(
         inputFile: File,
         serializationType: Model.SerializationType
     ): ErrorsOr[Generator.Output] = {

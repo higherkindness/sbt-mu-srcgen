@@ -27,17 +27,17 @@ trait Generator {
 
   def idlType: Model.IdlType
 
-  def generateFrom(
+  def generateFromFiles(
       files: Set[File],
       serializationType: Model.SerializationType
   ): List[Generator.Result] =
     inputFiles(files).map(inputFile =>
-      Generator.Result(inputFile, generateFrom(inputFile, serializationType))
+      Generator.Result(inputFile, generateFromFile(inputFile, serializationType))
     )
 
   protected def inputFiles(files: Set[File]): List[File]
 
-  protected def generateFrom(
+  protected def generateFromFile(
       inputFile: File,
       serializationType: Model.SerializationType
   ): ErrorsOr[Generator.Output]
