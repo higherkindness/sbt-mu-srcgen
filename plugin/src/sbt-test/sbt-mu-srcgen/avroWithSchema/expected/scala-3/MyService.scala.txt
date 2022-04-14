@@ -1,15 +1,16 @@
 package io.higherkindness
 
 
+
+
 final case class Foo(bar: String)
 
 final case class Person(id: Long, name: String, email: Option[String])
 
 trait MyService[F[_]] {
-
   def hi(request: io.higherkindness.Foo): F[io.higherkindness.Person]
-
 }
+
 object MyService {
   import _root_.higherkindness.mu.rpc.internal.encoders.avrowithschema.given
   val hiMethodDescriptor: _root_.io.grpc.MethodDescriptor[io.higherkindness.Foo, io.higherkindness.Person] = _root_.io.grpc.MethodDescriptor.newBuilder(summon[_root_.io.grpc.MethodDescriptor.Marshaller[io.higherkindness.Foo]], summon[_root_.io.grpc.MethodDescriptor.Marshaller[io.higherkindness.Person]]).setType(_root_.io.grpc.MethodDescriptor.MethodType.UNARY).setFullMethodName(_root_.io.grpc.MethodDescriptor.generateFullMethodName("io.higherkindness.MyService", "hi")).build()

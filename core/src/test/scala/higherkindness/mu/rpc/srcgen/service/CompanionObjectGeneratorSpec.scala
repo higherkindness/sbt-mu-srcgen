@@ -15,28 +15,28 @@ class CompanionObjectGeneratorSpec extends AnyFunSpec {
     methods = List(
       MethodDefn(
         name = "methodOne",
-        in = FullyQualified("_root_.com.foo.bar.MethodOneRequest"),
+        in = RequestParam.Anon(FullyQualified("_root_.com.foo.bar.MethodOneRequest")),
         out = FullyQualified("_root_.com.foo.bar.MethodOneResponse"),
         clientStreaming = false,
         serverStreaming = false
       ),
       MethodDefn(
         name = "methodTwo",
-        in = FullyQualified("_root_.com.foo.bar.MethodTwoRequest"),
+        in = RequestParam.Anon(FullyQualified("_root_.com.foo.bar.MethodTwoRequest")),
         out = FullyQualified("_root_.com.foo.bar.MethodTwoResponse"),
         clientStreaming = true,
         serverStreaming = false
       ),
       MethodDefn(
         name = "methodThree",
-        in = FullyQualified("_root_.com.foo.bar.MethodThreeRequest"),
+        in = RequestParam.Anon(FullyQualified("_root_.com.foo.bar.MethodThreeRequest")),
         out = FullyQualified("_root_.com.foo.bar.MethodThreeResponse"),
         clientStreaming = false,
         serverStreaming = true
       ),
       MethodDefn(
         name = "methodFour",
-        in = FullyQualified("_root_.com.foo.bar.MethodFourRequest"),
+        in = RequestParam.Anon(FullyQualified("_root_.com.foo.bar.MethodFourRequest")),
         out = FullyQualified("_root_.com.foo.bar.MethodFourResponse"),
         clientStreaming = true,
         serverStreaming = true

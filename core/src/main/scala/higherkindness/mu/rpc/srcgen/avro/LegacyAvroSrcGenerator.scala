@@ -94,83 +94,94 @@ final case class LegacyAvroSrcGenerator(
       .toValidNel(s"No protocol definition found")
       .andThen(generateFromProtocol(_, serializationType))
 
+  private case class PackageLineAndMessageLines(packageLine: String, messageLines: List[String])
+
   def generateFromProtocol(
       protocol: Protocol,
       serializationType: SerializationType
   ): ErrorsOr[Generator.Output] = {
+    val fileContent =
+      if (protocol.getMessages.isEmpty) {
+        val PackageLineAndMessageLines(packageLine, messageLines) =
+          generateMessageClasses(protocol, adtGenerator)
+        (packageLine :: "" :: messageLines).validNel
+      } else {
+        generateMessageClassesAndService(protocol, mainGenerator, serializationType)
+      }
+    fileContent.map(Generator.Output(getPath(protocol), _))
+  }
 
-    val schemaGenerator = if (protocol.getMessages.isEmpty) adtGenerator else mainGenerator
-
-    // TODO rewrite most of the code below, once we have scripted tests in place to check the file contents
-
-    val schemaLines = schemaGenerator
+  private def generateMessageClasses(
+      protocol: Protocol,
+      schemaGenerator: avrohugger.Generator
+  ): PackageLineAndMessageLines = {
+    val (packageLine :: messageLines) = schemaGenerator
       .protocolToStrings(protocol)
       .mkString
       .split('\n')
-      .toSeq
+      .toList
       .tail                 // remove top comment and get package declaration on first line
       .filterNot(_ == "()") // https://github.com/julianpeeters/sbt-avrohugger/issues/33
 
-    val packageLines = List(schemaLines.head, "")
+    PackageLineAndMessageLines(packageLine, messageLines)
+  }
 
-    val importLines =
+  private def generateMessageClassesAndService(
+      protocol: Protocol,
+      schemaGenerator: avrohugger.Generator,
+      serializationType: SerializationType
+  ): ErrorsOr[List[String]] = {
+    val imports: String =
       marshallersImports
         .map(mi => s"import ${mi.marshallersImport}")
         .sorted
+        .mkString("\n")
 
-    val messageLines = (schemaLines.tail :+ "").toList
+    val PackageLineAndMessageLines(pkg, messageLines) =
+      generateMessageClasses(protocol, schemaGenerator)
+    val messages = messageLines.mkString("\n")
 
-    val requestLines = protocol.getMessages.asScala.toList.flatTraverse { case (name, message) =>
-      val comment = Option(message.getDoc).map(doc => s"  /** $doc */").toList
-      buildMethodSignature(name, message.getRequest, message.getResponse).map { content =>
-        comment ++ List(content, "")
-      }
+    val methodDefns: ErrorsOr[List[MethodDefn]] = protocol.getMessages.asScala.toList.traverse {
+      case (name, message) =>
+        buildMethodDefn(name, message)
     }
 
-    def buildMethodDefn(methodName: String, message: Protocol#Message): MethodDefn = MethodDefn(
-      name = methodName,
-      in = fullyQualifiedRequestType(message.getRequest),
-      out = fullyQualifiedResponseType(message.getResponse),
-      clientStreaming = false,
-      serverStreaming = false
-    )
+    methodDefns.map { methods =>
+      val serviceMethods: String = methods.map(methodSignature).flatten.indent.mkString("\n")
 
-    val outputCode = requestLines.map { requests =>
-      val (serviceTraitLines, companionObjectLines) = requests match {
-        case Nil =>
-          (Nil, Nil)
-        case _ =>
-          val traitLines =
-            List(
-              s"trait ${protocol.getName}[F[_]] {",
-              ""
-            ) ++ requests :+ "}"
+      val serviceTrait: String =
+        s"""|trait ${protocol.getName}[F[_]] {
+            |$serviceMethods
+            |}""".stripMargin
 
-          val serviceDefn = ServiceDefn(
-            name = protocol.getName,
-            fullName = s"${protocol.getNamespace}.${protocol.getName}",
-            methods = protocol.getMessages.asScala.toList.map { case (methodName, message) =>
-              buildMethodDefn(methodName, message)
-            }
-          )
+      val serviceDefn = ServiceDefn(
+        name = protocol.getName,
+        fullName = s"${protocol.getNamespace}.${protocol.getName}",
+        methods = methods
+      )
+      val params = MuServiceParams(
+        idiomaticEndpoints = useIdiomaticEndpoints,
+        compressionType = compressionType,
+        serializationType = serializationType,
+        scala3 = scala3
+      )
+      val companionObject: String =
+        new CompanionObjectGenerator(serviceDefn, params).generateTree.syntax
 
-          val params = MuServiceParams(
-            idiomaticEndpoints = useIdiomaticEndpoints,
-            compressionType = compressionType,
-            serializationType = serializationType,
-            scala3 = scala3
-          )
-
-          val companionObjectTree  = new CompanionObjectGenerator(serviceDefn, params).generateTree
-          val companionObjectLines = companionObjectTree.syntax.split('\n').toList
-
-          (traitLines, companionObjectLines)
-      }
-
-      packageLines ++ importLines ++ messageLines ++ serviceTraitLines ++ companionObjectLines
+      s"""|$pkg
+          |
+          |$imports
+          |
+          |$messages
+          |
+          |$serviceTrait
+          |
+          |$companionObject
+          |""".stripMargin
+        .split("\n")
+        .toList
     }
 
-    outputCode.map(Generator.Output(getPath(protocol), _))
   }
 
   private def getPath(p: Protocol): Path = {
@@ -189,13 +200,13 @@ final case class LegacyAvroSrcGenerator(
     Paths.get(pathParts.head, pathParts.tail: _*)
   }
 
-  private def validateRequest(request: Schema): ErrorsOr[String] = {
+  private def validateRequest(request: Schema): ErrorsOr[RequestParam] = {
     val requestArgs = request.getFields.asScala
     requestArgs.toList match {
       case Nil =>
-        s"$DefaultRequestParamName: $EmptyType".validNel
+        RequestParam.Anon(FullyQualified(EmptyType)).validNel
       case x :: Nil if x.schema.getType == Schema.Type.RECORD =>
-        s"${requestArgs.head.name}: ${requestArgs.head.schema.getFullName}".validNel
+        RequestParam.Named(x.name, FullyQualified(x.schema.getFullName)).validNel
       case _ :: Nil =>
         s"RPC method request parameter '${requestArgs.head.name}' has non-record request type '${requestArgs.head.schema.getType}'".invalidNel
       case _ =>
@@ -203,43 +214,42 @@ final case class LegacyAvroSrcGenerator(
     }
   }
 
-  private def fullyQualifiedRequestType(request: Schema): FullyQualified = {
-    val requestArgs = request.getFields.asScala
-    requestArgs.toList match {
-      case Nil =>
-        FullyQualified(EmptyType)
-      case _ =>
-        FullyQualified(requestArgs.head.schema.getFullName)
-    }
-  }
-
-  private def fullyQualifiedResponseType(response: Schema): FullyQualified =
+  private def validateResponse(response: Schema): ErrorsOr[FullyQualified] = {
     response.getType match {
       case Schema.Type.NULL =>
-        FullyQualified(EmptyType)
-      case _ =>
-        FullyQualified(response.getFullName)
-    }
-
-  private def validateResponse(response: Schema): ErrorsOr[String] = {
-    response.getType match {
-      case Schema.Type.NULL =>
-        EmptyType.validNel
+        FullyQualified(EmptyType).validNel
       case Schema.Type.RECORD =>
-        s"${response.getNamespace}.${response.getName}".validNel
+        FullyQualified(response.getFullName).validNel
       case _ =>
         s"RPC method response parameter has non-record response type '${response.getType}'".invalidNel
     }
   }
 
-  def buildMethodSignature(
-      name: String,
-      request: Schema,
-      response: Schema
-  ): ErrorsOr[String] = {
-    (validateRequest(request), validateResponse(response)).mapN {
-      case (requestParam, responseParam) =>
-        s"  def $name($requestParam): F[$responseParam]"
+  def methodSignature(method: MethodDefn): List[String] = {
+    val comment = method.comment.map(doc => s"/** $doc */")
+    val requestParam = method.in match {
+      case RequestParam.Anon(tpe)        => s"$DefaultRequestParamName: ${tpe.tpe}"
+      case RequestParam.Named(name, tpe) => s"$name: ${tpe.tpe}"
     }
+    val signature = s"def ${method.name}($requestParam): F[${method.out.tpe}]"
+    List(comment, Some(signature)).flatten
   }
+
+  def buildMethodDefn(methodName: String, message: Protocol#Message): ErrorsOr[MethodDefn] =
+    (validateRequest(message.getRequest), validateResponse(message.getResponse)).mapN {
+      case (requestParam, responseType) =>
+        MethodDefn(
+          name = methodName,
+          in = requestParam,
+          out = responseType,
+          clientStreaming = false,
+          serverStreaming = false,
+          comment = Option(message.getDoc)
+        )
+    }
+
+  private implicit class StringListOps(val xs: List[String]) {
+    def indent: List[String] = xs.map(x => s"  $x")
+  }
+
 }

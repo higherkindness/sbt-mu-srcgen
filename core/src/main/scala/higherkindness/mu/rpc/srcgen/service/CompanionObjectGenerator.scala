@@ -94,7 +94,7 @@ class CompanionObjectGenerator(
     Term.Name(s"${md.name}MethodDescriptor")
 
   def inputType(md: MethodDefn): Type =
-    md.in.tpe.parse[Type].get
+    md.in.tpe.tpe.parse[Type].get
 
   def outputType(md: MethodDefn): Type =
     md.out.tpe.parse[Type].get
