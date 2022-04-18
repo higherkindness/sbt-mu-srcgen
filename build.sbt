@@ -16,7 +16,7 @@ lazy val core = project
       "io.higherkindness"    %% "skeuomorph"          % "0.1.3",
       "com.julianpeeters"    %% "avrohugger-core"     % "1.0.0",
       "com.thesamet.scalapb" %% "compilerplugin"      % "0.11.10",
-      "org.scalameta"        %% "scalameta"           % "4.5.3",
+      "org.scalameta"        %% "scalameta"           % "4.5.4",
       "ch.epfl.scala"        %% "scalafix-core"       % "0.10.0",
       "ch.epfl.scala"        %% "scalafix-cli"        % "0.10.0" cross CrossVersion.full,
       "ch.epfl.scala"         % "scalafix-interfaces" % "0.10.0",
