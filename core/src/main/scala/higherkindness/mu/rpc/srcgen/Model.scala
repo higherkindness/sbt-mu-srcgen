@@ -69,8 +69,4 @@ object Model {
     }
   }
 
-  sealed abstract class AvroGeneratorTypeGen extends Product with Serializable
-  case object AvrohuggerGen                  extends AvroGeneratorTypeGen
-  case object SkeumorphGen                   extends AvroGeneratorTypeGen
-
 }

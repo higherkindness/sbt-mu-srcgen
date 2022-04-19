@@ -16,7 +16,8 @@
 
 package higherkindness.mu.rpc.srcgen
 
-import higherkindness.mu.rpc.srcgen.Model.{IdlType, SerializationType}
+import higherkindness.mu.rpc.srcgen.Model._
+import higherkindness.mu.rpc.srcgen.avro.AvrohuggerSrcGenerator
 import cats.data.{NonEmptyList, ValidatedNel}
 import cats.data.Validated.Invalid
 import cats.data.Validated.Valid
@@ -102,4 +103,24 @@ class GeneratorApplication(scala3: Boolean, generators: Generator*) {
   }
 
   // $COVERAGE-ON$
+}
+
+object GeneratorApplication {
+
+  def apply(
+      marshallersImports: List[MarshallersImport],
+      compressionTypeGen: CompressionTypeGen,
+      useIdiomaticEndpoints: Boolean,
+      scala3: Boolean
+  ): GeneratorApplication =
+    new GeneratorApplication(
+      scala3,
+      AvrohuggerSrcGenerator(
+        marshallersImports,
+        compressionTypeGen,
+        useIdiomaticEndpoints,
+        scala3
+      )
+    )
+
 }

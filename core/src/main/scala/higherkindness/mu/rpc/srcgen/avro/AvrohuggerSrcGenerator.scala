@@ -30,12 +30,15 @@ import org.apache.avro._
 import java.nio.file.{Path, Paths}
 import scala.collection.JavaConverters._
 
-final case class LegacyAvroSrcGenerator(
+final case class AvrohuggerSrcGenerator(
     marshallersImports: List[MarshallersImport],
     compressionType: CompressionTypeGen = NoCompressionGen,
     useIdiomaticEndpoints: Boolean = true,
     scala3: Boolean
 ) extends Generator {
+
+  private val AvprExtension = ".avpr"
+  private val AvdlExtension = ".avdl"
 
   private val avroScalaCustomTypes = Standard.defaultTypes.copy(
     enum = if (scala3) ScalaCaseObjectEnum else ScalaEnumeration,

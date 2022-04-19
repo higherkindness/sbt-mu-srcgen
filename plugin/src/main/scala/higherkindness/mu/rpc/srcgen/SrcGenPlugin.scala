@@ -99,11 +99,6 @@ object SrcGenPlugin extends AutoPlugin {
           "namespace as prefix. `true` by default."
       )
 
-    lazy val muSrcGenAvroGeneratorType: SettingKey[AvroGeneratorTypeGen] =
-      settingKey[AvroGeneratorTypeGen](
-        "Specifies the Avro generation type: `SkeumorphGen` or `AvrohuggerGen`. `SkeumorphGen` by default."
-      )
-
     lazy val muSrcGenProtocVersion: SettingKey[Option[String]] =
       settingKey[Option[String]](
         s"Specifies the protoc version. If not set, ScalaPB's default version is used."
@@ -143,7 +138,6 @@ object SrcGenPlugin extends AutoPlugin {
     },
     muSrcGenCompressionType    := NoCompressionGen,
     muSrcGenIdiomaticEndpoints := true,
-    muSrcGenAvroGeneratorType  := SkeumorphGen,
     muSrcGenProtocVersion      := None
   )
 
@@ -181,8 +175,7 @@ object SrcGenPlugin extends AutoPlugin {
               Nil
             case _ =>
               srcGenTask(
-                SrcGenApplication(
-                  muSrcGenAvroGeneratorType.value,
+                GeneratorApplication(
                   muSrcGenMarshallerImports.value,
                   muSrcGenCompressionType.value,
                   muSrcGenIdiomaticEndpoints.value,
