@@ -174,18 +174,20 @@ object SrcGenPlugin extends AutoPlugin {
               // our source generator because ScalaPB is in charge of the srcgen
               Nil
             case _ =>
-              srcGenTask(
-                GeneratorApplication(
-                  muSrcGenMarshallerImports.value,
-                  muSrcGenCompressionType.value,
-                  muSrcGenIdiomaticEndpoints.value,
-                  scala3 = scalaBinaryVersion.value.startsWith("3")
-                ),
-                muSrcGenIdlType.value,
+              val generatorApp = GeneratorApplication(
+                muSrcGenMarshallerImports.value,
+                muSrcGenCompressionType.value,
                 muSrcGenSerializationType.value,
+                muSrcGenIdiomaticEndpoints.value,
+                scala3 = scalaBinaryVersion.value.startsWith("3")
+              )
+              val f: Set[File] => Set[File] = srcGenTask(
+                generatorApp,
+                muSrcGenIdlType.value,
                 muSrcGenTargetDir.value,
                 target.value / "srcGen"
-              )(muSrcGenIdlTargetDir.value.allPaths.get.toSet).toSeq
+              )
+              f(muSrcGenIdlTargetDir.value.allPaths.get.toSet).toSeq
           }
         }
         .dependsOn(
@@ -333,13 +335,12 @@ object SrcGenPlugin extends AutoPlugin {
   private def srcGenTask(
       generator: GeneratorApplication,
       idlType: IdlType,
-      serializationType: SerializationType,
       targetDir: File,
       cacheDir: File
   ): Set[File] => Set[File] =
     FileFunction.cached(cacheDir, FilesInfo.lastModified, FilesInfo.exists) {
       inputFiles: Set[File] =>
-        generator.generateSources(idlType, serializationType, inputFiles, targetDir).toSet
+        generator.generateSources(idlType, inputFiles, targetDir).toSet
     }
 
   private def extractIDLDefinitionsFromJar(

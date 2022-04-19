@@ -112,13 +112,13 @@ class AvrohuggerSrcGenTests
     "return a non-empty list of errors instead of generating code from an invalid IDL file" in {
       val actual :: Nil = {
         AvrohuggerSrcGenerator(
-          List(BigDecimalTaggedAvroMarshallers),
-          NoCompressionGen,
+          marshallersImports = List(BigDecimalTaggedAvroMarshallers),
+          compressionType = NoCompressionGen,
+          serializationType = Avro,
           useIdiomaticEndpoints = true,
           scala3 = false
         ).generateFromFiles(
-          Set(new File(getClass.getResource("/avro/Invalid.avdl").toURI)),
-          Avro
+          Set(new File(getClass.getResource("/avro/Invalid.avdl").toURI))
         )
       }
 
@@ -137,11 +137,11 @@ class AvrohuggerSrcGenTests
       AvrohuggerSrcGenerator(
         scenario.marshallersImports,
         compressionType = NoCompressionGen,
+        serializationType = scenario.serializationType,
         useIdiomaticEndpoints = true,
         scala3 = false
       ).generateFromFiles(
-        scenario.inputResourcesPath.map(path => new File(getClass.getResource(path).toURI)),
-        scenario.serializationType
+        scenario.inputResourcesPath.map(path => new File(getClass.getResource(path).toURI))
       )
     output should not be empty
     output forall { case Result(_, contents) =>

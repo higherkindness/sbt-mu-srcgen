@@ -36,14 +36,13 @@ class GeneratorApplication(scala3: Boolean, generators: Generator*) {
 
   def generateSources(
       idlType: IdlType,
-      serializationType: SerializationType,
       inputFiles: Set[File],
       outputDir: File
   ): Seq[File] = generatorsByType.get(idlType) match {
     case Some(generator) =>
       val result: ValidatedNel[(File, NonEmptyList[Error]), List[(File, List[String])]] =
         generator
-          .generateFromFiles(inputFiles, serializationType)
+          .generateFromFiles(inputFiles)
           .traverse {
             case Generator.Result(inputFile, Invalid(readErrors)) =>
               (inputFile, readErrors).invalidNel
@@ -110,6 +109,7 @@ object GeneratorApplication {
   def apply(
       marshallersImports: List[MarshallersImport],
       compressionTypeGen: CompressionTypeGen,
+      serializationType: SerializationType,
       useIdiomaticEndpoints: Boolean,
       scala3: Boolean
   ): GeneratorApplication =
@@ -118,6 +118,7 @@ object GeneratorApplication {
       AvrohuggerSrcGenerator(
         marshallersImports,
         compressionTypeGen,
+        serializationType,
         useIdiomaticEndpoints,
         scala3
       )
