@@ -16,7 +16,8 @@
 
 package higherkindness.mu.rpc.srcgen
 
-import higherkindness.mu.rpc.srcgen.Model.{IdlType, SerializationType}
+import higherkindness.mu.rpc.srcgen.Model._
+import higherkindness.mu.rpc.srcgen.avro.AvrohuggerSrcGenerator
 import cats.data.{NonEmptyList, ValidatedNel}
 import cats.data.Validated.Invalid
 import cats.data.Validated.Valid
@@ -35,14 +36,13 @@ class GeneratorApplication(scala3: Boolean, generators: Generator*) {
 
   def generateSources(
       idlType: IdlType,
-      serializationType: SerializationType,
       inputFiles: Set[File],
       outputDir: File
   ): Seq[File] = generatorsByType.get(idlType) match {
     case Some(generator) =>
       val result: ValidatedNel[(File, NonEmptyList[Error]), List[(File, List[String])]] =
         generator
-          .generateFromFiles(inputFiles, serializationType)
+          .generateFromFiles(inputFiles)
           .traverse {
             case Generator.Result(inputFile, Invalid(readErrors)) =>
               (inputFile, readErrors).invalidNel
@@ -102,4 +102,26 @@ class GeneratorApplication(scala3: Boolean, generators: Generator*) {
   }
 
   // $COVERAGE-ON$
+}
+
+object GeneratorApplication {
+
+  def apply(
+      marshallersImports: List[MarshallersImport],
+      compressionTypeGen: CompressionTypeGen,
+      serializationType: SerializationType,
+      useIdiomaticEndpoints: Boolean,
+      scala3: Boolean
+  ): GeneratorApplication =
+    new GeneratorApplication(
+      scala3,
+      AvrohuggerSrcGenerator(
+        marshallersImports,
+        compressionTypeGen,
+        serializationType,
+        useIdiomaticEndpoints,
+        scala3
+      )
+    )
+
 }

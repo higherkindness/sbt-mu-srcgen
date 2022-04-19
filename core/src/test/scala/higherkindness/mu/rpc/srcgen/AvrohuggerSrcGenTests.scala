@@ -32,7 +32,7 @@ import org.scalatestplus.scalacheck.Checkers
 
 import java.io.File
 
-class LegacyAvroSrcGenTests
+class AvrohuggerSrcGenTests
     extends AnyWordSpec
     with Matchers
     with OneInstancePerTest
@@ -99,11 +99,9 @@ class LegacyAvroSrcGenTests
   }
 
   implicit val scenarioArb: Arbitrary[Scenario] =
-    scenarioArbitrary((serializationType, marshallersImports, _, _, messagesAsImportFile) =>
-      generateOutput(serializationType, marshallersImports, messagesAsImportFile)
-    )
+    scenarioArbitrary(generateOutput)
 
-  "Legacy Avro Scala Generator" should {
+  "Avro Scala Generator" should {
 
     "generate correct Scala classes" in {
       check {
@@ -113,13 +111,14 @@ class LegacyAvroSrcGenTests
 
     "return a non-empty list of errors instead of generating code from an invalid IDL file" in {
       val actual :: Nil = {
-        LegacyAvroSrcGenerator(
-          List(BigDecimalTaggedAvroMarshallers),
-          NoCompressionGen,
+        AvrohuggerSrcGenerator(
+          marshallersImports = List(BigDecimalTaggedAvroMarshallers),
+          compressionType = NoCompressionGen,
+          serializationType = Avro,
+          useIdiomaticEndpoints = true,
           scala3 = false
         ).generateFromFiles(
-          Set(new File(getClass.getResource("/avro/Invalid.avdl").toURI)),
-          Avro
+          Set(new File(getClass.getResource("/avro/Invalid.avdl").toURI))
         )
       }
 
@@ -135,14 +134,14 @@ class LegacyAvroSrcGenTests
 
   private def test(scenario: Scenario): Boolean = {
     val output =
-      LegacyAvroSrcGenerator(
+      AvrohuggerSrcGenerator(
         scenario.marshallersImports,
-        scenario.compressionType,
-        scenario.useIdiomaticEndpoints,
+        compressionType = NoCompressionGen,
+        serializationType = scenario.serializationType,
+        useIdiomaticEndpoints = true,
         scala3 = false
       ).generateFromFiles(
-        scenario.inputResourcesPath.map(path => new File(getClass.getResource(path).toURI)),
-        scenario.serializationType
+        scenario.inputResourcesPath.map(path => new File(getClass.getResource(path).toURI))
       )
     output should not be empty
     output forall { case Result(_, contents) =>

@@ -30,12 +30,16 @@ import org.apache.avro._
 import java.nio.file.{Path, Paths}
 import scala.collection.JavaConverters._
 
-final case class LegacyAvroSrcGenerator(
+final case class AvrohuggerSrcGenerator(
     marshallersImports: List[MarshallersImport],
     compressionType: CompressionTypeGen = NoCompressionGen,
+    serializationType: SerializationType,
     useIdiomaticEndpoints: Boolean = true,
     scala3: Boolean
 ) extends Generator {
+
+  private val AvprExtension = ".avpr"
+  private val AvdlExtension = ".avdl"
 
   private val avroScalaCustomTypes = Standard.defaultTypes.copy(
     enum = if (scala3) ScalaCaseObjectEnum else ScalaEnumeration,
@@ -61,18 +65,12 @@ final case class LegacyAvroSrcGenerator(
 
   // We must process all inputs including imported files from outside our initial fileset,
   // so we then reduce our output to that based on this fileset
-  override def generateFromFiles(
-      files: Set[File],
-      serializationType: SerializationType
-  ): List[Generator.Result] =
+  override def generateFromFiles(files: Set[File]): List[Generator.Result] =
     super
-      .generateFromFiles(files, serializationType)
+      .generateFromFiles(files)
       .filter(output => files.contains(output.inputFile))
 
-  def generateFromFile(
-      inputFile: File,
-      serializationType: SerializationType
-  ): ErrorsOr[Generator.Output] =
+  def generateFromFile(inputFile: File): ErrorsOr[Generator.Output] =
     generateFromSchemaProtocols(
       mainGenerator.fileParser
         .getSchemaOrProtocols(
@@ -80,33 +78,28 @@ final case class LegacyAvroSrcGenerator(
           mainGenerator.format,
           mainGenerator.classStore,
           mainGenerator.classLoader
-        ),
-      serializationType
+        )
     )
 
   private def generateFromSchemaProtocols(
-      schemasOrProtocols: List[Either[Schema, Protocol]],
-      serializationType: SerializationType
+      schemasOrProtocols: List[Either[Schema, Protocol]]
   ): ErrorsOr[Generator.Output] =
     Some(schemasOrProtocols)
       .filter(_.nonEmpty)
       .flatMap(_.last.toOption)
       .toValidNel(s"No protocol definition found")
-      .andThen(generateFromProtocol(_, serializationType))
+      .andThen(generateFromProtocol(_))
 
   private case class PackageLineAndMessageLines(packageLine: String, messageLines: List[String])
 
-  def generateFromProtocol(
-      protocol: Protocol,
-      serializationType: SerializationType
-  ): ErrorsOr[Generator.Output] = {
+  def generateFromProtocol(protocol: Protocol): ErrorsOr[Generator.Output] = {
     val fileContent =
       if (protocol.getMessages.isEmpty) {
         val PackageLineAndMessageLines(packageLine, messageLines) =
           generateMessageClasses(protocol, adtGenerator)
         (packageLine :: "" :: messageLines).validNel
       } else {
-        generateMessageClassesAndService(protocol, mainGenerator, serializationType)
+        generateMessageClassesAndService(protocol, mainGenerator)
       }
     fileContent.map(Generator.Output(getPath(protocol), _))
   }
@@ -128,8 +121,7 @@ final case class LegacyAvroSrcGenerator(
 
   private def generateMessageClassesAndService(
       protocol: Protocol,
-      schemaGenerator: avrohugger.Generator,
-      serializationType: SerializationType
+      schemaGenerator: avrohugger.Generator
   ): ErrorsOr[List[String]] = {
     val imports: String =
       marshallersImports

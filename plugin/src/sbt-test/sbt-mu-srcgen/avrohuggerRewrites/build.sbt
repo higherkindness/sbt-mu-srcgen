@@ -9,5 +9,4 @@ libraryDependencies ++= Seq(
   "io.higherkindness" %% "mu-rpc-server" % sys.props("mu")
 )
 
-muSrcGenIdlType           := higherkindness.mu.rpc.srcgen.Model.IdlType.Avro
-muSrcGenAvroGeneratorType := higherkindness.mu.rpc.srcgen.Model.AvrohuggerGen
+muSrcGenIdlType := higherkindness.mu.rpc.srcgen.Model.IdlType.Avro

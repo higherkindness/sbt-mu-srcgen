@@ -10,4 +10,3 @@ libraryDependencies ++= Seq(
 
 muSrcGenIdlType := higherkindness.mu.rpc.srcgen.Model.IdlType.Avro
 muSrcGenSerializationType := higherkindness.mu.rpc.srcgen.Model.SerializationType.Avro
-muSrcGenAvroGeneratorType := higherkindness.mu.rpc.srcgen.Model.AvrohuggerGen
