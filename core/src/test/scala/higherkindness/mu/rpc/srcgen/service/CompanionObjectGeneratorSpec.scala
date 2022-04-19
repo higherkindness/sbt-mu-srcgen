@@ -15,28 +15,28 @@ class CompanionObjectGeneratorSpec extends AnyFunSpec {
     methods = List(
       MethodDefn(
         name = "methodOne",
-        in = FullyQualified("_root_.com.foo.bar.MethodOneRequest"),
+        in = RequestParam.Anon(FullyQualified("_root_.com.foo.bar.MethodOneRequest")),
         out = FullyQualified("_root_.com.foo.bar.MethodOneResponse"),
         clientStreaming = false,
         serverStreaming = false
       ),
       MethodDefn(
         name = "methodTwo",
-        in = FullyQualified("_root_.com.foo.bar.MethodTwoRequest"),
+        in = RequestParam.Anon(FullyQualified("_root_.com.foo.bar.MethodTwoRequest")),
         out = FullyQualified("_root_.com.foo.bar.MethodTwoResponse"),
         clientStreaming = true,
         serverStreaming = false
       ),
       MethodDefn(
         name = "methodThree",
-        in = FullyQualified("_root_.com.foo.bar.MethodThreeRequest"),
+        in = RequestParam.Anon(FullyQualified("_root_.com.foo.bar.MethodThreeRequest")),
         out = FullyQualified("_root_.com.foo.bar.MethodThreeResponse"),
         clientStreaming = false,
         serverStreaming = true
       ),
       MethodDefn(
         name = "methodFour",
-        in = FullyQualified("_root_.com.foo.bar.MethodFourRequest"),
+        in = RequestParam.Anon(FullyQualified("_root_.com.foo.bar.MethodFourRequest")),
         out = FullyQualified("_root_.com.foo.bar.MethodFourResponse"),
         clientStreaming = true,
         serverStreaming = true
@@ -46,12 +46,84 @@ class CompanionObjectGeneratorSpec extends AnyFunSpec {
 
   describe("CompanionObjectGenerator") {
 
-    it("generates method descriptors") {
+    it("generates a marshaller import (Protobuf, Scala 2)") {
       val generator = new CompanionObjectGenerator(
         serviceDefn,
         MuServiceParams(
           idiomaticEndpoints = true,
           compressionType = GzipGen,
+          serializationType = SerializationType.Protobuf,
+          scala3 = false
+        )
+      )
+      val tree = generator.marshallerImport
+
+      val expected = q"import _root_.higherkindness.mu.rpc.internal.encoders.spb._"
+
+      compare(tree, expected)
+    }
+
+    it("generates a marshaller import (Protobuf, Scala 3)") {
+      val generator = new CompanionObjectGenerator(
+        serviceDefn,
+        MuServiceParams(
+          idiomaticEndpoints = true,
+          compressionType = GzipGen,
+          serializationType = SerializationType.Protobuf,
+          scala3 = true
+        )
+      )
+      val tree = generator.marshallerImport
+
+      val expected = {
+        import scala.meta.dialects.Scala3
+        q"import _root_.higherkindness.mu.rpc.internal.encoders.spb.given"
+      }
+
+      compare(tree, expected)
+    }
+
+    it("generates a marshaller import (Avro, Scala 2)") {
+      val generator = new CompanionObjectGenerator(
+        serviceDefn,
+        MuServiceParams(
+          idiomaticEndpoints = true,
+          compressionType = GzipGen,
+          serializationType = SerializationType.Avro,
+          scala3 = false
+        )
+      )
+      val tree = generator.marshallerImport
+
+      val expected = q"import _root_.higherkindness.mu.rpc.internal.encoders.avro._"
+
+      compare(tree, expected)
+    }
+
+    it("generates a marshaller import (Avro with schema, Scala 2)") {
+      val generator = new CompanionObjectGenerator(
+        serviceDefn,
+        MuServiceParams(
+          idiomaticEndpoints = true,
+          compressionType = GzipGen,
+          serializationType = SerializationType.AvroWithSchema,
+          scala3 = false
+        )
+      )
+      val tree = generator.marshallerImport
+
+      val expected = q"import _root_.higherkindness.mu.rpc.internal.encoders.avrowithschema._"
+
+      compare(tree, expected)
+    }
+
+    it("generates method descriptors (Scala 2)") {
+      val generator = new CompanionObjectGenerator(
+        serviceDefn,
+        MuServiceParams(
+          idiomaticEndpoints = true,
+          compressionType = GzipGen,
+          serializationType = SerializationType.Protobuf,
           scala3 = false
         )
       )
@@ -60,8 +132,34 @@ class CompanionObjectGeneratorSpec extends AnyFunSpec {
       val expected = q"""
         val methodOneMethodDescriptor: _root_.io.grpc.MethodDescriptor[_root_.com.foo.bar.MethodOneRequest, _root_.com.foo.bar.MethodOneResponse] =
           _root_.io.grpc.MethodDescriptor.newBuilder(
-            _root_.scalapb.grpc.Marshaller.forMessage[_root_.com.foo.bar.MethodOneRequest],
-            _root_.scalapb.grpc.Marshaller.forMessage[_root_.com.foo.bar.MethodOneResponse]
+            implicitly[_root_.io.grpc.MethodDescriptor.Marshaller[_root_.com.foo.bar.MethodOneRequest]],
+            implicitly[_root_.io.grpc.MethodDescriptor.Marshaller[_root_.com.foo.bar.MethodOneResponse]]
+          )
+          .setType(_root_.io.grpc.MethodDescriptor.MethodType.UNARY)
+          .setFullMethodName(_root_.io.grpc.MethodDescriptor.generateFullMethodName("com.foo.bar.MyService", "methodOne"))
+          .build()
+        """
+
+      compare(tree, expected)
+    }
+
+    it("generates method descriptors (Scala 3)") {
+      val generator = new CompanionObjectGenerator(
+        serviceDefn,
+        MuServiceParams(
+          idiomaticEndpoints = true,
+          compressionType = GzipGen,
+          serializationType = SerializationType.Protobuf,
+          scala3 = true
+        )
+      )
+      val tree = generator.methodDescriptorValDef(serviceDefn.methods.head)
+
+      val expected = q"""
+        val methodOneMethodDescriptor: _root_.io.grpc.MethodDescriptor[_root_.com.foo.bar.MethodOneRequest, _root_.com.foo.bar.MethodOneResponse] =
+          _root_.io.grpc.MethodDescriptor.newBuilder(
+            summon[_root_.io.grpc.MethodDescriptor.Marshaller[_root_.com.foo.bar.MethodOneRequest]],
+            summon[_root_.io.grpc.MethodDescriptor.Marshaller[_root_.com.foo.bar.MethodOneResponse]]
           )
           .setType(_root_.io.grpc.MethodDescriptor.MethodType.UNARY)
           .setFullMethodName(_root_.io.grpc.MethodDescriptor.generateFullMethodName("com.foo.bar.MyService", "methodOne"))
@@ -77,6 +175,7 @@ class CompanionObjectGeneratorSpec extends AnyFunSpec {
         MuServiceParams(
           idiomaticEndpoints = true,
           compressionType = GzipGen,
+          serializationType = SerializationType.Protobuf,
           scala3 = false
         )
       )
@@ -135,6 +234,7 @@ class CompanionObjectGeneratorSpec extends AnyFunSpec {
         MuServiceParams(
           idiomaticEndpoints = true,
           compressionType = GzipGen,
+          serializationType = SerializationType.Protobuf,
           scala3 = true
         )
       )
@@ -196,6 +296,7 @@ class CompanionObjectGeneratorSpec extends AnyFunSpec {
         MuServiceParams(
           idiomaticEndpoints = true,
           compressionType = GzipGen,
+          serializationType = SerializationType.Protobuf,
           scala3 = false
         )
       )
@@ -259,6 +360,7 @@ class CompanionObjectGeneratorSpec extends AnyFunSpec {
         MuServiceParams(
           idiomaticEndpoints = true,
           compressionType = GzipGen,
+          serializationType = SerializationType.Protobuf,
           scala3 = true
         )
       )
@@ -325,6 +427,7 @@ class CompanionObjectGeneratorSpec extends AnyFunSpec {
         MuServiceParams(
           idiomaticEndpoints = true,
           compressionType = GzipGen,
+          serializationType = SerializationType.Protobuf,
           scala3 = false
         )
       )
@@ -388,6 +491,7 @@ class CompanionObjectGeneratorSpec extends AnyFunSpec {
         MuServiceParams(
           idiomaticEndpoints = true,
           compressionType = GzipGen,
+          serializationType = SerializationType.Protobuf,
           scala3 = false
         )
       )
@@ -419,6 +523,7 @@ class CompanionObjectGeneratorSpec extends AnyFunSpec {
         MuServiceParams(
           idiomaticEndpoints = true,
           compressionType = GzipGen,
+          serializationType = SerializationType.Protobuf,
           scala3 = true
         )
       )
@@ -453,6 +558,7 @@ class CompanionObjectGeneratorSpec extends AnyFunSpec {
         MuServiceParams(
           idiomaticEndpoints = true,
           compressionType = GzipGen,
+          serializationType = SerializationType.Protobuf,
           scala3 = false
         )
       )
@@ -533,6 +639,7 @@ class CompanionObjectGeneratorSpec extends AnyFunSpec {
         MuServiceParams(
           idiomaticEndpoints = true,
           compressionType = GzipGen,
+          serializationType = SerializationType.Protobuf,
           scala3 = true
         )
       )
@@ -616,6 +723,7 @@ class CompanionObjectGeneratorSpec extends AnyFunSpec {
         MuServiceParams(
           idiomaticEndpoints = true,
           compressionType = GzipGen,
+          serializationType = SerializationType.Protobuf,
           scala3 = false
         )
       )
@@ -648,6 +756,7 @@ class CompanionObjectGeneratorSpec extends AnyFunSpec {
         MuServiceParams(
           idiomaticEndpoints = true,
           compressionType = GzipGen,
+          serializationType = SerializationType.Protobuf,
           scala3 = true
         )
       )

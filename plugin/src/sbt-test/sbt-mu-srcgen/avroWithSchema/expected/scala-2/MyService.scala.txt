@@ -1,0 +1,45 @@
+package io.higherkindness
+
+import higherkindness.mu.rpc.internal.encoders.avro.bigDecimalTagged._
+
+
+final case class Foo(bar: String)
+
+final case class Person(id: Long, name: String, email: Option[String])
+
+trait MyService[F[_]] {
+  def hi(request: io.higherkindness.Foo): F[io.higherkindness.Person]
+}
+
+object MyService {
+  import _root_.higherkindness.mu.rpc.internal.encoders.avrowithschema._
+  val hiMethodDescriptor: _root_.io.grpc.MethodDescriptor[io.higherkindness.Foo, io.higherkindness.Person] = _root_.io.grpc.MethodDescriptor.newBuilder(implicitly[_root_.io.grpc.MethodDescriptor.Marshaller[io.higherkindness.Foo]], implicitly[_root_.io.grpc.MethodDescriptor.Marshaller[io.higherkindness.Person]]).setType(_root_.io.grpc.MethodDescriptor.MethodType.UNARY).setFullMethodName(_root_.io.grpc.MethodDescriptor.generateFullMethodName("io.higherkindness.MyService", "hi")).build()
+  def bindService[F[_]](implicit CE: _root_.cats.effect.Async[F], algebra: MyService[F]): _root_.cats.effect.Resource[F, _root_.io.grpc.ServerServiceDefinition] = _root_.cats.effect.std.Dispatcher[F].evalMap {
+    disp => _root_.higherkindness.mu.rpc.internal.service.GRPCServiceDefBuilder.build[F]("io.higherkindness.MyService", (hiMethodDescriptor, _root_.higherkindness.mu.rpc.internal.server.handlers.unary[F, io.higherkindness.Foo, io.higherkindness.Person](algebra.hi, _root_.higherkindness.mu.rpc.protocol.Identity, disp)))
+  }
+  def bindContextService[F[_], Context](implicit CE: _root_.cats.effect.Async[F], serverContext: _root_.higherkindness.mu.rpc.internal.context.ServerContext[F, Context], algebra: MyService[({ type T[α] = _root_.cats.data.Kleisli[F, Context, α] })#T]): _root_.cats.effect.Resource[F, _root_.io.grpc.ServerServiceDefinition] = _root_.cats.effect.std.Dispatcher[F].evalMap {
+    disp => _root_.higherkindness.mu.rpc.internal.service.GRPCServiceDefBuilder.build[F]("io.higherkindness.MyService", (hiMethodDescriptor, _root_.higherkindness.mu.rpc.internal.server.handlers.contextUnary[F, Context, io.higherkindness.Foo, io.higherkindness.Person](algebra.hi, hiMethodDescriptor, _root_.higherkindness.mu.rpc.protocol.Identity, disp)))
+  }
+  class Client[F[_]](channel: _root_.io.grpc.Channel, options: _root_.io.grpc.CallOptions = _root_.io.grpc.CallOptions.DEFAULT)(implicit CE: _root_.cats.effect.Async[F]) extends _root_.io.grpc.stub.AbstractStub[Client[F]](channel, options) with MyService[F] {
+    override def build(channel: _root_.io.grpc.Channel, options: _root_.io.grpc.CallOptions): Client[F] = new Client[F](channel, options)
+    def hi(input: io.higherkindness.Foo): F[io.higherkindness.Person] = _root_.higherkindness.mu.rpc.internal.client.calls.unary[F, io.higherkindness.Foo, io.higherkindness.Person](input, hiMethodDescriptor, channel, options)
+  }
+  def client[F[_]](channelFor: _root_.higherkindness.mu.rpc.ChannelFor, channelConfigList: List[_root_.higherkindness.mu.rpc.channel.ManagedChannelConfig] = List(_root_.higherkindness.mu.rpc.channel.UsePlaintext()), options: _root_.io.grpc.CallOptions = _root_.io.grpc.CallOptions.DEFAULT)(implicit CE: _root_.cats.effect.Async[F]): _root_.cats.effect.Resource[F, MyService[F]] = _root_.cats.effect.Resource.make(new _root_.higherkindness.mu.rpc.channel.ManagedChannelInterpreter[F](channelFor, channelConfigList).build)(channel => CE.void(CE.delay(channel.shutdown()))).evalMap(ch => CE.delay(new Client[F](ch, options)))
+  def clientFromChannel[F[_]](channel: F[_root_.io.grpc.ManagedChannel], options: _root_.io.grpc.CallOptions = _root_.io.grpc.CallOptions.DEFAULT)(implicit CE: _root_.cats.effect.Async[F]): _root_.cats.effect.Resource[F, MyService[F]] = _root_.cats.effect.Resource.make(channel)(channel => CE.void(CE.delay(channel.shutdown()))).evalMap(ch => CE.delay(new Client[F](ch, options)))
+  def unsafeClient[F[_]](channelFor: _root_.higherkindness.mu.rpc.ChannelFor, channelConfigList: List[_root_.higherkindness.mu.rpc.channel.ManagedChannelConfig] = List(_root_.higherkindness.mu.rpc.channel.UsePlaintext()), disp: _root_.cats.effect.std.Dispatcher[F], options: _root_.io.grpc.CallOptions = _root_.io.grpc.CallOptions.DEFAULT)(implicit CE: _root_.cats.effect.Async[F]): MyService[F] = {
+    val managedChannelInterpreter = new _root_.higherkindness.mu.rpc.channel.ManagedChannelInterpreter[F](channelFor, channelConfigList).unsafeBuild(disp)
+    new Client[F](managedChannelInterpreter, options)
+  }
+  def unsafeClientFromChannel[F[_]](channel: _root_.io.grpc.Channel, options: _root_.io.grpc.CallOptions = _root_.io.grpc.CallOptions.DEFAULT)(implicit CE: _root_.cats.effect.Async[F]): MyService[F] = new Client[F](channel, options)
+  class ContextClient[F[_], Context](channel: _root_.io.grpc.Channel, options: _root_.io.grpc.CallOptions = _root_.io.grpc.CallOptions.DEFAULT)(implicit CE: _root_.cats.effect.Async[F], clientContext: _root_.higherkindness.mu.rpc.internal.context.ClientContext[F, Context]) extends _root_.io.grpc.stub.AbstractStub[ContextClient[F, Context]](channel, options) with MyService[({ type T[α] = _root_.cats.data.Kleisli[F, Context, α] })#T] {
+    override def build(channel: _root_.io.grpc.Channel, options: _root_.io.grpc.CallOptions): ContextClient[F, Context] = new ContextClient[F, Context](channel, options)
+    def hi(input: io.higherkindness.Foo): _root_.cats.data.Kleisli[F, Context, io.higherkindness.Person] = _root_.higherkindness.mu.rpc.internal.client.calls.contextUnary[F, Context, io.higherkindness.Foo, io.higherkindness.Person](input, hiMethodDescriptor, channel, options)
+  }
+  def contextClient[F[_], Context](channelFor: _root_.higherkindness.mu.rpc.ChannelFor, channelConfigList: List[_root_.higherkindness.mu.rpc.channel.ManagedChannelConfig] = List(_root_.higherkindness.mu.rpc.channel.UsePlaintext()), options: _root_.io.grpc.CallOptions = _root_.io.grpc.CallOptions.DEFAULT)(implicit CE: _root_.cats.effect.Async[F], clientContext: _root_.higherkindness.mu.rpc.internal.context.ClientContext[F, Context]): _root_.cats.effect.Resource[F, MyService[({ type T[α] = _root_.cats.data.Kleisli[F, Context, α] })#T]] = _root_.cats.effect.Resource.make(new _root_.higherkindness.mu.rpc.channel.ManagedChannelInterpreter[F](channelFor, channelConfigList).build)(channel => CE.void(CE.delay(channel.shutdown()))).evalMap(ch => CE.delay(new ContextClient[F, Context](ch, options)))
+  def contextClientFromChannel[F[_], Context](channel: F[_root_.io.grpc.ManagedChannel], options: _root_.io.grpc.CallOptions = _root_.io.grpc.CallOptions.DEFAULT)(implicit CE: _root_.cats.effect.Async[F], clientContext: _root_.higherkindness.mu.rpc.internal.context.ClientContext[F, Context]): _root_.cats.effect.Resource[F, MyService[({ type T[α] = _root_.cats.data.Kleisli[F, Context, α] })#T]] = _root_.cats.effect.Resource.make(channel)(channel => CE.void(CE.delay(channel.shutdown()))).evalMap(ch => CE.delay(new ContextClient[F, Context](ch, options)))
+  def unsafeContextClient[F[_], Context](channelFor: _root_.higherkindness.mu.rpc.ChannelFor, channelConfigList: List[_root_.higherkindness.mu.rpc.channel.ManagedChannelConfig] = List(_root_.higherkindness.mu.rpc.channel.UsePlaintext()), disp: _root_.cats.effect.std.Dispatcher[F], options: _root_.io.grpc.CallOptions = _root_.io.grpc.CallOptions.DEFAULT)(implicit CE: _root_.cats.effect.Async[F], clientContext: _root_.higherkindness.mu.rpc.internal.context.ClientContext[F, Context]): MyService[({ type T[α] = _root_.cats.data.Kleisli[F, Context, α] })#T] = {
+    val managedChannelInterpreter = new _root_.higherkindness.mu.rpc.channel.ManagedChannelInterpreter[F](channelFor, channelConfigList).unsafeBuild(disp)
+    new ContextClient[F, Context](managedChannelInterpreter, options)
+  }
+  def unsafeContextClientFromChannel[F[_], Context](channel: _root_.io.grpc.Channel, options: _root_.io.grpc.CallOptions = _root_.io.grpc.CallOptions.DEFAULT)(implicit CE: _root_.cats.effect.Async[F], clientContext: _root_.higherkindness.mu.rpc.internal.context.ClientContext[F, Context]): MyService[({ type T[α] = _root_.cats.data.Kleisli[F, Context, α] })#T] = new ContextClient[F, Context](channel, options)
+}

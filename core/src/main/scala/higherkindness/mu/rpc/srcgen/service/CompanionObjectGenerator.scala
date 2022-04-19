@@ -3,6 +3,9 @@ package higherkindness.mu.rpc.srcgen.service
 import scala.meta._
 import higherkindness.mu.rpc.srcgen.Model.GzipGen
 import higherkindness.mu.rpc.srcgen.Model.NoCompressionGen
+import higherkindness.mu.rpc.srcgen.Model.SerializationType.Protobuf
+import higherkindness.mu.rpc.srcgen.Model.SerializationType.Avro
+import higherkindness.mu.rpc.srcgen.Model.SerializationType.AvroWithSchema
 
 class CompanionObjectGenerator(
     service: ServiceDefn,
@@ -40,6 +43,7 @@ class CompanionObjectGenerator(
   def generateTree: Defn.Object =
     q"""
     object ${Term.Name(service.name)} {
+      $marshallerImport
 
       ..${service.methods.map(methodDescriptorValDef)}
 
@@ -63,11 +67,34 @@ class CompanionObjectGenerator(
     }
     """
 
+  private def importGiven(pkg: Term.Select): Import =
+    if (params.scala3) {
+      Import(List(Importer(pkg, List(Importee.GivenAll()))))
+    } else {
+      Import(List(Importer(pkg, List(Importee.Wildcard()))))
+    }
+
+  def marshallerImport: Import = params.serializationType match {
+    case Protobuf =>
+      importGiven(q"_root_.higherkindness.mu.rpc.internal.encoders.spb")
+    case Avro =>
+      importGiven(q"_root_.higherkindness.mu.rpc.internal.encoders.avro")
+    case AvroWithSchema =>
+      importGiven(q"_root_.higherkindness.mu.rpc.internal.encoders.avrowithschema")
+  }
+
+  private def summonOrImplicitlyMarshaller(tpe: Type): Term.ApplyType =
+    if (params.scala3) {
+      q"summon[_root_.io.grpc.MethodDescriptor.Marshaller[$tpe]]"
+    } else {
+      q"implicitly[_root_.io.grpc.MethodDescriptor.Marshaller[$tpe]]"
+    }
+
   def methodDescriptorValName(md: MethodDefn): Term.Name =
     Term.Name(s"${md.name}MethodDescriptor")
 
   def inputType(md: MethodDefn): Type =
-    md.in.tpe.parse[Type].get
+    md.in.tpe.tpe.parse[Type].get
 
   def outputType(md: MethodDefn): Type =
     md.out.tpe.parse[Type].get
@@ -87,9 +114,8 @@ class CompanionObjectGenerator(
     q"""
     val $valName: _root_.io.grpc.MethodDescriptor[$in, $out] =
       _root_.io.grpc.MethodDescriptor.newBuilder(
-        // Note: marshallers hardcoded to protobuf for now
-        _root_.scalapb.grpc.Marshaller.forMessage[$in],
-        _root_.scalapb.grpc.Marshaller.forMessage[$out]
+        ${summonOrImplicitlyMarshaller(in)},
+        ${summonOrImplicitlyMarshaller(out)}
       )
       .setType(_root_.io.grpc.MethodDescriptor.MethodType.${Term.Name(methodType)})
       .setFullMethodName(_root_.io.grpc.MethodDescriptor.generateFullMethodName($fullServiceName, ${md.name}))

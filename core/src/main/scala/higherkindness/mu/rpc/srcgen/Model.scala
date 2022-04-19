@@ -30,7 +30,15 @@ object Model {
     case object Protobuf       extends SerializationType
     case object Avro           extends SerializationType
     case object AvroWithSchema extends SerializationType
-    case object Custom         extends SerializationType
+
+    def fromString(string: String): Either[IllegalArgumentException, SerializationType] =
+      string match {
+        case "Protobuf"       => Right(Protobuf)
+        case "Avro"           => Right(Avro)
+        case "AvroWithSchema" => Right(AvroWithSchema)
+        case other => Left(new IllegalArgumentException(s"Unknown serialization type: '$other'"))
+      }
+
   }
 
   sealed abstract class MarshallersImport(val marshallersImport: String)
@@ -39,30 +47,8 @@ object Model {
 
   final case class CustomMarshallersImport(mi: String) extends MarshallersImport(mi)
 
-  case object BigDecimalAvroMarshallers
-      extends MarshallersImport("higherkindness.mu.rpc.internal.encoders.avro.bigdecimal._")
-
   case object BigDecimalTaggedAvroMarshallers
       extends MarshallersImport("higherkindness.mu.rpc.internal.encoders.avro.bigDecimalTagged._")
-
-  case object JavaTimeDateAvroMarshallers
-      extends MarshallersImport("higherkindness.mu.rpc.internal.encoders.avro.javatime._")
-
-  case object JodaDateTimeAvroMarshallers
-      extends MarshallersImport("higherkindness.mu.rpc.marshallers.jodaTimeEncoders.avro._")
-
-  case object BigDecimalProtobufMarshallers
-      extends MarshallersImport("higherkindness.mu.rpc.internal.encoders.pbd.bigdecimal._")
-
-  case object JavaTimeDateProtobufMarshallers
-      extends MarshallersImport("higherkindness.mu.rpc.internal.encoders.pbd.javatime._")
-
-  case object JodaDateTimeProtobufMarshallers
-      extends MarshallersImport("higherkindness.mu.rpc.marshallers.jodaTimeEncoders.pbd._")
-
-  sealed trait BigDecimalTypeGen       extends Product with Serializable
-  case object ScalaBigDecimalGen       extends BigDecimalTypeGen
-  case object ScalaBigDecimalTaggedGen extends BigDecimalTypeGen
 
   sealed abstract class CompressionTypeGen(
       val annotationParameterValue: String

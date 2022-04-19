@@ -42,7 +42,7 @@ class GeneratorApplication(scala3: Boolean, generators: Generator*) {
     case Some(generator) =>
       val result: ValidatedNel[(File, NonEmptyList[Error]), List[(File, List[String])]] =
         generator
-          .generateFrom(inputFiles, serializationType)
+          .generateFromFiles(inputFiles, serializationType)
           .traverse {
             case Generator.Result(inputFile, Invalid(readErrors)) =>
               (inputFile, readErrors).invalidNel

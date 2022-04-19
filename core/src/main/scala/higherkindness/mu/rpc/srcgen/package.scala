@@ -21,7 +21,7 @@ import cats.data.ValidatedNel
 package object srcgen {
 
   val DefaultRequestParamName = "arg"
-  val EmptyType               = "Empty.type"
+  val EmptyType               = "_root_.higherkindness.mu.rpc.protocol.Empty.type"
 
   type Error       = String
   type ErrorsOr[A] = ValidatedNel[Error, A]

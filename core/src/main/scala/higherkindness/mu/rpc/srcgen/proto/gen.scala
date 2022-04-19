@@ -28,6 +28,7 @@ object gen {
       List(
         idiomaticEndpoints.toString,
         compressionType.annotationParameterValue,
+        Model.SerializationType.Protobuf.toString,
         scala3.toString
       )
     )

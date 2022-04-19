@@ -22,31 +22,26 @@ import cats.data.NonEmptyList
 import cats.implicits._
 import higherkindness.mu.rpc.srcgen.Model._
 import higherkindness.mu.rpc.srcgen._
-import higherkindness.skeuomorph.mu.CompressionType
+import higherkindness.mu.rpc.srcgen.service._
 
 import java.io.File
 import org.apache.avro._
 
 import java.nio.file.{Path, Paths}
 import scala.collection.JavaConverters._
-import scala.util.Right
 
 final case class LegacyAvroSrcGenerator(
     marshallersImports: List[MarshallersImport],
-    bigDecimalTypeGen: BigDecimalTypeGen,
-    compressionType: CompressionType = CompressionType.Identity,
+    compressionType: CompressionTypeGen = NoCompressionGen,
     useIdiomaticEndpoints: Boolean = true,
     scala3: Boolean
 ) extends Generator {
 
-  private val avroBigDecimal: AvroScalaDecimalType = bigDecimalTypeGen match {
-    case ScalaBigDecimalGen       => ScalaBigDecimal(None)
-    case ScalaBigDecimalTaggedGen => ScalaBigDecimalWithPrecision(None)
-  }
   private val avroScalaCustomTypes = Standard.defaultTypes.copy(
     enum = if (scala3) ScalaCaseObjectEnum else ScalaEnumeration,
-    decimal = avroBigDecimal
+    decimal = ScalaBigDecimalWithPrecision(None)
   )
+
   private val mainGenerator =
     avrohugger.Generator(Standard, avroScalaCustomTypes = Some(avroScalaCustomTypes))
 
@@ -66,15 +61,15 @@ final case class LegacyAvroSrcGenerator(
 
   // We must process all inputs including imported files from outside our initial fileset,
   // so we then reduce our output to that based on this fileset
-  override def generateFrom(
+  override def generateFromFiles(
       files: Set[File],
       serializationType: SerializationType
   ): List[Generator.Result] =
     super
-      .generateFrom(files, serializationType)
+      .generateFromFiles(files, serializationType)
       .filter(output => files.contains(output.inputFile))
 
-  def generateFrom(
+  def generateFromFile(
       inputFile: File,
       serializationType: SerializationType
   ): ErrorsOr[Generator.Output] =
@@ -89,80 +84,104 @@ final case class LegacyAvroSrcGenerator(
       serializationType
     )
 
-  def generateFrom(
-      input: String,
-      serializationType: SerializationType
-  ): ErrorsOr[Generator.Output] =
-    generateFromSchemaProtocols(
-      mainGenerator.stringParser
-        .getSchemaOrProtocols(input, mainGenerator.schemaStore),
-      serializationType
-    )
-
   private def generateFromSchemaProtocols(
       schemasOrProtocols: List[Either[Schema, Protocol]],
       serializationType: SerializationType
   ): ErrorsOr[Generator.Output] =
     Some(schemasOrProtocols)
       .filter(_.nonEmpty)
-      .flatMap(_.last match {
-        case Right(p) => Some(p)
-        case _        => None
-      })
+      .flatMap(_.last.toOption)
       .toValidNel(s"No protocol definition found")
-      .andThen(generateFrom(_, serializationType))
+      .andThen(generateFromProtocol(_, serializationType))
 
-  def generateFrom(
+  private case class PackageLineAndMessageLines(packageLine: String, messageLines: List[String])
+
+  def generateFromProtocol(
       protocol: Protocol,
       serializationType: SerializationType
   ): ErrorsOr[Generator.Output] = {
+    val fileContent =
+      if (protocol.getMessages.isEmpty) {
+        val PackageLineAndMessageLines(packageLine, messageLines) =
+          generateMessageClasses(protocol, adtGenerator)
+        (packageLine :: "" :: messageLines).validNel
+      } else {
+        generateMessageClassesAndService(protocol, mainGenerator, serializationType)
+      }
+    fileContent.map(Generator.Output(getPath(protocol), _))
+  }
 
-    val schemaGenerator = if (protocol.getMessages.isEmpty) adtGenerator else mainGenerator
-
-    val schemaLines = schemaGenerator
+  private def generateMessageClasses(
+      protocol: Protocol,
+      schemaGenerator: avrohugger.Generator
+  ): PackageLineAndMessageLines = {
+    val (packageLine :: messageLines) = schemaGenerator
       .protocolToStrings(protocol)
       .mkString
       .split('\n')
-      .toSeq
+      .toList
       .tail                 // remove top comment and get package declaration on first line
       .filterNot(_ == "()") // https://github.com/julianpeeters/sbt-avrohugger/issues/33
 
-    val packageLines = List(schemaLines.head, "")
+    PackageLineAndMessageLines(packageLine, messageLines)
+  }
 
-    val importLines =
-      ("import higherkindness.mu.rpc.protocol._" :: marshallersImports
-        .map(_.marshallersImport)
-        .map("import " + _)).sorted
+  private def generateMessageClassesAndService(
+      protocol: Protocol,
+      schemaGenerator: avrohugger.Generator,
+      serializationType: SerializationType
+  ): ErrorsOr[List[String]] = {
+    val imports: String =
+      marshallersImports
+        .map(mi => s"import ${mi.marshallersImport}")
+        .sorted
+        .mkString("\n")
 
-    val messageLines = (schemaLines.tail :+ "").toList
+    val PackageLineAndMessageLines(pkg, messageLines) =
+      generateMessageClasses(protocol, schemaGenerator)
+    val messages = messageLines.mkString("\n")
 
-    val serviceParams = Seq(
-      serializationType.toString,
-      s"compressionType = $compressionType",
-      if (useIdiomaticEndpoints) s"""namespace = Some("${protocol.getNamespace}")"""
-      else "namespace = None"
-    ).mkString(", ")
-
-    val requestLines = protocol.getMessages.asScala.toList.flatTraverse { case (name, message) =>
-      val comment = Option(message.getDoc).map(doc => s"  /** $doc */").toList
-      buildMethodSignature(name, message.getRequest, message.getResponse).map { content =>
-        comment ++ List(content, "")
-      }
+    val methodDefns: ErrorsOr[List[MethodDefn]] = protocol.getMessages.asScala.toList.traverse {
+      case (name, message) =>
+        buildMethodDefn(name, message)
     }
 
-    val outputCode = requestLines.map { requests =>
-      val serviceLines =
-        if (requests.isEmpty) List.empty
-        else {
-          List(
-            s"@service($serviceParams) trait ${protocol.getName}[F[_]] {",
-            ""
-          ) ++ requests :+ "}"
-        }
-      packageLines ++ importLines ++ messageLines ++ serviceLines
+    methodDefns.map { methods =>
+      val serviceMethods: String = methods.map(methodSignature).flatten.indent.mkString("\n")
+
+      val serviceTrait: String =
+        s"""|trait ${protocol.getName}[F[_]] {
+            |$serviceMethods
+            |}""".stripMargin
+
+      val serviceDefn = ServiceDefn(
+        name = protocol.getName,
+        fullName = s"${protocol.getNamespace}.${protocol.getName}",
+        methods = methods
+      )
+      val params = MuServiceParams(
+        idiomaticEndpoints = useIdiomaticEndpoints,
+        compressionType = compressionType,
+        serializationType = serializationType,
+        scala3 = scala3
+      )
+      val companionObject: String =
+        new CompanionObjectGenerator(serviceDefn, params).generateTree.syntax
+
+      s"""|$pkg
+          |
+          |$imports
+          |
+          |$messages
+          |
+          |$serviceTrait
+          |
+          |$companionObject
+          |""".stripMargin
+        .split("\n")
+        .toList
     }
 
-    outputCode.map(Generator.Output(getPath(protocol), _))
   }
 
   private def getPath(p: Protocol): Path = {
@@ -181,13 +200,13 @@ final case class LegacyAvroSrcGenerator(
     Paths.get(pathParts.head, pathParts.tail: _*)
   }
 
-  private def validateRequest(request: Schema): ErrorsOr[String] = {
+  private def validateRequest(request: Schema): ErrorsOr[RequestParam] = {
     val requestArgs = request.getFields.asScala
     requestArgs.toList match {
       case Nil =>
-        s"$DefaultRequestParamName: $EmptyType".validNel
+        RequestParam.Anon(FullyQualified(EmptyType)).validNel
       case x :: Nil if x.schema.getType == Schema.Type.RECORD =>
-        s"${requestArgs.head.name}: ${requestArgs.head.schema.getFullName}".validNel
+        RequestParam.Named(x.name, FullyQualified(x.schema.getFullName)).validNel
       case _ :: Nil =>
         s"RPC method request parameter '${requestArgs.head.name}' has non-record request type '${requestArgs.head.schema.getType}'".invalidNel
       case _ =>
@@ -195,25 +214,42 @@ final case class LegacyAvroSrcGenerator(
     }
   }
 
-  private def validateResponse(response: Schema): ErrorsOr[String] = {
+  private def validateResponse(response: Schema): ErrorsOr[FullyQualified] = {
     response.getType match {
       case Schema.Type.NULL =>
-        EmptyType.validNel
+        FullyQualified(EmptyType).validNel
       case Schema.Type.RECORD =>
-        s"${response.getNamespace}.${response.getName}".validNel
+        FullyQualified(response.getFullName).validNel
       case _ =>
         s"RPC method response parameter has non-record response type '${response.getType}'".invalidNel
     }
   }
 
-  def buildMethodSignature(
-      name: String,
-      request: Schema,
-      response: Schema
-  ): ErrorsOr[String] = {
-    (validateRequest(request), validateResponse(response)).mapN {
-      case (requestParam, responseParam) =>
-        s"  def $name($requestParam): F[$responseParam]"
+  def methodSignature(method: MethodDefn): List[String] = {
+    val comment = method.comment.map(doc => s"/** $doc */")
+    val requestParam = method.in match {
+      case RequestParam.Anon(tpe)        => s"$DefaultRequestParamName: ${tpe.tpe}"
+      case RequestParam.Named(name, tpe) => s"$name: ${tpe.tpe}"
     }
+    val signature = s"def ${method.name}($requestParam): F[${method.out.tpe}]"
+    List(comment, Some(signature)).flatten
   }
+
+  def buildMethodDefn(methodName: String, message: Protocol#Message): ErrorsOr[MethodDefn] =
+    (validateRequest(message.getRequest), validateResponse(message.getResponse)).mapN {
+      case (requestParam, responseType) =>
+        MethodDefn(
+          name = methodName,
+          in = requestParam,
+          out = responseType,
+          clientStreaming = false,
+          serverStreaming = false,
+          comment = Option(message.getDoc)
+        )
+    }
+
+  private implicit class StringListOps(val xs: List[String]) {
+    def indent: List[String] = xs.map(x => s"  $x")
+  }
+
 }

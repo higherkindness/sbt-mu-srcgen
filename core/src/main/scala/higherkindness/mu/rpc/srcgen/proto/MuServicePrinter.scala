@@ -71,7 +71,7 @@ class MuServicePrinter(
       service.methods.toList.map(md =>
         MethodDefn(
           md.getName,
-          FullyQualified(md.getInputType.scalaType.fullNameWithMaybeRoot),
+          RequestParam.Anon(FullyQualified(md.getInputType.scalaType.fullNameWithMaybeRoot)),
           FullyQualified(md.getOutputType.scalaType.fullNameWithMaybeRoot),
           md.isClientStreaming,
           md.isServerStreaming

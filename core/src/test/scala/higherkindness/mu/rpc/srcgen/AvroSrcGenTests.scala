@@ -34,10 +34,16 @@ import org.scalatestplus.scalacheck.Checkers
 
 class AvroSrcGenTests extends AnyWordSpec with Matchers with OneInstancePerTest with Checkers {
 
+  def convertCompressionType(compressionTypeGen: CompressionTypeGen): CompressionType =
+    compressionTypeGen match {
+      case GzipGen          => CompressionType.Gzip
+      case NoCompressionGen => CompressionType.Identity
+    }
+
   def generateOutput(
       serializationType: SerializationType,
       marshallersImports: List[MarshallersImport],
-      compressionType: CompressionType,
+      compressionTypeGen: CompressionTypeGen,
       useIdiomaticEndpoints: Boolean = true,
       messagesAsImportFile: Boolean = true
   ): List[String] = {
@@ -48,7 +54,7 @@ class AvroSrcGenTests extends AnyWordSpec with Matchers with OneInstancePerTest 
 
     val serviceParams: String = Seq(
       serializationType.toString,
-      s"compressionType = $compressionType",
+      s"compressionType = ${convertCompressionType(compressionTypeGen)}",
       if (useIdiomaticEndpoints) s"""namespace = Some("foo.bar")"""
       else "namespace = None"
     ).mkString(", ")
@@ -100,7 +106,7 @@ class AvroSrcGenTests extends AnyWordSpec with Matchers with OneInstancePerTest 
 
     "return a non-empty list of errors instead of generating code from an invalid IDL file" in {
       val actual :: Nil = {
-        AvroSrcGenerator(CompressionType.Identity, true).generateFrom(
+        AvroSrcGenerator(CompressionType.Identity, true).generateFromFiles(
           Set(new File(getClass.getResource("/avro/Invalid.avdl").toURI)),
           Avro
         )
@@ -119,9 +125,9 @@ class AvroSrcGenTests extends AnyWordSpec with Matchers with OneInstancePerTest 
   private def test(scenario: Scenario): Boolean = {
     val output =
       AvroSrcGenerator(
-        scenario.compressionType,
+        convertCompressionType(scenario.compressionType),
         scenario.useIdiomaticEndpoints
-      ).generateFrom(
+      ).generateFromFiles(
         scenario.inputResourcesPath.map(path => new File(getClass.getResource(path).toURI)),
         scenario.serializationType
       )
