@@ -6,9 +6,9 @@ lazy val root = project
   .in(file("."))
   .enablePlugins(SrcGenPlugin)
   .settings(
-    name         := "root",
-    version      := "1.0.0",
-    scalaVersion := "2.13.8",
+    name            := "root",
+    version         := "1.0.0",
+    scalaVersion    := "2.13.8",
     muSrcGenIdlType := IdlType.Avro,
     muSrcGenSourceDirs := Seq(
       (Compile / resourceDirectory).value / "domain",
