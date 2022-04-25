@@ -169,6 +169,131 @@ class CompanionObjectGeneratorSpec extends AnyFunSpec {
       compare(tree, expected)
     }
 
+    it("generates a _bindService method with Scala 2 syntax") {
+      val generator = new CompanionObjectGenerator(
+        serviceDefn,
+        MuServiceParams(
+          idiomaticEndpoints = true,
+          compressionType = GzipGen,
+          serializationType = SerializationType.Protobuf,
+          scala3 = false
+        )
+      )
+      val tree = generator._bindService
+
+      val expected = q"""
+        def _bindService[F[_]](
+          compressionType: _root_.higherkindness.mu.rpc.protocol.CompressionType
+        )(
+          implicit CE: _root_.cats.effect.Async[F],
+          algebra: MyService[F]
+        ): _root_.cats.effect.Resource[F, _root_.io.grpc.ServerServiceDefinition] =
+          _root_.cats.effect.std.Dispatcher[F].evalMap { disp =>
+            _root_.higherkindness.mu.rpc.internal.service.GRPCServiceDefBuilder.build[F](
+              "com.foo.bar.MyService",
+              (
+                methodOneMethodDescriptor,
+                _root_.higherkindness.mu.rpc.internal.server.handlers.unary[F, _root_.com.foo.bar.MethodOneRequest, _root_.com.foo.bar.MethodOneResponse](
+                  algebra.methodOne,
+                  compressionType,
+                  disp
+                )
+              ),
+              (
+                methodTwoMethodDescriptor,
+                _root_.higherkindness.mu.rpc.internal.server.fs2.handlers.clientStreaming[F, _root_.com.foo.bar.MethodTwoRequest, _root_.com.foo.bar.MethodTwoResponse](
+                  ((req: _root_.fs2.Stream[F, _root_.com.foo.bar.MethodTwoRequest], _) => algebra.methodTwo(req)),
+                  disp,
+                  compressionType
+                )
+              ),
+              (
+                methodThreeMethodDescriptor,
+                _root_.higherkindness.mu.rpc.internal.server.fs2.handlers.serverStreaming[F, _root_.com.foo.bar.MethodThreeRequest, _root_.com.foo.bar.MethodThreeResponse](
+                  ((req: _root_.com.foo.bar.MethodThreeRequest, _) => algebra.methodThree(req)),
+                  disp,
+                  compressionType
+                )
+              ),
+              (
+                methodFourMethodDescriptor,
+                _root_.higherkindness.mu.rpc.internal.server.fs2.handlers.bidiStreaming[F, _root_.com.foo.bar.MethodFourRequest, _root_.com.foo.bar.MethodFourResponse](
+                  ((req: _root_.fs2.Stream[F, _root_.com.foo.bar.MethodFourRequest], _) => algebra.methodFour(req)),
+                  disp,
+                  compressionType
+                )
+              )
+            )
+          }
+      """
+
+      compare(tree, expected)
+    }
+
+    it("generates a _bindService method with Scala 3 syntax") {
+      val generator = new CompanionObjectGenerator(
+        serviceDefn,
+        MuServiceParams(
+          idiomaticEndpoints = true,
+          compressionType = GzipGen,
+          serializationType = SerializationType.Protobuf,
+          scala3 = true
+        )
+      )
+      val tree = generator._bindService
+
+      val expected = {
+        import scala.meta.dialects.Scala3
+        q"""
+        def _bindService[F[_]](
+          compressionType: _root_.higherkindness.mu.rpc.protocol.CompressionType
+        )(
+          using CE: _root_.cats.effect.Async[F],
+          algebra: MyService[F]
+        ): _root_.cats.effect.Resource[F, _root_.io.grpc.ServerServiceDefinition] =
+          _root_.cats.effect.std.Dispatcher[F].evalMap { disp =>
+            _root_.higherkindness.mu.rpc.internal.service.GRPCServiceDefBuilder.build[F](
+              "com.foo.bar.MyService",
+              (
+                methodOneMethodDescriptor,
+                _root_.higherkindness.mu.rpc.internal.server.handlers.unary[F, _root_.com.foo.bar.MethodOneRequest, _root_.com.foo.bar.MethodOneResponse](
+                  algebra.methodOne,
+                  compressionType,
+                  disp
+                )
+              ),
+              (
+                methodTwoMethodDescriptor,
+                _root_.higherkindness.mu.rpc.internal.server.fs2.handlers.clientStreaming[F, _root_.com.foo.bar.MethodTwoRequest, _root_.com.foo.bar.MethodTwoResponse](
+                  ((req: _root_.fs2.Stream[F, _root_.com.foo.bar.MethodTwoRequest], _) => algebra.methodTwo(req)),
+                  disp,
+                  compressionType
+                )
+              ),
+              (
+                methodThreeMethodDescriptor,
+                _root_.higherkindness.mu.rpc.internal.server.fs2.handlers.serverStreaming[F, _root_.com.foo.bar.MethodThreeRequest, _root_.com.foo.bar.MethodThreeResponse](
+                  ((req: _root_.com.foo.bar.MethodThreeRequest, _) => algebra.methodThree(req)),
+                  disp,
+                  compressionType
+                )
+              ),
+              (
+                methodFourMethodDescriptor,
+                _root_.higherkindness.mu.rpc.internal.server.fs2.handlers.bidiStreaming[F, _root_.com.foo.bar.MethodFourRequest, _root_.com.foo.bar.MethodFourResponse](
+                  ((req: _root_.fs2.Stream[F, _root_.com.foo.bar.MethodFourRequest], _) => algebra.methodFour(req)),
+                  disp,
+                  compressionType
+                )
+              )
+            )
+          }
+        """
+      }
+
+      compare(tree, expected)
+    }
+
     it("generates a bindService method with Scala 2 syntax") {
       val generator = new CompanionObjectGenerator(
         serviceDefn,
@@ -186,43 +311,7 @@ class CompanionObjectGeneratorSpec extends AnyFunSpec {
           implicit CE: _root_.cats.effect.Async[F],
           algebra: MyService[F]
         ): _root_.cats.effect.Resource[F, _root_.io.grpc.ServerServiceDefinition] =
-          _root_.cats.effect.std.Dispatcher[F].evalMap { disp =>
-            _root_.higherkindness.mu.rpc.internal.service.GRPCServiceDefBuilder.build[F](
-              "com.foo.bar.MyService",
-              (
-                methodOneMethodDescriptor,
-                _root_.higherkindness.mu.rpc.internal.server.handlers.unary[F, _root_.com.foo.bar.MethodOneRequest, _root_.com.foo.bar.MethodOneResponse](
-                  algebra.methodOne,
-                  _root_.higherkindness.mu.rpc.protocol.Gzip,
-                  disp
-                )
-              ),
-              (
-                methodTwoMethodDescriptor,
-                _root_.higherkindness.mu.rpc.internal.server.fs2.handlers.clientStreaming[F, _root_.com.foo.bar.MethodTwoRequest, _root_.com.foo.bar.MethodTwoResponse](
-                  ((req: _root_.fs2.Stream[F, _root_.com.foo.bar.MethodTwoRequest], _) => algebra.methodTwo(req)),
-                  disp,
-                  _root_.higherkindness.mu.rpc.protocol.Gzip
-                )
-              ),
-              (
-                methodThreeMethodDescriptor,
-                _root_.higherkindness.mu.rpc.internal.server.fs2.handlers.serverStreaming[F, _root_.com.foo.bar.MethodThreeRequest, _root_.com.foo.bar.MethodThreeResponse](
-                  ((req: _root_.com.foo.bar.MethodThreeRequest, _) => algebra.methodThree(req)),
-                  disp,
-                  _root_.higherkindness.mu.rpc.protocol.Gzip
-                )
-              ),
-              (
-                methodFourMethodDescriptor,
-                _root_.higherkindness.mu.rpc.internal.server.fs2.handlers.bidiStreaming[F, _root_.com.foo.bar.MethodFourRequest, _root_.com.foo.bar.MethodFourResponse](
-                  ((req: _root_.fs2.Stream[F, _root_.com.foo.bar.MethodFourRequest], _) => algebra.methodFour(req)),
-                  disp,
-                  _root_.higherkindness.mu.rpc.protocol.Gzip
-                )
-              )
-            )
-          }
+          _bindService[F](_root_.higherkindness.mu.rpc.protocol.Gzip)
       """
 
       compare(tree, expected)
@@ -247,39 +336,138 @@ class CompanionObjectGeneratorSpec extends AnyFunSpec {
           using CE: _root_.cats.effect.Async[F],
           algebra: MyService[F]
         ): _root_.cats.effect.Resource[F, _root_.io.grpc.ServerServiceDefinition] =
+          _bindService[F](_root_.higherkindness.mu.rpc.protocol.Gzip)
+        """
+      }
+
+      compare(tree, expected)
+    }
+
+    it("generates a _bindContextService method with Scala 2 syntax") {
+      val generator = new CompanionObjectGenerator(
+        serviceDefn,
+        MuServiceParams(
+          idiomaticEndpoints = true,
+          compressionType = GzipGen,
+          serializationType = SerializationType.Protobuf,
+          scala3 = false
+        )
+      )
+      val tree = generator._bindContextService
+
+      val expected = q"""
+        def _bindContextService[F[_], Context](
+          compressionType: _root_.higherkindness.mu.rpc.protocol.CompressionType
+        )(
+          implicit CE: _root_.cats.effect.Async[F],
+          serverContext: _root_.higherkindness.mu.rpc.internal.context.ServerContext[F, Context],
+          algebra: MyService[({type T[α] = _root_.cats.data.Kleisli[F, Context, α]})#T]
+        ): _root_.cats.effect.Resource[F, _root_.io.grpc.ServerServiceDefinition] =
           _root_.cats.effect.std.Dispatcher[F].evalMap { disp =>
             _root_.higherkindness.mu.rpc.internal.service.GRPCServiceDefBuilder.build[F](
               "com.foo.bar.MyService",
               (
                 methodOneMethodDescriptor,
-                _root_.higherkindness.mu.rpc.internal.server.handlers.unary[F, _root_.com.foo.bar.MethodOneRequest, _root_.com.foo.bar.MethodOneResponse](
+                _root_.higherkindness.mu.rpc.internal.server.handlers.contextUnary[F, Context, _root_.com.foo.bar.MethodOneRequest, _root_.com.foo.bar.MethodOneResponse](
                   algebra.methodOne,
-                  _root_.higherkindness.mu.rpc.protocol.Gzip,
+                  methodOneMethodDescriptor,
+                  compressionType,
                   disp
                 )
               ),
               (
                 methodTwoMethodDescriptor,
-                _root_.higherkindness.mu.rpc.internal.server.fs2.handlers.clientStreaming[F, _root_.com.foo.bar.MethodTwoRequest, _root_.com.foo.bar.MethodTwoResponse](
-                  ((req: _root_.fs2.Stream[F, _root_.com.foo.bar.MethodTwoRequest], _) => algebra.methodTwo(req)),
+                _root_.higherkindness.mu.rpc.internal.server.fs2.handlers.contextClientStreaming[F, Context, _root_.com.foo.bar.MethodTwoRequest, _root_.com.foo.bar.MethodTwoResponse](
+                  algebra.methodTwo,
+                  methodTwoMethodDescriptor,
                   disp,
-                  _root_.higherkindness.mu.rpc.protocol.Gzip
+                  compressionType
                 )
               ),
               (
                 methodThreeMethodDescriptor,
-                _root_.higherkindness.mu.rpc.internal.server.fs2.handlers.serverStreaming[F, _root_.com.foo.bar.MethodThreeRequest, _root_.com.foo.bar.MethodThreeResponse](
-                  ((req: _root_.com.foo.bar.MethodThreeRequest, _) => algebra.methodThree(req)),
+                _root_.higherkindness.mu.rpc.internal.server.fs2.handlers.contextServerStreaming[F, Context, _root_.com.foo.bar.MethodThreeRequest, _root_.com.foo.bar.MethodThreeResponse](
+                  algebra.methodThree,
+                  methodThreeMethodDescriptor,
                   disp,
-                  _root_.higherkindness.mu.rpc.protocol.Gzip
+                  compressionType
                 )
               ),
               (
                 methodFourMethodDescriptor,
-                _root_.higherkindness.mu.rpc.internal.server.fs2.handlers.bidiStreaming[F, _root_.com.foo.bar.MethodFourRequest, _root_.com.foo.bar.MethodFourResponse](
-                  ((req: _root_.fs2.Stream[F, _root_.com.foo.bar.MethodFourRequest], _) => algebra.methodFour(req)),
+                _root_.higherkindness.mu.rpc.internal.server.fs2.handlers.contextBidiStreaming[F, Context, _root_.com.foo.bar.MethodFourRequest, _root_.com.foo.bar.MethodFourResponse](
+                  algebra.methodFour,
+                  methodFourMethodDescriptor,
                   disp,
-                  _root_.higherkindness.mu.rpc.protocol.Gzip
+                  compressionType
+                )
+              )
+            )
+          }
+        """
+
+      compare(tree, expected)
+    }
+
+    it("generates a _bindContextService method with Scala 3 syntax") {
+      val generator = new CompanionObjectGenerator(
+        serviceDefn,
+        MuServiceParams(
+          idiomaticEndpoints = true,
+          compressionType = GzipGen,
+          serializationType = SerializationType.Protobuf,
+          scala3 = true
+        )
+      )
+      val tree = generator._bindContextService
+
+      val expected = {
+        import scala.meta.dialects.Scala3
+        q"""
+        def _bindContextService[F[_], Context](
+          compressionType: _root_.higherkindness.mu.rpc.protocol.CompressionType
+        )(
+          using CE: _root_.cats.effect.Async[F],
+          serverContext: _root_.higherkindness.mu.rpc.internal.context.ServerContext[F, Context],
+          algebra: MyService[[A] =>> _root_.cats.data.Kleisli[F, Context, A]]
+        ): _root_.cats.effect.Resource[F, _root_.io.grpc.ServerServiceDefinition] =
+          _root_.cats.effect.std.Dispatcher[F].evalMap { disp =>
+            _root_.higherkindness.mu.rpc.internal.service.GRPCServiceDefBuilder.build[F](
+              "com.foo.bar.MyService",
+              (
+                methodOneMethodDescriptor,
+                _root_.higherkindness.mu.rpc.internal.server.handlers.contextUnary[F, Context, _root_.com.foo.bar.MethodOneRequest, _root_.com.foo.bar.MethodOneResponse](
+                  algebra.methodOne,
+                  methodOneMethodDescriptor,
+                  compressionType,
+                  disp
+                )
+              ),
+              (
+                methodTwoMethodDescriptor,
+                _root_.higherkindness.mu.rpc.internal.server.fs2.handlers.contextClientStreaming[F, Context, _root_.com.foo.bar.MethodTwoRequest, _root_.com.foo.bar.MethodTwoResponse](
+                  algebra.methodTwo,
+                  methodTwoMethodDescriptor,
+                  disp,
+                  compressionType
+                )
+              ),
+              (
+                methodThreeMethodDescriptor,
+                _root_.higherkindness.mu.rpc.internal.server.fs2.handlers.contextServerStreaming[F, Context, _root_.com.foo.bar.MethodThreeRequest, _root_.com.foo.bar.MethodThreeResponse](
+                  algebra.methodThree,
+                  methodThreeMethodDescriptor,
+                  disp,
+                  compressionType
+                )
+              ),
+              (
+                methodFourMethodDescriptor,
+                _root_.higherkindness.mu.rpc.internal.server.fs2.handlers.contextBidiStreaming[F, Context, _root_.com.foo.bar.MethodFourRequest, _root_.com.foo.bar.MethodFourResponse](
+                  algebra.methodFour,
+                  methodFourMethodDescriptor,
+                  disp,
+                  compressionType
                 )
               )
             )
@@ -308,47 +496,7 @@ class CompanionObjectGeneratorSpec extends AnyFunSpec {
           serverContext: _root_.higherkindness.mu.rpc.internal.context.ServerContext[F, Context],
           algebra: MyService[({type T[α] = _root_.cats.data.Kleisli[F, Context, α]})#T]
         ): _root_.cats.effect.Resource[F, _root_.io.grpc.ServerServiceDefinition] =
-          _root_.cats.effect.std.Dispatcher[F].evalMap { disp =>
-            _root_.higherkindness.mu.rpc.internal.service.GRPCServiceDefBuilder.build[F](
-              "com.foo.bar.MyService",
-              (
-                methodOneMethodDescriptor,
-                _root_.higherkindness.mu.rpc.internal.server.handlers.contextUnary[F, Context, _root_.com.foo.bar.MethodOneRequest, _root_.com.foo.bar.MethodOneResponse](
-                  algebra.methodOne,
-                  methodOneMethodDescriptor,
-                  _root_.higherkindness.mu.rpc.protocol.Gzip,
-                  disp
-                )
-              ),
-              (
-                methodTwoMethodDescriptor,
-                _root_.higherkindness.mu.rpc.internal.server.fs2.handlers.contextClientStreaming[F, Context, _root_.com.foo.bar.MethodTwoRequest, _root_.com.foo.bar.MethodTwoResponse](
-                  algebra.methodTwo,
-                  methodTwoMethodDescriptor,
-                  disp,
-                  _root_.higherkindness.mu.rpc.protocol.Gzip
-                )
-              ),
-              (
-                methodThreeMethodDescriptor,
-                _root_.higherkindness.mu.rpc.internal.server.fs2.handlers.contextServerStreaming[F, Context, _root_.com.foo.bar.MethodThreeRequest, _root_.com.foo.bar.MethodThreeResponse](
-                  algebra.methodThree,
-                  methodThreeMethodDescriptor,
-                  disp,
-                  _root_.higherkindness.mu.rpc.protocol.Gzip
-                )
-              ),
-              (
-                methodFourMethodDescriptor,
-                _root_.higherkindness.mu.rpc.internal.server.fs2.handlers.contextBidiStreaming[F, Context, _root_.com.foo.bar.MethodFourRequest, _root_.com.foo.bar.MethodFourResponse](
-                  algebra.methodFour,
-                  methodFourMethodDescriptor,
-                  disp,
-                  _root_.higherkindness.mu.rpc.protocol.Gzip
-                )
-              )
-            )
-          }
+          _bindContextService[F, Context](_root_.higherkindness.mu.rpc.protocol.Gzip)
         """
 
       compare(tree, expected)
@@ -374,47 +522,7 @@ class CompanionObjectGeneratorSpec extends AnyFunSpec {
           serverContext: _root_.higherkindness.mu.rpc.internal.context.ServerContext[F, Context],
           algebra: MyService[[A] =>> _root_.cats.data.Kleisli[F, Context, A]]
         ): _root_.cats.effect.Resource[F, _root_.io.grpc.ServerServiceDefinition] =
-          _root_.cats.effect.std.Dispatcher[F].evalMap { disp =>
-            _root_.higherkindness.mu.rpc.internal.service.GRPCServiceDefBuilder.build[F](
-              "com.foo.bar.MyService",
-              (
-                methodOneMethodDescriptor,
-                _root_.higherkindness.mu.rpc.internal.server.handlers.contextUnary[F, Context, _root_.com.foo.bar.MethodOneRequest, _root_.com.foo.bar.MethodOneResponse](
-                  algebra.methodOne,
-                  methodOneMethodDescriptor,
-                  _root_.higherkindness.mu.rpc.protocol.Gzip,
-                  disp
-                )
-              ),
-              (
-                methodTwoMethodDescriptor,
-                _root_.higherkindness.mu.rpc.internal.server.fs2.handlers.contextClientStreaming[F, Context, _root_.com.foo.bar.MethodTwoRequest, _root_.com.foo.bar.MethodTwoResponse](
-                  algebra.methodTwo,
-                  methodTwoMethodDescriptor,
-                  disp,
-                  _root_.higherkindness.mu.rpc.protocol.Gzip
-                )
-              ),
-              (
-                methodThreeMethodDescriptor,
-                _root_.higherkindness.mu.rpc.internal.server.fs2.handlers.contextServerStreaming[F, Context, _root_.com.foo.bar.MethodThreeRequest, _root_.com.foo.bar.MethodThreeResponse](
-                  algebra.methodThree,
-                  methodThreeMethodDescriptor,
-                  disp,
-                  _root_.higherkindness.mu.rpc.protocol.Gzip
-                )
-              ),
-              (
-                methodFourMethodDescriptor,
-                _root_.higherkindness.mu.rpc.internal.server.fs2.handlers.contextBidiStreaming[F, Context, _root_.com.foo.bar.MethodFourRequest, _root_.com.foo.bar.MethodFourResponse](
-                  algebra.methodFour,
-                  methodFourMethodDescriptor,
-                  disp,
-                  _root_.higherkindness.mu.rpc.protocol.Gzip
-                )
-              )
-            )
-          }
+          _bindContextService[F, Context](_root_.higherkindness.mu.rpc.protocol.Gzip)
         """
       }
 

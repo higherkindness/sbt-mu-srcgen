@@ -47,8 +47,10 @@ class CompanionObjectGenerator(
 
       ..${service.methods.map(methodDescriptorValDef)}
 
+      ${_bindService}
       $bindService
 
+      ${_bindContextService}
       $bindContextService
 
       $clientClass
@@ -123,14 +125,10 @@ class CompanionObjectGenerator(
     """
   }
 
-  def bindService: Defn.Def = {
+  def _bindService: Defn.Def = {
     def methodCall(md: MethodDefn): Term.Tuple = {
-      val in: Type  = inputType(md)
-      val out: Type = outputType(md)
-      val compression: Term.Select = params.compressionType match {
-        case GzipGen          => q"_root_.higherkindness.mu.rpc.protocol.Gzip"
-        case NoCompressionGen => q"_root_.higherkindness.mu.rpc.protocol.Identity"
-      }
+      val in: Type      = inputType(md)
+      val out: Type     = outputType(md)
       val algebraMethod = Term.Name(md.name)
 
       // a curse on @Daenyth for making the argument order inconsistent between
@@ -140,7 +138,7 @@ class CompanionObjectGenerator(
           q"""
           _root_.higherkindness.mu.rpc.internal.server.handlers.unary[F, $in, $out](
             algebra.$algebraMethod,
-            $compression,
+            compressionType,
             disp
           )
           """
@@ -149,7 +147,7 @@ class CompanionObjectGenerator(
           _root_.higherkindness.mu.rpc.internal.server.fs2.handlers.clientStreaming[F, $in, $out](
             ((req: _root_.fs2.Stream[F, $in], _) => algebra.$algebraMethod(req)),
             disp,
-            $compression
+            compressionType
           )
           """
         case (false, true) =>
@@ -157,7 +155,7 @@ class CompanionObjectGenerator(
           _root_.higherkindness.mu.rpc.internal.server.fs2.handlers.serverStreaming[F, $in, $out](
             ((req: $in, _) => algebra.$algebraMethod(req)),
             disp,
-            $compression
+            compressionType
           )
           """
         case (true, true) =>
@@ -165,7 +163,7 @@ class CompanionObjectGenerator(
           _root_.higherkindness.mu.rpc.internal.server.fs2.handlers.bidiStreaming[F, $in, $out](
             ((req: _root_.fs2.Stream[F, $in], _) => algebra.$algebraMethod(req)),
             disp,
-            $compression
+            compressionType
           )
           """
       }
@@ -174,9 +172,94 @@ class CompanionObjectGenerator(
     }
 
     q"""
+    def _bindService[F[_]](
+      compressionType: _root_.higherkindness.mu.rpc.protocol.CompressionType
+    )(
+      $implicitOrUsingCE, ${implicitOrUsing(
+        param"algebra: $serviceTypeName[F]"
+      )}
+    ): _root_.cats.effect.Resource[F, _root_.io.grpc.ServerServiceDefinition] =
+      _root_.cats.effect.std.Dispatcher[F].evalMap { disp =>
+        _root_.higherkindness.mu.rpc.internal.service.GRPCServiceDefBuilder.build[F](
+          ${service.fullName},
+          ..${service.methods.map(methodCall)}
+        )
+      }
+    """
+  }
+
+  def bindService: Defn.Def = {
+    val compression: Term.Select = params.compressionType match {
+      case GzipGen          => q"_root_.higherkindness.mu.rpc.protocol.Gzip"
+      case NoCompressionGen => q"_root_.higherkindness.mu.rpc.protocol.Identity"
+    }
+
+    q"""
     def bindService[F[_]]($implicitOrUsingCE, ${implicitOrUsing(
         param"algebra: $serviceTypeName[F]"
       )}): _root_.cats.effect.Resource[F, _root_.io.grpc.ServerServiceDefinition] =
+      _bindService[F]($compression)
+    """
+  }
+
+  def _bindContextService: Defn.Def = {
+    def methodCall(md: MethodDefn): Term.Tuple = {
+      val in: Type      = inputType(md)
+      val out: Type     = outputType(md)
+      val algebraMethod = Term.Name(md.name)
+
+      val serverCallHandler = (md.clientStreaming, md.serverStreaming) match {
+        case (false, false) =>
+          q"""
+          _root_.higherkindness.mu.rpc.internal.server.handlers.contextUnary[F, Context, $in, $out](
+            algebra.$algebraMethod,
+            ${methodDescriptorValName(md)},
+            compressionType,
+            disp
+          )
+          """
+        case (true, false) =>
+          q"""
+          _root_.higherkindness.mu.rpc.internal.server.fs2.handlers.contextClientStreaming[F, Context, $in, $out](
+            algebra.$algebraMethod,
+            ${methodDescriptorValName(md)},
+            disp,
+            compressionType
+          )
+          """
+        case (false, true) =>
+          q"""
+          _root_.higherkindness.mu.rpc.internal.server.fs2.handlers.contextServerStreaming[F, Context, $in, $out](
+            algebra.$algebraMethod,
+            ${methodDescriptorValName(md)},
+            disp,
+            compressionType
+          )
+          """
+        case (true, true) =>
+          q"""
+          _root_.higherkindness.mu.rpc.internal.server.fs2.handlers.contextBidiStreaming[F, Context, $in, $out](
+            algebra.$algebraMethod,
+            ${methodDescriptorValName(md)},
+            disp,
+            compressionType
+          )
+          """
+      }
+
+      q"(${methodDescriptorValName(md)}, $serverCallHandler)"
+    }
+
+    q"""
+    def _bindContextService[F[_], Context](
+      compressionType: _root_.higherkindness.mu.rpc.protocol.CompressionType
+    )(
+      $implicitOrUsingCE,
+      ${implicitOrUsing(
+        param"serverContext: _root_.higherkindness.mu.rpc.internal.context.ServerContext[F, Context]"
+      )},
+      ${implicitOrUsing(param"algebra: $serviceTypeName[$kleisliTypeLambda]")}
+    ): _root_.cats.effect.Resource[F, _root_.io.grpc.ServerServiceDefinition] =
       _root_.cats.effect.std.Dispatcher[F].evalMap { disp =>
         _root_.higherkindness.mu.rpc.internal.service.GRPCServiceDefBuilder.build[F](
           ${service.fullName},
@@ -187,55 +270,9 @@ class CompanionObjectGenerator(
   }
 
   def bindContextService: Defn.Def = {
-    def methodCall(md: MethodDefn): Term.Tuple = {
-      val in: Type  = inputType(md)
-      val out: Type = outputType(md)
-      val compression: Term.Select = params.compressionType match {
-        case GzipGen          => q"_root_.higherkindness.mu.rpc.protocol.Gzip"
-        case NoCompressionGen => q"_root_.higherkindness.mu.rpc.protocol.Identity"
-      }
-      val algebraMethod = Term.Name(md.name)
-
-      val serverCallHandler = (md.clientStreaming, md.serverStreaming) match {
-        case (false, false) =>
-          q"""
-          _root_.higherkindness.mu.rpc.internal.server.handlers.contextUnary[F, Context, $in, $out](
-            algebra.$algebraMethod,
-            ${methodDescriptorValName(md)},
-            $compression,
-            disp
-          )
-          """
-        case (true, false) =>
-          q"""
-          _root_.higherkindness.mu.rpc.internal.server.fs2.handlers.contextClientStreaming[F, Context, $in, $out](
-            algebra.$algebraMethod,
-            ${methodDescriptorValName(md)},
-            disp,
-            $compression
-          )
-          """
-        case (false, true) =>
-          q"""
-          _root_.higherkindness.mu.rpc.internal.server.fs2.handlers.contextServerStreaming[F, Context, $in, $out](
-            algebra.$algebraMethod,
-            ${methodDescriptorValName(md)},
-            disp,
-            $compression
-          )
-          """
-        case (true, true) =>
-          q"""
-          _root_.higherkindness.mu.rpc.internal.server.fs2.handlers.contextBidiStreaming[F, Context, $in, $out](
-            algebra.$algebraMethod,
-            ${methodDescriptorValName(md)},
-            disp,
-            $compression
-          )
-          """
-      }
-
-      q"(${methodDescriptorValName(md)}, $serverCallHandler)"
+    val compression: Term.Select = params.compressionType match {
+      case GzipGen          => q"_root_.higherkindness.mu.rpc.protocol.Gzip"
+      case NoCompressionGen => q"_root_.higherkindness.mu.rpc.protocol.Identity"
     }
 
     q"""
@@ -246,12 +283,7 @@ class CompanionObjectGenerator(
       )},
         ${implicitOrUsing(param"algebra: $serviceTypeName[$kleisliTypeLambda]")}
     ): _root_.cats.effect.Resource[F, _root_.io.grpc.ServerServiceDefinition] =
-      _root_.cats.effect.std.Dispatcher[F].evalMap { disp =>
-        _root_.higherkindness.mu.rpc.internal.service.GRPCServiceDefBuilder.build[F](
-          ${service.fullName},
-          ..${service.methods.map(methodCall)}
-        )
-      }
+      _bindContextService[F, Context]($compression)
     """
   }
 
