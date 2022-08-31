@@ -1,0 +1,3 @@
+> +compile
+$ exists target/scala-2.13/src_managed/main/compiled_proto/com/proto/person/Person.scala
+$ exists target/scala-2.13/src_managed/main/compiled_proto/com/proto/person/PersonValidator.scala
