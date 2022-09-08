@@ -104,6 +104,12 @@ object SrcGenPlugin extends AutoPlugin {
         s"Specifies the protoc version. If not set, ScalaPB's default version is used."
       )
 
+    lazy val muSrcGenValidateProto: SettingKey[Boolean] =
+      settingKey[Boolean](
+        "If `true`, and the serialization type is Proto, it will generate validation methods for your messages " +
+          "based on rules and constraints defined in the proto. `false` by default."
+      )
+
   }
 
   import autoImport._
@@ -138,7 +144,8 @@ object SrcGenPlugin extends AutoPlugin {
     },
     muSrcGenCompressionType    := NoCompressionGen,
     muSrcGenIdiomaticEndpoints := true,
-    muSrcGenProtocVersion      := None
+    muSrcGenProtocVersion      := None,
+    muSrcGenValidateProto      := false
   )
 
   lazy val taskSettings: Seq[Def.Setting[_]] =
@@ -311,18 +318,24 @@ object SrcGenPlugin extends AutoPlugin {
     Compile / PB.targets := {
       muSrcGenIdlType.value match {
         case IdlType.Proto =>
-          Seq(
-            // first do the standard ScalaPB codegen to generate the message classes
-            scalapb.gen(
-              grpc = false
-            ) -> muSrcGenTargetDir.value,
+          val validate = muSrcGenValidateProto.value
+          List.concat(
+            if (validate) List(scalapb.validate.preprocessor() -> muSrcGenTargetDir.value) else Nil,
 
-            // then use our protoc plugin to generate the Mu service trait
-            higherkindness.mu.rpc.srcgen.proto.gen(
-              idiomaticEndpoints = muSrcGenIdiomaticEndpoints.value,
-              compressionType = muSrcGenCompressionType.value,
-              scala3 = scalaBinaryVersion.value.startsWith("3")
-            ) -> muSrcGenTargetDir.value
+            // first do the standard ScalaPB codegen to generate the message classes
+            List(
+              scalapb.gen(
+                grpc = false
+              ) -> muSrcGenTargetDir.value
+            ),
+            if (validate) List(scalapb.validate.gen() -> muSrcGenTargetDir.value) else Nil,
+            List(
+              higherkindness.mu.rpc.srcgen.proto.gen(
+                idiomaticEndpoints = muSrcGenIdiomaticEndpoints.value,
+                compressionType = muSrcGenCompressionType.value,
+                scala3 = scalaBinaryVersion.value.startsWith("3")
+              ) -> muSrcGenTargetDir.value
+            )
           )
         case _ =>
           // If we are doing codgen from Avro, we will use our own source generator.
