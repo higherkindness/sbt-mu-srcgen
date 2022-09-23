@@ -24,7 +24,7 @@ lazy val core = project
       "org.scalatest"        %% "scalatest"                % "3.2.13"  % Test,
       "org.scalacheck"       %% "scalacheck"               % "1.17.0"  % Test,
       "org.scalatestplus"    %% "scalacheck-1-14"          % "3.2.2.0" % Test,
-      "org.slf4j"             % "slf4j-nop"                % "2.0.0"   % Test,
+      "org.slf4j"             % "slf4j-nop"                % "2.0.2"   % Test,
       "org.scalameta"        %% "contrib"                  % "4.1.6"   % Test
     ),
     buildInfoPackage := "higherkindness.mu.rpc.srcgen",
