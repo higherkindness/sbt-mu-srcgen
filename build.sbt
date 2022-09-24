@@ -14,7 +14,7 @@ lazy val core = project
   .settings(
     libraryDependencies ++= Seq(
       "org.typelevel"        %% "cats-core"                % "2.8.0",
-      "com.julianpeeters"    %% "avrohugger-core"          % "1.2.0",
+      "com.julianpeeters"    %% "avrohugger-core"          % "1.2.1",
       "com.thesamet.scalapb" %% "compilerplugin"           % "0.11.11",
       "com.thesamet.scalapb" %% "scalapb-validate-codegen" % "0.3.3",
       "org.scalameta"        %% "scalameta"                % "4.5.13",
@@ -22,9 +22,9 @@ lazy val core = project
       "ch.epfl.scala"        %% "scalafix-cli"             % "0.10.3" cross CrossVersion.full,
       "ch.epfl.scala"         % "scalafix-interfaces"      % "0.10.3",
       "org.scalatest"        %% "scalatest"                % "3.2.13"  % Test,
-      "org.scalacheck"       %% "scalacheck"               % "1.16.0"  % Test,
+      "org.scalacheck"       %% "scalacheck"               % "1.17.0"  % Test,
       "org.scalatestplus"    %% "scalacheck-1-14"          % "3.2.2.0" % Test,
-      "org.slf4j"             % "slf4j-nop"                % "2.0.0"   % Test,
+      "org.slf4j"             % "slf4j-nop"                % "2.0.2"   % Test,
       "org.scalameta"        %% "contrib"                  % "4.1.6"   % Test
     ),
     buildInfoPackage := "higherkindness.mu.rpc.srcgen",
