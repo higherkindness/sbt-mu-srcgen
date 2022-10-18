@@ -4,4 +4,4 @@ $ exists target/scala-2.13/src_managed/main/compiled_proto/com/proto/book/Book.s
 $ exists target/scala-2.13/src_managed/main/compiled_proto/com/proto/book/GetBookRequest.scala
 $ exists target/scala-2.13/src_managed/main/compiled_proto/com/proto/book/BookService.scala
 $ must-mirror target/scala-2.13/src_managed/main/compiled_proto/com/proto/book/BookService.scala expected/scala-2/BookService.scala.txt
-$ must-mirror target/scala-3.1.1/src_managed/main/compiled_proto/com/proto/book/BookService.scala expected/scala-3/BookService.scala.txt
+$ must-mirror target/scala-3.2.0/src_managed/main/compiled_proto/com/proto/book/BookService.scala expected/scala-3/BookService.scala.txt
