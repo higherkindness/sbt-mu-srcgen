@@ -8,7 +8,7 @@ lazy val domain = project
   .settings(
     organization := "foo.bar.srcgenfromjars",
     name         := "domain",
-    scalaVersion := "2.13.8",
+    scalaVersion := "2.13.10",
     version      := "1.0.0-SNAPSHOT",
     Compile / packageBin / mappings ~= { _.filter(!_._1.getName.endsWith(".class")) },
     muSrcGenIdlType    := IdlType.Avro,
@@ -24,7 +24,7 @@ lazy val root = project
   .enablePlugins(SrcGenPlugin)
   .settings(
     name                 := "root",
-    scalaVersion         := "2.13.8",
+    scalaVersion         := "2.13.10",
     version              := sys.props("version"),
     muSrcGenIdlType      := IdlType.Avro,
     muSrcGenJarNames     := Seq("domain"),
