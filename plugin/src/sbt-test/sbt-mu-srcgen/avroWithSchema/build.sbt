@@ -4,7 +4,7 @@ crossScalaVersions := List(scalaVersion.value, "3.1.1")
 
 enablePlugins(SrcGenPlugin)
 
-ThisBuild / resolvers += Resolver.sonatypeRepo("snapshots")
+ThisBuild / resolvers ++= Resolver.sonatypeOssRepos("snapshots")
 libraryDependencies ++= Seq(
   "io.higherkindness" %% "mu-rpc-service" % sys.props("mu")
 )

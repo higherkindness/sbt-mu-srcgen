@@ -1,12 +1,12 @@
 import higherkindness.mu.rpc.srcgen.Model.IdlType
 
-ThisBuild / resolvers += Resolver.sonatypeRepo("snapshots")
+ThisBuild / resolvers ++= Resolver.sonatypeOssRepos("snapshots")
 
 lazy val root = project
   .in(file("."))
   .enablePlugins(SrcGenPlugin)
   .settings(
-    crossScalaVersions    := Seq("2.13.8", "3.1.1"),
+    crossScalaVersions    := Seq("2.13.10", "3.2.0"),
     muSrcGenIdlType       := IdlType.Proto,
     muSrcGenTargetDir     := (Compile / sourceManaged).value / "compiled_proto",
     muSrcGenValidateProto := true,

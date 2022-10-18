@@ -1,6 +1,6 @@
 import higherkindness.mu.rpc.srcgen.Model.IdlType
 
-ThisBuild / resolvers += Resolver.sonatypeRepo("snapshots")
+ThisBuild / resolvers ++= Resolver.sonatypeOssRepos("snapshots")
 
 lazy val root = project
   .in(file("."))
