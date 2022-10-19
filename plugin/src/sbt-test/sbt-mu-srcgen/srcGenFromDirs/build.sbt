@@ -1,6 +1,6 @@
 import higherkindness.mu.rpc.srcgen.Model.IdlType
 
-ThisBuild / resolvers += Resolver.sonatypeRepo("snapshots")
+ThisBuild / resolvers ++= Resolver.sonatypeOssRepos("snapshots")
 
 lazy val root = project
   .in(file("."))
@@ -8,7 +8,7 @@ lazy val root = project
   .settings(
     name            := "root",
     version         := "1.0.0",
-    scalaVersion    := "2.13.8",
+    scalaVersion    := "2.13.10",
     muSrcGenIdlType := IdlType.Avro,
     muSrcGenSourceDirs := Seq(
       (Compile / resourceDirectory).value / "domain",

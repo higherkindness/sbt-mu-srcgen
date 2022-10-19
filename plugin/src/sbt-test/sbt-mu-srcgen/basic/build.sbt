@@ -1,10 +1,10 @@
 version            := sys.props("version")
-scalaVersion       := "2.13.8"
-crossScalaVersions := List(scalaVersion.value, "3.1.1")
+scalaVersion       := "2.13.10"
+crossScalaVersions := List(scalaVersion.value, "3.2.0")
 
 enablePlugins(SrcGenPlugin)
 
-ThisBuild / resolvers += Resolver.sonatypeRepo("snapshots")
+ThisBuild / resolvers ++= Resolver.sonatypeOssRepos("snapshots")
 libraryDependencies ++= Seq(
   "io.higherkindness" %% "mu-rpc-server" % sys.props("mu")
 )
