@@ -1,6 +1,6 @@
 import higherkindness.mu.rpc.srcgen.Model.IdlType
 
-ThisBuild / resolvers += Resolver.sonatypeRepo("snapshots")
+ThisBuild / resolvers ++= Resolver.sonatypeOssRepos("snapshots")
 
 lazy val domain = project
   .in(file("domain"))
@@ -8,7 +8,7 @@ lazy val domain = project
   .settings(
     organization := "foo.bar.srcprotogenfromjars2",
     name         := "domain",
-    scalaVersion := "2.13.8",
+    scalaVersion := "2.13.10",
     version      := "1.0.0-SNAPSHOT",
     Compile / packageBin / mappings ~= { _.filter(!_._1.getName.endsWith(".class")) },
     muSrcGenIdlType    := IdlType.Proto,
@@ -26,7 +26,7 @@ lazy val root = project
   .enablePlugins(SrcGenPlugin)
   .settings(
     name                 := "root",
-    scalaVersion         := "2.13.8",
+    scalaVersion         := "2.13.10",
     version              := sys.props("version"),
     muSrcGenIdlType      := IdlType.Proto,
     muSrcGenJarNames     := Seq("domain"),
