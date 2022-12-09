@@ -204,7 +204,7 @@ class CompanionObjectGeneratorSpec extends AnyFunSpec {
           implicit CE: _root_.cats.effect.Async[F],
           algebra: MyService[F]
         ): _root_.cats.effect.Resource[F, _root_.io.grpc.ServerServiceDefinition] =
-          _root_.cats.effect.std.Dispatcher[F].evalMap { disp =>
+          _root_.cats.effect.std.Dispatcher.parallel[F].evalMap { disp =>
             _root_.higherkindness.mu.rpc.internal.service.GRPCServiceDefBuilder.build[F](
               "com.foo.bar.MyService",
               (
@@ -267,7 +267,7 @@ class CompanionObjectGeneratorSpec extends AnyFunSpec {
           using CE: _root_.cats.effect.Async[F],
           algebra: MyService[F]
         ): _root_.cats.effect.Resource[F, _root_.io.grpc.ServerServiceDefinition] =
-          _root_.cats.effect.std.Dispatcher[F].evalMap { disp =>
+          _root_.cats.effect.std.Dispatcher.parallel[F].evalMap { disp =>
             _root_.higherkindness.mu.rpc.internal.service.GRPCServiceDefBuilder.build[F](
               "com.foo.bar.MyService",
               (
@@ -379,7 +379,7 @@ class CompanionObjectGeneratorSpec extends AnyFunSpec {
           serverContext: _root_.higherkindness.mu.rpc.internal.context.ServerContext[F, Context],
           algebra: MyService[({type T[α] = _root_.cats.data.Kleisli[F, Context, α]})#T]
         ): _root_.cats.effect.Resource[F, _root_.io.grpc.ServerServiceDefinition] =
-          _root_.cats.effect.std.Dispatcher[F].evalMap { disp =>
+          _root_.cats.effect.std.Dispatcher.parallel[F].evalMap { disp =>
             _root_.higherkindness.mu.rpc.internal.service.GRPCServiceDefBuilder.build[F](
               "com.foo.bar.MyService",
               (
@@ -447,7 +447,7 @@ class CompanionObjectGeneratorSpec extends AnyFunSpec {
           serverContext: _root_.higherkindness.mu.rpc.internal.context.ServerContext[F, Context],
           algebra: MyService[[A] =>> _root_.cats.data.Kleisli[F, Context, A]]
         ): _root_.cats.effect.Resource[F, _root_.io.grpc.ServerServiceDefinition] =
-          _root_.cats.effect.std.Dispatcher[F].evalMap { disp =>
+          _root_.cats.effect.std.Dispatcher.parallel[F].evalMap { disp =>
             _root_.higherkindness.mu.rpc.internal.service.GRPCServiceDefBuilder.build[F](
               "com.foo.bar.MyService",
               (
