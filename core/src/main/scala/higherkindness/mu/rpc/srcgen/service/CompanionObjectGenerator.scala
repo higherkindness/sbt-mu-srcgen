@@ -195,7 +195,7 @@ class CompanionObjectGenerator(
         param"algebra: $serviceTypeName[F]"
       )}
     ): _root_.cats.effect.Resource[F, _root_.io.grpc.ServerServiceDefinition] =
-      _root_.cats.effect.std.Dispatcher[F].evalMap { disp =>
+      _root_.cats.effect.std.Dispatcher.parallel[F].evalMap { disp =>
         _root_.higherkindness.mu.rpc.internal.service.GRPCServiceDefBuilder.build[F](
           ${service.fullName},
           ..${service.methods.map(methodCall)}
@@ -276,7 +276,7 @@ class CompanionObjectGenerator(
       )},
       ${implicitOrUsing(param"algebra: $serviceTypeName[$kleisliTypeLambda]")}
     ): _root_.cats.effect.Resource[F, _root_.io.grpc.ServerServiceDefinition] =
-      _root_.cats.effect.std.Dispatcher[F].evalMap { disp =>
+      _root_.cats.effect.std.Dispatcher.parallel[F].evalMap { disp =>
         _root_.higherkindness.mu.rpc.internal.service.GRPCServiceDefBuilder.build[F](
           ${service.fullName},
           ..${service.methods.map(methodCall)}

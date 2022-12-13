@@ -38,7 +38,7 @@ lazy val core = project
     )
   )
 
-val muV = "0.29.1"
+val muV = "0.30.0"
 lazy val plugin = project
   .dependsOn(core)
   .settings(moduleName := "sbt-mu-srcgen")
