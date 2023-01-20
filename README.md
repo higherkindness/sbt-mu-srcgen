@@ -16,7 +16,7 @@
 For installing this plugin, add the following line to your `plugins.sbt` file:
 
 ```sbt mdoc:silent
-addSbtPlugin("io.higherkindness" % "sbt-mu-srcgen" % "0.30.1")
+addSbtPlugin("io.higherkindness" % "sbt-mu-srcgen" % "0.30.2")
 ```
 
 ### NOTE
