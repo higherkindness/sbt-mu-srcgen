@@ -14,16 +14,16 @@ lazy val core = project
   .settings(
     libraryDependencies ++= Seq(
       "org.typelevel"        %% "cats-core"                % "2.9.0",
-      "com.julianpeeters"    %% "avrohugger-core"          % "1.4.0",
+      "com.julianpeeters"    %% "avrohugger-core"          % "1.5.0",
       "com.thesamet.scalapb" %% "compilerplugin"           % "0.11.13",
       "com.thesamet.scalapb" %% "scalapb-validate-codegen" % "0.3.4",
       "org.scalameta"        %% "scalameta"                % "4.6.0",
       "ch.epfl.scala"        %% "scalafix-core"            % "0.11.0",
-      "ch.epfl.scala"        %% "scalafix-cli"             % "0.10.4" cross CrossVersion.full,
+      "ch.epfl.scala"        %% "scalafix-cli"             % "0.11.0" cross CrossVersion.full,
       "ch.epfl.scala"         % "scalafix-interfaces"      % "0.11.0",
       "org.scalatest"        %% "scalatest"                % "3.2.16"  % Test,
       "org.scalacheck"       %% "scalacheck"               % "1.17.0"  % Test,
-      "org.scalatestplus"    %% "scalacheck-1-14"          % "3.2.2.0" % Test,
+      "org.scalatestplus"    %% "scalacheck-1-14"          % "3.2.11.0" % Test,
       "org.slf4j"             % "slf4j-nop"                % "2.0.7"   % Test,
       "org.scalameta"        %% "contrib"                  % "4.1.6"   % Test
     ),
