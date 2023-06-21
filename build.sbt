@@ -23,7 +23,7 @@ lazy val core = project
       "ch.epfl.scala"         % "scalafix-interfaces"      % "0.10.4",
       "org.scalatest"        %% "scalatest"                % "3.2.16"   % Test,
       "org.scalacheck"       %% "scalacheck"               % "1.17.0"   % Test,
-      "org.scalatestplus"    %% "scalacheck-1-15"          % "3.2.11.0" % Test,
+      "org.scalatestplus"    %% "scalacheck-1-16"          % "3.2.14.0" % Test,
       "org.slf4j"             % "slf4j-nop"                % "2.0.7"    % Test,
       "org.scalameta"        %% "contrib"                  % "4.1.6"    % Test
     ),
