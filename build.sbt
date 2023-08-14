@@ -13,7 +13,7 @@ lazy val core = project
   .settings(moduleName := "mu-srcgen-core")
   .settings(
     libraryDependencies ++= Seq(
-      "org.typelevel"        %% "cats-core"                % "2.9.0",
+      "org.typelevel"        %% "cats-core"                % "2.10.0",
       "com.julianpeeters"    %% "avrohugger-core"          % "1.5.1",
       "com.thesamet.scalapb" %% "compilerplugin"           % "0.11.13",
       "com.thesamet.scalapb" %% "scalapb-validate-codegen" % "0.3.4",
