@@ -17,7 +17,7 @@ lazy val core = project
       "com.julianpeeters"    %% "avrohugger-core"          % "1.6.0",
       "com.thesamet.scalapb" %% "compilerplugin"           % "0.11.13",
       "com.thesamet.scalapb" %% "scalapb-validate-codegen" % "0.3.4",
-      "org.scalameta"        %% "scalameta"                % "4.7.6",
+      "org.scalameta"        %% "scalameta"                % "4.8.11",
       "ch.epfl.scala"        %% "scalafix-core"            % "0.11.1",
       "ch.epfl.scala"        %% "scalafix-cli"             % "0.11.1" cross CrossVersion.full,
       "ch.epfl.scala"         % "scalafix-interfaces"      % "0.11.1",
