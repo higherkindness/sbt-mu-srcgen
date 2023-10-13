@@ -191,9 +191,7 @@ class CompanionObjectGenerator(
     def _bindService[F[_]](
       compressionType: _root_.higherkindness.mu.rpc.protocol.CompressionType
     )(
-      $implicitOrUsingCE, ${implicitOrUsing(
-        param"algebra: $serviceTypeName[F]"
-      )}
+      $implicitOrUsingCE, ${param"algebra: $serviceTypeName[F]"}
     ): _root_.cats.effect.Resource[F, _root_.io.grpc.ServerServiceDefinition] =
       _root_.cats.effect.std.Dispatcher.parallel[F].evalMap { disp =>
         _root_.higherkindness.mu.rpc.internal.service.GRPCServiceDefBuilder.build[F](
@@ -211,9 +209,10 @@ class CompanionObjectGenerator(
     }
 
     q"""
-    def bindService[F[_]]($implicitOrUsingCE, ${implicitOrUsing(
-        param"algebra: $serviceTypeName[F]"
-      )}): _root_.cats.effect.Resource[F, _root_.io.grpc.ServerServiceDefinition] =
+    def bindService[F[_]](
+      $implicitOrUsingCE,
+      ${param"algebra: $serviceTypeName[F]"}
+    ): _root_.cats.effect.Resource[F, _root_.io.grpc.ServerServiceDefinition] =
       _bindService[F]($compression)
     """
   }
@@ -271,10 +270,8 @@ class CompanionObjectGenerator(
       compressionType: _root_.higherkindness.mu.rpc.protocol.CompressionType
     )(
       $implicitOrUsingCE,
-      ${implicitOrUsing(
-        param"serverContext: _root_.higherkindness.mu.rpc.internal.context.ServerContext[F, Context]"
-      )},
-      ${implicitOrUsing(param"algebra: $serviceTypeName[$kleisliTypeLambda]")}
+      ${param"serverContext: _root_.higherkindness.mu.rpc.internal.context.ServerContext[F, Context]"},
+      ${param"algebra: $serviceTypeName[$kleisliTypeLambda]"}
     ): _root_.cats.effect.Resource[F, _root_.io.grpc.ServerServiceDefinition] =
       _root_.cats.effect.std.Dispatcher.parallel[F].evalMap { disp =>
         _root_.higherkindness.mu.rpc.internal.service.GRPCServiceDefBuilder.build[F](
@@ -294,10 +291,8 @@ class CompanionObjectGenerator(
     q"""
     def bindContextService[F[_], Context](
         $implicitOrUsingCE,
-        ${implicitOrUsing(
-        param"serverContext: _root_.higherkindness.mu.rpc.internal.context.ServerContext[F, Context]"
-      )},
-        ${implicitOrUsing(param"algebra: $serviceTypeName[$kleisliTypeLambda]")}
+        ${param"serverContext: _root_.higherkindness.mu.rpc.internal.context.ServerContext[F, Context]"},
+        ${param"algebra: $serviceTypeName[$kleisliTypeLambda]"}
     ): _root_.cats.effect.Resource[F, _root_.io.grpc.ServerServiceDefinition] =
       _bindContextService[F, Context]($compression)
     """
@@ -494,9 +489,7 @@ class CompanionObjectGenerator(
       options: _root_.io.grpc.CallOptions = _root_.io.grpc.CallOptions.DEFAULT
     )(
       $implicitOrUsingCE,
-      ${implicitOrUsing(
-        param"clientContext: _root_.higherkindness.mu.rpc.internal.context.ClientContext[F, Context]"
-      )}
+      ${param"clientContext: _root_.higherkindness.mu.rpc.internal.context.ClientContext[F, Context]"}
     ) extends _root_.io.grpc.stub.AbstractStub[ContextClient[F, Context]](channel, options)
       with ($serviceTypeName[$kleisliTypeLambda]) {
 
@@ -520,9 +513,7 @@ class CompanionObjectGenerator(
       options: _root_.io.grpc.CallOptions = _root_.io.grpc.CallOptions.DEFAULT
     )(
       $implicitOrUsingCE,
-      ${implicitOrUsing(
-        param"clientContext: _root_.higherkindness.mu.rpc.internal.context.ClientContext[F, Context]"
-      )}
+      ${param"clientContext: _root_.higherkindness.mu.rpc.internal.context.ClientContext[F, Context]"}
     ): _root_.cats.effect.Resource[F, $serviceTypeName[$kleisliTypeLambda]] =
       _root_.cats.effect.Resource.make(
         new _root_.higherkindness.mu.rpc.channel.ManagedChannelInterpreter[F](channelFor, channelConfigList).build
@@ -540,9 +531,7 @@ class CompanionObjectGenerator(
       options: _root_.io.grpc.CallOptions = _root_.io.grpc.CallOptions.DEFAULT
     )(
       $implicitOrUsingCE,
-      ${implicitOrUsing(
-        param"clientContext: _root_.higherkindness.mu.rpc.internal.context.ClientContext[F, Context]"
-      )}
+      ${param"clientContext: _root_.higherkindness.mu.rpc.internal.context.ClientContext[F, Context]"}
     ): _root_.cats.effect.Resource[F, $serviceTypeName[$kleisliTypeLambda]] =
       _root_.cats.effect.Resource.make(channel)(
         (channel) => CE.void(CE.delay(channel.shutdown()))
@@ -560,9 +549,7 @@ class CompanionObjectGenerator(
       options: _root_.io.grpc.CallOptions = _root_.io.grpc.CallOptions.DEFAULT
     )(
       $implicitOrUsingCE,
-      ${implicitOrUsing(
-        param"clientContext: _root_.higherkindness.mu.rpc.internal.context.ClientContext[F, Context]"
-      )}
+      ${param"clientContext: _root_.higherkindness.mu.rpc.internal.context.ClientContext[F, Context]"}
     ): $serviceTypeName[$kleisliTypeLambda] = {
       val managedChannelInterpreter = new _root_.higherkindness.mu.rpc.channel.ManagedChannelInterpreter[F](channelFor, channelConfigList).unsafeBuild(disp)
       new ContextClient[F, Context](managedChannelInterpreter, options)
@@ -576,9 +563,7 @@ class CompanionObjectGenerator(
       options: _root_.io.grpc.CallOptions = _root_.io.grpc.CallOptions.DEFAULT
     )(
       $implicitOrUsingCE,
-      ${implicitOrUsing(
-        param"clientContext: _root_.higherkindness.mu.rpc.internal.context.ClientContext[F, Context]"
-      )}
+      ${param"clientContext: _root_.higherkindness.mu.rpc.internal.context.ClientContext[F, Context]"}
     ): $serviceTypeName[$kleisliTypeLambda] =
       new ContextClient[F, Context](channel, options)
     """
