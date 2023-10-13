@@ -45,14 +45,16 @@ class ReplaceShapelessTaggedDecimal extends SyntacticRule("ReplaceShapelessTagge
     doc.tree.collect {
       // format: off
 
-      case t @ Type.Apply(
+      case t @ Type.Apply.After_4_6_0(
         t"@@",
-        List(
-          t"scala.math.BigDecimal",
-          Type.Tuple(
-            List(
-              Type.Select(_, precisionNat),
-              Type.Select(_, scaleNat)
+        Type.ArgClause(
+          List(
+            t"scala.math.BigDecimal",
+            Type.Tuple(
+              List(
+                Type.Select(_, precisionNat),
+                Type.Select(_, scaleNat)
+              )
             )
           )
         )
@@ -61,14 +63,16 @@ class ReplaceShapelessTaggedDecimal extends SyntacticRule("ReplaceShapelessTagge
         val scale = scaleNat.value.stripPrefix("_").toInt
         Patch.replaceTree(t, taggedDecimalType(precision, scale))
 
-      case t @ Type.Apply(
+      case t @ Type.Apply.After_4_6_0(
         t"@@",
-        List(
-          t"scala.math.BigDecimal",
-          Type.Tuple(
-            List(
-              Type.Tuple(Type.Select(_, precisionNat1) :: Type.Select(_, precisionNat2) :: Nil),
-              Type.Select(_, scaleNat)
+        Type.ArgClause(
+          List(
+            t"scala.math.BigDecimal",
+            Type.Tuple(
+              List(
+                Type.Tuple(Type.Select(_, precisionNat1) :: Type.Select(_, precisionNat2) :: Nil),
+                Type.Select(_, scaleNat)
+              )
             )
           )
         )
@@ -77,14 +81,16 @@ class ReplaceShapelessTaggedDecimal extends SyntacticRule("ReplaceShapelessTagge
         val scale = scaleNat.value.stripPrefix("_").toInt
         Patch.replaceTree(t, taggedDecimalType(precision, scale))
 
-      case t @ Type.Apply(
+      case t @ Type.Apply.After_4_6_0(
         t"@@",
-        List(
-          t"scala.math.BigDecimal",
-          Type.Tuple(
-            List(
-              Type.Tuple(Type.Select(_, precisionNat1) :: Type.Select(_, precisionNat2) :: Nil),
-              Type.Tuple(Type.Select(_, scaleNat1) :: Type.Select(_, scaleNat2) :: Nil)
+        Type.ArgClause(
+          List(
+            t"scala.math.BigDecimal",
+            Type.Tuple(
+              List(
+                Type.Tuple(Type.Select(_, precisionNat1) :: Type.Select(_, precisionNat2) :: Nil),
+                Type.Tuple(Type.Select(_, scaleNat1) :: Type.Select(_, scaleNat2) :: Nil)
+              )
             )
           )
         )

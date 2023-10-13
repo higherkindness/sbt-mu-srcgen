@@ -53,11 +53,12 @@ class AddAvroOrderingAnnotations extends SyntacticRule("AddAvroOrderingAnnotatio
       case Defn.Object(
             _,
             Term.Name(objName),
-            Template(
+            Template.After_4_4_0(
               _,
               _,
               _,
-              stats
+              stats,
+              _
             )
           ) =>
         val patches = stats.zipWithIndex.map {
@@ -65,9 +66,10 @@ class AddAvroOrderingAnnotations extends SyntacticRule("AddAvroOrderingAnnotatio
                 t @ Defn.Object(
                   mods,
                   _,
-                  Template(
+                  Template.After_4_4_0(
                     _,
-                    Init(Type.Name(parentName), _, _) :: Nil,
+                    Init.After_4_6_0(Type.Name(parentName), _, _) :: Nil,
+                    _,
                     _,
                     _
                   )
