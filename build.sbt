@@ -19,7 +19,6 @@ lazy val core = project
       "com.thesamet.scalapb" %% "scalapb-validate-codegen" % "0.3.4",
       "org.scalameta"        %% "scalameta"                % "4.6.0",
       "ch.epfl.scala"        %% "scalafix-core"            % "0.11.1",
-      "ch.epfl.scala"        %% "scalafix-cli"             % "0.10.4" cross CrossVersion.full,
       "ch.epfl.scala"         % "scalafix-interfaces"      % "0.11.1",
       "org.scalatest"        %% "scalatest"                % "3.2.17"   % Test,
       "org.scalacheck"       %% "scalacheck"               % "1.17.0"   % Test,
