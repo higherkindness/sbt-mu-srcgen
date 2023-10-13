@@ -25,6 +25,12 @@ import scala.meta.contrib._
 
 class CompanionObjectGeneratorSpec extends AnyFunSpec {
 
+  def usingMod(param: Term.Param): Term.Param =
+    param.copy(mods = List(Mod.Using()))
+
+  def implicitMod(param: Term.Param): Term.Param =
+    param.copy(mods = List(Mod.Implicit()))
+
   val serviceDefn = ServiceDefn(
     name = "MyService",
     fullName = "com.foo.bar.MyService",
@@ -201,8 +207,8 @@ class CompanionObjectGeneratorSpec extends AnyFunSpec {
         def _bindService[F[_]](
           compressionType: _root_.higherkindness.mu.rpc.protocol.CompressionType
         )(
-          implicit CE: _root_.cats.effect.Async[F],
-          algebra: MyService[F]
+          ${implicitMod(param"CE: _root_.cats.effect.Async[F]")},
+          ${param"algebra: MyService[F]"}
         ): _root_.cats.effect.Resource[F, _root_.io.grpc.ServerServiceDefinition] =
           _root_.cats.effect.std.Dispatcher.parallel[F].evalMap { disp =>
             _root_.higherkindness.mu.rpc.internal.service.GRPCServiceDefBuilder.build[F](
@@ -259,13 +265,12 @@ class CompanionObjectGeneratorSpec extends AnyFunSpec {
       val tree = generator._bindService
 
       val expected = {
-        import scala.meta.dialects.Scala3
         q"""
         def _bindService[F[_]](
           compressionType: _root_.higherkindness.mu.rpc.protocol.CompressionType
         )(
-          using CE: _root_.cats.effect.Async[F],
-          algebra: MyService[F]
+          ${usingMod(param"CE: _root_.cats.effect.Async[F]")},
+          ${param"algebra: MyService[F]"}
         ): _root_.cats.effect.Resource[F, _root_.io.grpc.ServerServiceDefinition] =
           _root_.cats.effect.std.Dispatcher.parallel[F].evalMap { disp =>
             _root_.higherkindness.mu.rpc.internal.service.GRPCServiceDefBuilder.build[F](
@@ -324,8 +329,8 @@ class CompanionObjectGeneratorSpec extends AnyFunSpec {
 
       val expected = q"""
         def bindService[F[_]](
-          implicit CE: _root_.cats.effect.Async[F],
-          algebra: MyService[F]
+          ${implicitMod(param"CE: _root_.cats.effect.Async[F]")},
+          ${param"algebra: MyService[F]"}
         ): _root_.cats.effect.Resource[F, _root_.io.grpc.ServerServiceDefinition] =
           _bindService[F](_root_.higherkindness.mu.rpc.protocol.Gzip)
       """
@@ -346,11 +351,10 @@ class CompanionObjectGeneratorSpec extends AnyFunSpec {
       val tree = generator.bindService
 
       val expected = {
-        import scala.meta.dialects.Scala3
         q"""
         def bindService[F[_]](
-          using CE: _root_.cats.effect.Async[F],
-          algebra: MyService[F]
+          ${usingMod(param"CE: _root_.cats.effect.Async[F]")},
+          ${param"algebra: MyService[F]"}
         ): _root_.cats.effect.Resource[F, _root_.io.grpc.ServerServiceDefinition] =
           _bindService[F](_root_.higherkindness.mu.rpc.protocol.Gzip)
         """
@@ -375,9 +379,9 @@ class CompanionObjectGeneratorSpec extends AnyFunSpec {
         def _bindContextService[F[_], Context](
           compressionType: _root_.higherkindness.mu.rpc.protocol.CompressionType
         )(
-          implicit CE: _root_.cats.effect.Async[F],
-          serverContext: _root_.higherkindness.mu.rpc.internal.context.ServerContext[F, Context],
-          algebra: MyService[({type T[α] = _root_.cats.data.Kleisli[F, Context, α]})#T]
+          ${implicitMod(param"CE: _root_.cats.effect.Async[F]")},
+          ${param"serverContext: _root_.higherkindness.mu.rpc.internal.context.ServerContext[F, Context]"},
+          ${param"algebra: MyService[({type T[α] = _root_.cats.data.Kleisli[F, Context, α]})#T]"}
         ): _root_.cats.effect.Resource[F, _root_.io.grpc.ServerServiceDefinition] =
           _root_.cats.effect.std.Dispatcher.parallel[F].evalMap { disp =>
             _root_.higherkindness.mu.rpc.internal.service.GRPCServiceDefBuilder.build[F](
@@ -438,14 +442,13 @@ class CompanionObjectGeneratorSpec extends AnyFunSpec {
       val tree = generator._bindContextService
 
       val expected = {
-        import scala.meta.dialects.Scala3
         q"""
         def _bindContextService[F[_], Context](
           compressionType: _root_.higherkindness.mu.rpc.protocol.CompressionType
         )(
-          using CE: _root_.cats.effect.Async[F],
-          serverContext: _root_.higherkindness.mu.rpc.internal.context.ServerContext[F, Context],
-          algebra: MyService[[A] =>> _root_.cats.data.Kleisli[F, Context, A]]
+          ${usingMod(param"CE: _root_.cats.effect.Async[F]")},
+          ${param"serverContext: _root_.higherkindness.mu.rpc.internal.context.ServerContext[F, Context]"},
+          ${param"algebra: MyService[[A] =>> _root_.cats.data.Kleisli[F, Context, A]]"}
         ): _root_.cats.effect.Resource[F, _root_.io.grpc.ServerServiceDefinition] =
           _root_.cats.effect.std.Dispatcher.parallel[F].evalMap { disp =>
             _root_.higherkindness.mu.rpc.internal.service.GRPCServiceDefBuilder.build[F](
@@ -508,9 +511,9 @@ class CompanionObjectGeneratorSpec extends AnyFunSpec {
 
       val expected = q"""
         def bindContextService[F[_], Context](
-          implicit CE: _root_.cats.effect.Async[F],
-          serverContext: _root_.higherkindness.mu.rpc.internal.context.ServerContext[F, Context],
-          algebra: MyService[({type T[α] = _root_.cats.data.Kleisli[F, Context, α]})#T]
+          ${implicitMod(param"CE: _root_.cats.effect.Async[F]")},
+          ${param"serverContext: _root_.higherkindness.mu.rpc.internal.context.ServerContext[F, Context]"},
+          ${param"algebra: MyService[({type T[α] = _root_.cats.data.Kleisli[F, Context, α]})#T]"}
         ): _root_.cats.effect.Resource[F, _root_.io.grpc.ServerServiceDefinition] =
           _bindContextService[F, Context](_root_.higherkindness.mu.rpc.protocol.Gzip)
         """
@@ -531,12 +534,11 @@ class CompanionObjectGeneratorSpec extends AnyFunSpec {
       val tree = generator.bindContextService
 
       val expected = {
-        import scala.meta.dialects.Scala3
         q"""
         def bindContextService[F[_], Context](
-          using CE: _root_.cats.effect.Async[F],
-          serverContext: _root_.higherkindness.mu.rpc.internal.context.ServerContext[F, Context],
-          algebra: MyService[[A] =>> _root_.cats.data.Kleisli[F, Context, A]]
+          ${usingMod(param"CE: _root_.cats.effect.Async[F]")},
+          ${param"serverContext: _root_.higherkindness.mu.rpc.internal.context.ServerContext[F, Context]"},
+          ${param"algebra: MyService[[A] =>> _root_.cats.data.Kleisli[F, Context, A]]"}
         ): _root_.cats.effect.Resource[F, _root_.io.grpc.ServerServiceDefinition] =
           _bindContextService[F, Context](_root_.higherkindness.mu.rpc.protocol.Gzip)
         """
@@ -562,7 +564,7 @@ class CompanionObjectGeneratorSpec extends AnyFunSpec {
           channel: _root_.io.grpc.Channel,
           options: _root_.io.grpc.CallOptions = _root_.io.grpc.CallOptions.DEFAULT
         )(
-          implicit CE: _root_.cats.effect.Async[F]
+          ${implicitMod(param"CE: _root_.cats.effect.Async[F]")}
         ) extends _root_.io.grpc.stub.AbstractStub[Client[F]](channel, options)
           with MyService[F] {
 
@@ -627,7 +629,7 @@ class CompanionObjectGeneratorSpec extends AnyFunSpec {
           channelConfigList: List[_root_.higherkindness.mu.rpc.channel.ManagedChannelConfig] = List(_root_.higherkindness.mu.rpc.channel.UsePlaintext()),
           options: _root_.io.grpc.CallOptions = _root_.io.grpc.CallOptions.DEFAULT
         )(
-          implicit CE: _root_.cats.effect.Async[F]
+          ${implicitMod(param"CE: _root_.cats.effect.Async[F]")}
         ): _root_.cats.effect.Resource[F, MyService[F]] =
           _root_.cats.effect.Resource.make(
             new _root_.higherkindness.mu.rpc.channel.ManagedChannelInterpreter[F](channelFor, channelConfigList).build
@@ -654,14 +656,13 @@ class CompanionObjectGeneratorSpec extends AnyFunSpec {
       val tree = generator.clientMethod
 
       val expected = {
-        import scala.meta.dialects.Scala3
         q"""
         def client[F[_]](
           channelFor: _root_.higherkindness.mu.rpc.ChannelFor,
           channelConfigList: List[_root_.higherkindness.mu.rpc.channel.ManagedChannelConfig] = List(_root_.higherkindness.mu.rpc.channel.UsePlaintext()),
           options: _root_.io.grpc.CallOptions = _root_.io.grpc.CallOptions.DEFAULT
         )(
-          using CE: _root_.cats.effect.Async[F]
+          ${usingMod(param"CE: _root_.cats.effect.Async[F]")}
         ): _root_.cats.effect.Resource[F, MyService[F]] =
           _root_.cats.effect.Resource.make(
             new _root_.higherkindness.mu.rpc.channel.ManagedChannelInterpreter[F](channelFor, channelConfigList).build
@@ -693,8 +694,8 @@ class CompanionObjectGeneratorSpec extends AnyFunSpec {
           channel: _root_.io.grpc.Channel,
           options: _root_.io.grpc.CallOptions = _root_.io.grpc.CallOptions.DEFAULT
         )(
-          implicit CE: _root_.cats.effect.Async[F],
-          clientContext: _root_.higherkindness.mu.rpc.internal.context.ClientContext[F, Context]
+        ${implicitMod(param"CE: _root_.cats.effect.Async[F]")},
+        ${param"clientContext: _root_.higherkindness.mu.rpc.internal.context.ClientContext[F, Context]"}
         ) extends _root_.io.grpc.stub.AbstractStub[ContextClient[F, Context]](channel, options)
           with MyService[({type T[α] = _root_.cats.data.Kleisli[F, Context, α]})#T] {
 
@@ -754,14 +755,13 @@ class CompanionObjectGeneratorSpec extends AnyFunSpec {
       val tree = generator.contextClientClass
 
       val expected = {
-        import scala.meta.dialects.Scala3
         q"""
         class ContextClient[F[_], Context](
           channel: _root_.io.grpc.Channel,
           options: _root_.io.grpc.CallOptions = _root_.io.grpc.CallOptions.DEFAULT
         )(
-          using CE: _root_.cats.effect.Async[F],
-          clientContext: _root_.higherkindness.mu.rpc.internal.context.ClientContext[F, Context]
+          ${usingMod(param"CE: _root_.cats.effect.Async[F]")},
+          ${param"clientContext: _root_.higherkindness.mu.rpc.internal.context.ClientContext[F, Context]"}
         ) extends _root_.io.grpc.stub.AbstractStub[ContextClient[F, Context]](channel, options)
           with MyService[[A] =>> _root_.cats.data.Kleisli[F, Context, A]] {
 
@@ -827,8 +827,8 @@ class CompanionObjectGeneratorSpec extends AnyFunSpec {
           channelConfigList: List[_root_.higherkindness.mu.rpc.channel.ManagedChannelConfig] = List(_root_.higherkindness.mu.rpc.channel.UsePlaintext()),
           options: _root_.io.grpc.CallOptions = _root_.io.grpc.CallOptions.DEFAULT
         )(
-          implicit CE: _root_.cats.effect.Async[F],
-          clientContext: _root_.higherkindness.mu.rpc.internal.context.ClientContext[F, Context]
+          ${implicitMod(param"CE: _root_.cats.effect.Async[F]")},
+          ${param"clientContext: _root_.higherkindness.mu.rpc.internal.context.ClientContext[F, Context]"}
         ): _root_.cats.effect.Resource[F, MyService[({type T[α] = _root_.cats.data.Kleisli[F, Context, α]})#T]] =
           _root_.cats.effect.Resource.make(
             new _root_.higherkindness.mu.rpc.channel.ManagedChannelInterpreter[F](channelFor, channelConfigList).build
@@ -862,8 +862,8 @@ class CompanionObjectGeneratorSpec extends AnyFunSpec {
           channelConfigList: List[_root_.higherkindness.mu.rpc.channel.ManagedChannelConfig] = List(_root_.higherkindness.mu.rpc.channel.UsePlaintext()),
           options: _root_.io.grpc.CallOptions = _root_.io.grpc.CallOptions.DEFAULT
         )(
-          using CE: _root_.cats.effect.Async[F],
-          clientContext: _root_.higherkindness.mu.rpc.internal.context.ClientContext[F, Context]
+          ${usingMod(param"CE: _root_.cats.effect.Async[F]")},
+          ${param"clientContext: _root_.higherkindness.mu.rpc.internal.context.ClientContext[F, Context]"}
         ): _root_.cats.effect.Resource[F, MyService[[A] =>> _root_.cats.data.Kleisli[F, Context, A]]] =
           _root_.cats.effect.Resource.make(
             new _root_.higherkindness.mu.rpc.channel.ManagedChannelInterpreter[F](channelFor, channelConfigList).build
@@ -886,11 +886,11 @@ class CompanionObjectGeneratorSpec extends AnyFunSpec {
     if (!equal) {
       println("Actual:")
       println(actual.syntax)
-      // println(actual.structure)
+//      println(actual.structure.grouped(90).toList.mkString("\n"))
       println("----")
       println("Expected:")
       println(expected.syntax)
-      // println(expected.structure)
+//      println(expected.structure.grouped(90).toList.mkString("\n"))
     }
 
     assert(equal)
