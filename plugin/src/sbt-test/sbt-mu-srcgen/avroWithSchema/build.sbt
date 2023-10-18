@@ -1,6 +1,6 @@
 version            := sys.props("version")
-scalaVersion       := "2.13.10"
-crossScalaVersions := List(scalaVersion.value, "3.2.0")
+scalaVersion       := "2.13.12"
+crossScalaVersions := List(scalaVersion.value, "3.3.1")
 
 enablePlugins(SrcGenPlugin)
 
