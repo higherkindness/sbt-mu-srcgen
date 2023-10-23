@@ -25,6 +25,7 @@ These are the people that have contributed to the _sbt-mu-srcgen_ project:
 - [![naree](https://avatars.githubusercontent.com/u/4437502?v=4&s=20) **naree**](https://github.com/naree)
 - [![L-Lavigne](https://avatars.githubusercontent.com/u/36058023?v=4&s=20) **L-Lavigne**](https://github.com/L-Lavigne)
 - [![BenFradet](https://avatars.githubusercontent.com/u/1737211?v=4&s=20) **BenFradet**](https://github.com/BenFradet)
+- [![dagmendez](https://avatars.githubusercontent.com/u/103842788?v=4&s=20) **dagmendez**](https://github.com/dagmendez)
 - [![dmarticus](https://avatars.githubusercontent.com/u/4853149?v=4&s=20) **dmarticus**](https://github.com/dmarticus)
 - [![sloshy](https://avatars.githubusercontent.com/u/427237?v=4&s=20) **sloshy**](https://github.com/sloshy)
 - [![franciscodr](https://avatars.githubusercontent.com/u/1200151?v=4&s=20) **franciscodr**](https://github.com/franciscodr)

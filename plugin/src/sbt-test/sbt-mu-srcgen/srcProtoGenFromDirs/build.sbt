@@ -6,7 +6,7 @@ lazy val root = project
   .in(file("."))
   .enablePlugins(SrcGenPlugin)
   .settings(
-    crossScalaVersions := Seq("2.13.10", "3.2.0"),
+    crossScalaVersions := Seq("2.13.12", "3.3.1"),
     muSrcGenIdlType    := IdlType.Proto,
     muSrcGenTargetDir  := (Compile / sourceManaged).value / "compiled_proto",
     libraryDependencies ++= Seq(

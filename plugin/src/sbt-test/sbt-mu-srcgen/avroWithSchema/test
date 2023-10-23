@@ -3,16 +3,16 @@ $ exists src/main/resources/service.avdl
 > 'set muSrcGenSerializationType := higherkindness.mu.rpc.srcgen.Model.SerializationType.Avro'
 > +muSrcGen
 $ exists target/scala-2.13/src_managed/main/io/higherkindness/MyService.scala
-$ exists target/scala-3.2.0/src_managed/main/io/higherkindness/MyService.scala
+$ exists target/scala-3.3.1/src_managed/main/io/higherkindness/MyService.scala
 > +compile
 $ delete target/scala-2.13/src_managed/main/io/higherkindness/MyService.scala
-$ delete target/scala-3.2.0/src_managed/main/io/higherkindness/MyService.scala
+$ delete target/scala-3.3.1/src_managed/main/io/higherkindness/MyService.scala
 
 > 'set muSrcGenSerializationType := higherkindness.mu.rpc.srcgen.Model.SerializationType.AvroWithSchema'
 > +muSrcGen
 $ exists target/scala-2.13/src_managed/main/io/higherkindness/MyService.scala
-$ exists target/scala-3.2.0/src_managed/main/io/higherkindness/MyService.scala
+$ exists target/scala-3.3.1/src_managed/main/io/higherkindness/MyService.scala
 $ must-mirror target/scala-2.13/src_managed/main/io/higherkindness/MyService.scala expected/scala-2/MyService.scala.txt
-$ must-mirror target/scala-3.2.0/src_managed/main/io/higherkindness/MyService.scala expected/scala-3/MyService.scala.txt
+$ must-mirror target/scala-3.3.1/src_managed/main/io/higherkindness/MyService.scala expected/scala-3/MyService.scala.txt
 > +compile
 > +compile

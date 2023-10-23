@@ -17,6 +17,7 @@
 package higherkindness.mu.rpc.srcgen.proto
 
 import cats.syntax.either._
+import com.google.protobuf.compiler.PluginProtos.CodeGeneratorResponse
 import com.google.protobuf.ExtensionRegistry
 import protocgen.{CodeGenApp, CodeGenRequest, CodeGenResponse}
 import scalapb.compiler.{DescriptorImplicits, GeneratorParams}
@@ -52,7 +53,7 @@ object MuServiceGenerator extends CodeGenApp {
             printer = new MuServicePrinter(service, muServiceParams, implicits)
           } yield printer.result
 
-        CodeGenResponse.succeed(results)
+        CodeGenResponse.succeed(results, Set(CodeGeneratorResponse.Feature.FEATURE_PROTO3_OPTIONAL))
       case Left(error) =>
         CodeGenResponse.fail(error)
     }

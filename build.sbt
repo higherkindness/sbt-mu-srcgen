@@ -14,10 +14,10 @@ lazy val core = project
   .settings(
     libraryDependencies ++= Seq(
       "org.typelevel"        %% "cats-core"                % "2.10.0",
-      "com.julianpeeters"    %% "avrohugger-core"          % "1.6.0",
+      "com.julianpeeters"    %% "avrohugger-core"          % "1.7.0",
       "com.thesamet.scalapb" %% "compilerplugin"           % "0.11.14",
       "com.thesamet.scalapb" %% "scalapb-validate-codegen" % "0.3.4",
-      "org.scalameta"        %% "scalameta"                % "4.8.11",
+      "org.scalameta"        %% "scalameta"                % "4.8.12",
       "ch.epfl.scala"        %% "scalafix-core"            % "0.11.1",
       "ch.epfl.scala"        %% "scalafix-cli"             % "0.11.1" cross CrossVersion.full,
       "ch.epfl.scala"         % "scalafix-interfaces"      % "0.11.1",
@@ -38,7 +38,7 @@ lazy val core = project
     )
   )
 
-val muV = "0.30.3"
+val muV = "0.31.0"
 lazy val plugin = project
   .dependsOn(core)
   .settings(moduleName := "sbt-mu-srcgen")
