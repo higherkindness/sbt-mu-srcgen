@@ -14,7 +14,7 @@ lazy val core = project
   .settings(
     libraryDependencies ++= Seq(
       "org.typelevel"        %% "cats-core"                % "2.10.0",
-      "com.julianpeeters"    %% "avrohugger-core"          % "1.7.0",
+      "com.julianpeeters"    %% "avrohugger-core"          % "2.8.0",
       "com.thesamet.scalapb" %% "compilerplugin"           % "0.11.14",
       "com.thesamet.scalapb" %% "scalapb-validate-codegen" % "0.3.4",
       "org.scalameta"        %% "scalameta"                % "4.8.12",
