@@ -44,7 +44,7 @@ lazy val plugin = project
   .settings(moduleName := "sbt-mu-srcgen")
   .enablePlugins(SbtPlugin)
   .settings(
-    addSbtPlugin("com.thesamet" % "sbt-protoc" % "1.0.6"),
+    addSbtPlugin("com.thesamet" % "sbt-protoc" % "1.0.7"),
     scriptedLaunchOpts ++= Seq(
       "-Xmx2048M",
       "-XX:ReservedCodeCacheSize=256m",
