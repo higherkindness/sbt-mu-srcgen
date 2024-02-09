@@ -21,7 +21,7 @@ lazy val core = project
       "ch.epfl.scala"        %% "scalafix-core"            % "0.11.1",
       "ch.epfl.scala"        %% "scalafix-cli"             % "0.11.1" cross CrossVersion.full,
       "ch.epfl.scala"         % "scalafix-interfaces"      % "0.11.1",
-      "org.scalatest"        %% "scalatest"                % "3.2.17"   % Test,
+      "org.scalatest"        %% "scalatest"                % "3.2.18"   % Test,
       "org.scalacheck"       %% "scalacheck"               % "1.17.0"   % Test,
       "org.scalatestplus"    %% "scalacheck-1-16"          % "3.2.14.0" % Test,
       "org.slf4j"             % "slf4j-nop"                % "2.0.12"   % Test,
