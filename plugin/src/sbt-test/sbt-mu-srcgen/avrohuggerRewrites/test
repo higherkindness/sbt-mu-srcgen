@@ -1,7 +1,7 @@
 $ exists src/main/resources/model.avdl
 > +muSrcGen
 $ exists target/scala-2.13/src_managed/main/foo/model.scala
-$ exists target/scala-3.3.1/src_managed/main/foo/model.scala
+$ exists target/scala-3.4.1/src_managed/main/foo/model.scala
 $ must-mirror target/scala-2.13/src_managed/main/foo/model.scala expected/scala-2/model.scala.txt
-$ must-mirror target/scala-3.3.1/src_managed/main/foo/model.scala expected/scala-3/model.scala.txt
+$ must-mirror target/scala-3.4.1/src_managed/main/foo/model.scala expected/scala-3/model.scala.txt
 > +compile

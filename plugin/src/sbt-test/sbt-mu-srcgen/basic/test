@@ -1,5 +1,5 @@
 $ exists src/main/resources/model.avdl
 > +muSrcGen
 $ exists target/scala-2.13/src_managed/main/foo/model.scala
-$ exists target/scala-3.3.1/src_managed/main/foo/model.scala
+$ exists target/scala-3.4.1/src_managed/main/foo/model.scala
 > +compile

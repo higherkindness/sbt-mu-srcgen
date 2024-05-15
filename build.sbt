@@ -16,7 +16,7 @@ lazy val core = project
       "org.typelevel"        %% "cats-core"                % "2.10.0",
       "com.julianpeeters"    %% "avrohugger-core"          % "2.8.3",
       "com.thesamet.scalapb" %% "compilerplugin"           % "0.11.15",
-      "com.thesamet.scalapb" %% "scalapb-validate-codegen" % "0.3.4",
+      "com.thesamet.scalapb" %% "scalapb-validate-codegen" % "0.3.5",
       "org.scalameta"        %% "scalameta"                % "4.9.4",
       "ch.epfl.scala"        %% "scalafix-core"            % "0.12.1",
       "ch.epfl.scala"        %% "scalafix-cli"             % "0.12.1" cross CrossVersion.full,
@@ -38,7 +38,7 @@ lazy val core = project
     )
   )
 
-val muV = "0.31.1"
+val muV = "0.32.0"
 lazy val plugin = project
   .dependsOn(core)
   .settings(moduleName := "sbt-mu-srcgen")

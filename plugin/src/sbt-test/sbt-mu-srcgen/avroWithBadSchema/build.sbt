@@ -1,5 +1,5 @@
 version      := sys.props("version")
-scalaVersion := "2.13.12"
+scalaVersion := "2.13.14"
 
 enablePlugins(SrcGenPlugin)
 
