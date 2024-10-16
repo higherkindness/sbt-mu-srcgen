@@ -1,4 +1,4 @@
-ThisBuild / scalaVersion       := "2.12.19"
+ThisBuild / scalaVersion       := "2.12.20"
 ThisBuild / organization       := "io.higherkindness"
 ThisBuild / githubOrganization := "47deg"
 
@@ -18,9 +18,9 @@ lazy val core = project
       "com.thesamet.scalapb" %% "compilerplugin"           % "0.11.17",
       "com.thesamet.scalapb" %% "scalapb-validate-codegen" % "0.3.5",
       "org.scalameta"        %% "scalameta"                % "4.9.7",
-      "ch.epfl.scala"        %% "scalafix-core"            % "0.12.1",
-      "ch.epfl.scala"        %% "scalafix-cli"             % "0.12.1" cross CrossVersion.full,
-      "ch.epfl.scala"         % "scalafix-interfaces"      % "0.12.1",
+      "ch.epfl.scala"        %% "scalafix-core"            % "0.13.0",
+      "ch.epfl.scala"        %% "scalafix-cli"             % "0.13.0" cross CrossVersion.full,
+      "ch.epfl.scala"         % "scalafix-interfaces"      % "0.13.0",
       "org.scalatest"        %% "scalatest"                % "3.2.19"   % Test,
       "org.scalacheck"       %% "scalacheck"               % "1.18.0"   % Test,
       "org.scalatestplus"    %% "scalacheck-1-16"          % "3.2.14.0" % Test,
