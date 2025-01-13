@@ -141,12 +141,12 @@ class FileInputParser {
               protocol: Protocol,
               importedSchemaOrProtocols: List[Either[Schema, Protocol]]
           ) = {
-            val imported = importedSchemaOrProtocols.flatMap(avroDef => {
+            val imported = importedSchemaOrProtocols.flatMap { avroDef =>
               avroDef match {
                 case Left(importedSchema)    => List(importedSchema)
                 case Right(importedProtocol) => importedProtocol.getTypes.asScala
               }
-            })
+            }
             val types = protocol.getTypes.asScala.toList
             val localTypes = imported.foldLeft(types) { (remaining, imported) =>
               remaining.filterNot(remainingType => remainingType == imported)
