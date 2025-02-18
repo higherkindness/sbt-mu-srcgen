@@ -8,7 +8,7 @@ lazy val root = project
   .settings(
     name            := "root",
     version         := "1.0.0",
-    scalaVersion    := "2.13.15",
+    scalaVersion    := "2.13.16",
     muSrcGenIdlType := IdlType.Avro,
     muSrcGenSourceDirs := Seq(
       (Compile / resourceDirectory).value / "domain",
